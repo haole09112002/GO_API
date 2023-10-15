@@ -32,8 +32,8 @@ public class Customer implements Serializable{
 	@Column(nullable = false)
 	private Date dateOfBirth;
 	
-	@OneToOne(mappedBy = "customer")
-	private User user;
+//	@OneToOne(mappedBy = "customer")
+//	private User user;
 	
 	@OneToMany(mappedBy = "customer")
 	private List<FavouritePlace> favourites = new ArrayList<>();

@@ -50,8 +50,8 @@ public class Driver implements Serializable {
 	@JoinColumn(name = "vehicle_id" , referencedColumnName = "id")
 	private VehicleType vehicle;
 	
-	@OneToOne(mappedBy = "driver")
-	private User user;
+//	@OneToOne(mappedBy = "driver")
+//	private User user;
 	
 	@OneToMany(mappedBy = "driver")
 	private List<Booking> books = new ArrayList<>();

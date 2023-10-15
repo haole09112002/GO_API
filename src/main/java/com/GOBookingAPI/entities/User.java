@@ -2,15 +2,18 @@ package com.GOBookingAPI.entities;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -29,30 +32,48 @@ public class User implements Serializable{
 	private Long id;
 	@Column(nullable =  false , columnDefinition = "varchar(50)" , unique = true)
 	private String username ;
-	@Column(nullable = false , columnDefinition = "TEXT")
+	@Column(columnDefinition = "TEXT")
 	private String password ;
-	@Column(nullable = false , columnDefinition = "varchar(50)", unique = true)
+	@Column( columnDefinition = "varchar(50)", unique = true)
 	private String email;
-	@Column(nullable = false , columnDefinition = "varchar(10)")
+	@Column(columnDefinition = "varchar(10)")
 	private String phoneNumber;
-	@Column(nullable = false )
-	private Date createDate ;
-	@Column(nullable = false)
+//	@Column(nullable = false )
+//	private Date createDate ;
+	@Column
 	private Boolean isNonBlock;
 	
 	@Column
 	private String avatarUrl;
 
-	@ManyToOne
-	@JoinColumn(name = "role_id")
-	private Role role;
-	
-	@OneToOne
-	@JoinColumn(name = "customer_id" , referencedColumnName = "id")
-	private Customer customer;
-	
-	@OneToOne
-	@JoinColumn(name = "driver_id" , referencedColumnName = "id")
-	private Driver driver;
+	@Column(name = "account_non_expired")
+    private boolean accountNonExpired;
+
+    @Column(name = "is_enabled")
+    private boolean isEnabled;
+
+    @Column(name = "account_non_locked")
+    private boolean accountNonLocked;
+
+    @Column(name = "credentials_non_expired")
+    private boolean credentialsNonExpired;
+	    
+    @Column(name = "provider_id")
+	private String providerId;
+	    
+//	@ManyToOne
+//	@JoinColumn(name = "role_id")
+//	private Set<Role> role;
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    private Set<Role> roles;
+//	@OneToOne
+//	@JoinColumn(name = "customer_id" , referencedColumnName = "id")
+//	private Customer customer;
+//	
+//	@OneToOne
+//	@JoinColumn(name = "driver_id" , referencedColumnName = "id")
+//	private Driver driver;
 	
 }

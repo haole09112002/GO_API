@@ -23,9 +23,10 @@ public class Role implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id ;
+
 	@Column(nullable = false , columnDefinition = "Varchar(30)")
-	private String roleName;
+	private String name;
 	
-	@OneToMany(mappedBy = "role")
-	private List<User> users = new ArrayList<>();
+//	@OneToMany(mappedBy = "role")
+//	private List<User> users = new ArrayList<>();
 }
