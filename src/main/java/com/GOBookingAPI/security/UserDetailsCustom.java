@@ -1,25 +1,21 @@
-package com.GOBookingAPI.services.Oauth2.Security;
+package com.GOBookingAPI.security;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
-public class OAuth2UserDetailCustom implements OAuth2User , UserDetails{
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-	private Long id;
+@NoArgsConstructor
+public class UserDetailsCustom implements UserDetails{
+
+	private String email ;
 	
-	private String username;
-	
-	private String password;
 	
 	private List<GrantedAuthority> authorities;
-	
-	private Map<String, Object> attributes;
-	
 	
 	private boolean isEnabled;
 
@@ -29,42 +25,28 @@ public class OAuth2UserDetailCustom implements OAuth2User , UserDetails{
 
     private boolean credentialsNonExpired;
     
-	public OAuth2UserDetailCustom(Long id , String username ,String password ,List<GrantedAuthority> authorities) {
-		this.id = id ;
-		this.username = username;
-		this.password = password;
+    public UserDetailsCustom(String email, List<GrantedAuthority> authorities, boolean isEnabled,
+			boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired) {
+		super();
+		this.email =email;
 		this.authorities = authorities;
+		this.isEnabled = isEnabled;
+		this.accountNonExpired = accountNonExpired;
+		this.accountNonLocked = accountNonLocked;
+		this.credentialsNonExpired = credentialsNonExpired;
 	}
-	
-
-	@Override
-	public Map<String, Object> getAttributes() {
-		return attributes;
-	}
-
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
+		
 		return authorities;
-	}
-
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return String.valueOf(id);
 	}
 
 	@Override
 	public String getPassword() {
 		// TODO Auto-generated method stub
-		return password;
+		return email;
 	}
 
-	@Override
-	public String getUsername() {
-		// TODO Auto-generated method stub
-		return username;
-	}
 
 	@Override
 	public boolean isAccountNonExpired() {
@@ -89,6 +71,12 @@ public class OAuth2UserDetailCustom implements OAuth2User , UserDetails{
 		// TODO Auto-generated method stub
 		return isEnabled;
 	}
+	@Override
+	public String getUsername() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	
+
 }

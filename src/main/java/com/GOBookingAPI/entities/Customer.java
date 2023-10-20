@@ -22,8 +22,8 @@ import lombok.Setter;
 @Entity @NoArgsConstructor @AllArgsConstructor
 @Table(name = "Customer")
 public class Customer implements Serializable{
+	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	@Column(nullable = false , columnDefinition = "Varchar(30)")
 	private String fullName ;
@@ -31,10 +31,10 @@ public class Customer implements Serializable{
 	private Boolean gender ;
 	@Column(nullable = false)
 	private Date dateOfBirth;
-	
+//	
 //	@OneToOne(mappedBy = "customer")
 //	private User user;
-	
+//	
 	@OneToMany(mappedBy = "customer")
 	private List<FavouritePlace> favourites = new ArrayList<>();
 	

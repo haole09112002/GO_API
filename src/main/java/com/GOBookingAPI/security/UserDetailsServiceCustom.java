@@ -1,4 +1,4 @@
-package com.GOBookingAPI.services.security;
+package com.GOBookingAPI.security;
 
 import java.util.stream.Collectors;
 
@@ -30,14 +30,13 @@ public class UserDetailsServiceCustom implements UserDetailsService {
 	}
 	
 	private UserDetailsCustom getUserDetails(String username) {
-		User user = userRepository.findByUsername(username);
+		User user = null;
 		
 		if(ObjectUtils.isEmpty(user)) {
 			throw new BaseException(String.valueOf(HttpStatus.BAD_REQUEST.value()), "Invalid username or password!");
 		}
 		
-		return new UserDetailsCustom(user.getUsername(),
-				user.getPassword(),
+		return new UserDetailsCustom(user.getEmail(),
 				user.getRoles().stream().map(r -> new SimpleGrantedAuthority(r.getName()))
 				.collect(Collectors.toList())
 				,user.isEnabled()

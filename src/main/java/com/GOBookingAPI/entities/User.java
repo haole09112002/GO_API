@@ -30,10 +30,6 @@ public class User implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@Column(nullable =  false , columnDefinition = "varchar(50)" , unique = true)
-	private String username ;
-	@Column(columnDefinition = "TEXT")
-	private String password ;
 	@Column( columnDefinition = "varchar(50)", unique = true)
 	private String email;
 	@Column(columnDefinition = "varchar(10)")
@@ -58,8 +54,6 @@ public class User implements Serializable{
     @Column(name = "credentials_non_expired")
     private boolean credentialsNonExpired;
 	    
-    @Column(name = "provider_id")
-	private String providerId;
 	    
 //	@ManyToOne
 //	@JoinColumn(name = "role_id")

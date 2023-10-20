@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CustomerController {
 	@GetMapping("/index")
 	public ResponseEntity<String> index(Principal principal){
-		return ResponseEntity.ok("Welcome to admin page : " + principal.getName());
+		return ResponseEntity.ok("Welcome to customer page : " + principal.getName());
 	}
 }

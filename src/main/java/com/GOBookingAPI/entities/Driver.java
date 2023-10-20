@@ -25,7 +25,6 @@ import lombok.Setter;
 public class Driver implements Serializable {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	@Column(nullable = false , columnDefinition = "varchar(30)")
 	private String fullName ;
@@ -37,11 +36,11 @@ public class Driver implements Serializable {
 	private Date startWorkDay;
 	@Column(nullable = false , columnDefinition = "varchar(15)")
 	private String idCard;
-	@Column(nullable = false, columnDefinition = "varchar(10)")
+	@Column(columnDefinition = "varchar(10)")
 	private String licensePlate;
-	@Column(nullable = false , columnDefinition = "varchar(10)")
+	@Column( columnDefinition = "varchar(10)")
 	private String status ;
-	@Column(nullable = false, columnDefinition = "varchar(50)")
+	@Column( columnDefinition = "varchar(50)")
 	private String activityArea;
 	@Column
 	private Double rating ;
@@ -52,7 +51,7 @@ public class Driver implements Serializable {
 	
 //	@OneToOne(mappedBy = "driver")
 //	private User user;
-	
+//	
 	@OneToMany(mappedBy = "driver")
 	private List<Booking> books = new ArrayList<>();
 	
