@@ -3,6 +3,8 @@ package com.GOBookingAPI.entities;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,6 +40,7 @@ public class Payment implements Serializable{
 	private Customer customer;
 	
 	@OneToOne
+	@JsonIgnore
 	@JoinColumn(name = "booking_id" , referencedColumnName = "id")
 	private Booking booking;
 }

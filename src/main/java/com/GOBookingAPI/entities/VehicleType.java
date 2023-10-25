@@ -25,7 +25,7 @@ public class VehicleType implements Serializable{
 	private int id;
 	@Column(nullable = false , columnDefinition = "varchar(30)")
 	private String name;
-	
-	@OneToOne(mappedBy = "vehicle")
-	private Driver driver;
+//	
+//	@OneToOne(mappedBy = "vehicle")
+//	private Driver driver;
 }

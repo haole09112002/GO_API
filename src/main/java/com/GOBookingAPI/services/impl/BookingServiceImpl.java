@@ -1,9 +1,12 @@
 package com.GOBookingAPI.services.impl;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Booking;
+import com.GOBookingAPI.entities.Customer;
 import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.payload.request.BookingResquest;
 import com.GOBookingAPI.payload.response.BookingResponse;
@@ -29,10 +32,27 @@ public class BookingServiceImpl implements IBookingService{
 	@Autowired
 	private DriverRepository driverRepository;
 	
+	@Autowired
+	private VehicleRepository vehicleRepository;
 	@Override
-	public BookingResponse createBooking(BookingResquest req, UserSecurity userSecurity) {
+	public Booking createBooking(BookingResquest req) {
 		try {
-			return null ;
+			
+			Customer customer = customerRepository.findById(req.getCustomerId());
+			Driver driver = driverRepository.findById(req.getDriverId());
+			
+			Booking booking = new Booking();
+			
+			booking.setCustomer(customer);
+			booking.setDriver(driver);
+			booking.setStatus(req.getStatus());
+			booking.setPickupLocation(req.getPickUpLocation());
+			booking.setDropoffLocation(req.getDropOffLocation());
+			
+			Date currentDate =new Date();
+			booking.setCreateAt(currentDate);
+			bookingRepository.save(booking);
+			return booking;
 			
 		}catch(Exception e) {
 			log.info("error in bookingService");

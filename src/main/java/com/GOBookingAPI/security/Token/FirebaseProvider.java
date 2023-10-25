@@ -42,10 +42,12 @@ implements AuthenticationProvider
 			UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
 			User user = userRepository.findByEmail(userRecord.getEmail());
 			if(user == null) {
+				System.out.print("This is Provider and provider null");
 				return new UserSecurity(userRecord ,null);
 				
 			}else {
-				return new UserSecurity(userRecord, user.getRoles().stream().map(role-> new SimpleGrantedAuthority(role.getName().toString())).collect(Collectors.toList()));
+				System.out.print("This is Provider");
+				return new UserSecurity(userRecord, user.getRoles().stream().map(role-> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
 			}
 			
 		}catch(FirebaseAuthException e) {

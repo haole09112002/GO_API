@@ -1,6 +1,5 @@
 package com.GOBookingAPI.payload.request;
 
-import com.GOBookingAPI.entities.VehicleType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,5 +20,5 @@ public class BookingResquest {
 	
 	private String dropOffLocation;
 	
-	private VehicleType vehicleType;
+	private String vehicleType;
 }

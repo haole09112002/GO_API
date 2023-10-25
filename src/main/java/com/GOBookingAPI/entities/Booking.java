@@ -1,8 +1,8 @@
 package com.GOBookingAPI.entities;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Optional;
 
 import jakarta.persistence.Column;

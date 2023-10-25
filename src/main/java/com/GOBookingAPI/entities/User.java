@@ -29,7 +29,7 @@ public class User implements Serializable{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private int id;
 	@Column( columnDefinition = "varchar(50)", unique = true)
 	private String email;
 	@Column(columnDefinition = "varchar(10)")
@@ -55,19 +55,15 @@ public class User implements Serializable{
     private boolean credentialsNonExpired;
 	    
 	    
-//	@ManyToOne
-//	@JoinColumn(name = "role_id")
-//	private Set<Role> role;
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Set<Role> roles;
-//	@OneToOne
-//	@JoinColumn(name = "customer_id" , referencedColumnName = "id")
-//	private Customer customer;
-//	
-//	@OneToOne
-//	@JoinColumn(name = "driver_id" , referencedColumnName = "id")
-//	private Driver driver;
+	
+	@OneToOne(mappedBy = "user")
+	private Customer customer;
+	
+	@OneToOne(mappedBy = "user")
+	private Driver driver;
 	
 }

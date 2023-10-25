@@ -24,7 +24,7 @@ public class FirebaseFilter extends OncePerRequestFilter {
 		String token = getToken(req);
 		try {
 			if(token != null) {
-//				System.out.println("Filter  "+token);
+				System.out.println("this is Filter  ");
 				SecurityContextHolder.getContext().setAuthentication(new TokenSecurity(token));
 			}
 		}catch(Exception e) {

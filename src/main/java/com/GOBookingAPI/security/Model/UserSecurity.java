@@ -64,7 +64,7 @@ public class UserSecurity implements Authentication{
 	@Override
 	public boolean isAuthenticated() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override

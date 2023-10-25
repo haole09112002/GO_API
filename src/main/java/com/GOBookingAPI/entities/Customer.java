@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -29,21 +31,28 @@ public class Customer implements Serializable{
 	private String fullName ;
 	@Column(nullable = false)
 	private Boolean gender ;
-	@Column(nullable = false)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+	@Column
 	private Date dateOfBirth;
-//	
-//	@OneToOne(mappedBy = "customer")
-//	private User user;
-//	
+	
+	@OneToOne
+	@JoinColumn(name = "user_id" , referencedColumnName = "id")
+	@JsonIgnore
+	private User user;
+	
 	@OneToMany(mappedBy = "customer")
+	@JsonIgnore
 	private List<FavouritePlace> favourites = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "customer")
+	@JsonIgnore
 	private List<Payment> payments = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "customer")
+	@JsonIgnore
 	private List<Booking> books = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "customer")
+	@JsonIgnore
 	private List<Conservation> convervations = new ArrayList<>();
 }

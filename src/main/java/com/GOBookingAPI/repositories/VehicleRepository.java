@@ -7,5 +7,5 @@ import com.GOBookingAPI.entities.VehicleType;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<VehicleType, Integer>{
-	VehicleType findById(int id);
+	VehicleType findByName(String name);
 }

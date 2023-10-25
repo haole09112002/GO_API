@@ -18,7 +18,9 @@ import com.GOBookingAPI.entities.User;
 public class AdminController {
 
 	@GetMapping("/get")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<String> index(Principal principal){
+		System.out.print(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
 		return ResponseEntity.ok("Welcome to admin page : ");
 	}
 }
