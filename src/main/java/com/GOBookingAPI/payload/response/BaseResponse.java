@@ -1,15 +1,21 @@
 package com.GOBookingAPI.payload.response;
 
-import com.GOBookingAPI.entities.Booking;
-
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class BookingResponse {
+@NoArgsConstructor
+@Builder
+public class BaseResponse<T> {
 
-	private Booking booking;
+	private String code ;
+	
+	private T data;
+	
+	private String message;
+
+	
 }

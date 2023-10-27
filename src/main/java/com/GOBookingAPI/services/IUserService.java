@@ -5,11 +5,12 @@ import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.payload.request.DriverRequest;
+import com.GOBookingAPI.payload.response.BaseResponse;
 
 public interface IUserService {
-	User loadUserbyEmail(String email);
+	BaseResponse<User> loadUserbyEmail(String email);
 	
-	Customer registerCustomer(CustomerRequest customerRequest);
+	BaseResponse<Customer> registerCustomer(CustomerRequest customerRequest);
 	
-	Driver registerDriver(DriverRequest driverRequest);
+	BaseResponse<Driver> registerDriver(DriverRequest driverRequest);
 }

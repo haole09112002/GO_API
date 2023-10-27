@@ -35,6 +35,6 @@ public class Review implements Serializable {
 	
 	
 	@OneToOne
-	@JoinColumn(name = "review_id" , referencedColumnName = "id")
+	@JoinColumn(name = "booking_id" , referencedColumnName = "id")
 	private Booking booking;
 }

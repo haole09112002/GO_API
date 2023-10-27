@@ -37,9 +37,9 @@ public class Booking implements Serializable {
 	@Column(nullable = false, columnDefinition = "varchar(30)")
 	private String status;
 	@Column
-	private Timestamp startTime;
+	private Date startTime;
 	@Column
-	private Timestamp endTime;
+	private Date endTime;
 	
 	@ManyToOne
 	@JoinColumn(name = "customer_id")

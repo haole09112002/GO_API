@@ -9,7 +9,7 @@ import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.Customer;
 import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.payload.request.BookingResquest;
-import com.GOBookingAPI.payload.response.BookingResponse;
+import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.CustomerRepository;
 import com.GOBookingAPI.repositories.DriverRepository;
@@ -57,6 +57,24 @@ public class BookingServiceImpl implements IBookingService{
 		}catch(Exception e) {
 			log.info("error in bookingService");
 			return null;
+		}
+	}
+	@Override
+	public BaseResponse<Booking> Confirm(int id) {
+		try {
+			Booking booking = bookingRepository.findById(id);
+			if(booking != null) {
+				Date curentlydate = new Date();
+				booking.setStartTime(curentlydate);
+				bookingRepository.save(booking);
+				return new BaseResponse<Booking>("200" , booking ,"Confirm Success");
+			}else {
+				return new BaseResponse<Booking>("200" , null, "Confirm fail!");
+			}
+			
+		}catch(Exception e) {
+			log.info("error in Booking Service");
+			return null ;
 		}
 	}
 

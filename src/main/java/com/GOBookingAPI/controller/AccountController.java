@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.payload.request.DriverRequest;
+import com.GOBookingAPI.payload.response.BaseResponse;
 //import com.GOBookingAPI.services.UserService;
 import com.GOBookingAPI.services.IUserService;
 
@@ -35,11 +36,11 @@ public class AccountController {
 		return ResponseEntity.ok(userService.registerDriver(driverRequest));
 	}
 	
-	@GetMapping("/get-info")
+	@GetMapping("/login")
 	public ResponseEntity<?> Test(){
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		System.out.print(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
-		User user = userService.loadUserbyEmail(email);
+		BaseResponse<User> user = userService.loadUserbyEmail(email);
 		return ResponseEntity.ok(user);
 	}
 	
