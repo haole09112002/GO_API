@@ -9,24 +9,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DriverRequest {
-
-	private String Role;
-
-	private String email;
 	
 	private String avatar;
 	
 	private String phoneNumber;
-	
-	private Boolean isNonBlock;
 	
 	private Date dateOfBirth;
 	
 	private String fullName;
 	
 	private Boolean gender;
-	
-	private String activityArea; 
 	
 	private String idCard;
 	

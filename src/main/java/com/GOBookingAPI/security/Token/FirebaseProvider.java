@@ -1,9 +1,14 @@
 package com.GOBookingAPI.security.Token;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.SimpMessageType;
+import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -61,6 +66,28 @@ implements AuthenticationProvider
 		return authentication.isAssignableFrom(TokenSecurity.class);
 	}
 
+//	private UserSecurity checkToken(String token) {
+//		try {
+//			TokenSecurity token = (TokenSecurity) authentication;
+//			FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(token,true);
+//			String uid = firebaseToken.getUid();
+//			UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
+//			User user = userRepository.findByEmail(userRecord.getEmail());
+//			if(user == null) {
+//				System.out.print("This is Provider and provider null");
+//				return new UserSecurity(userRecord ,null);
+//				
+//			}else {
+//				System.out.print("This is Provider");
+//				return new UserSecurity(userRecord, user.getRoles().stream().map(role-> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
+//			}
+//			
+//		}catch(FirebaseAuthException e) {
+//			log.info("Fail in Provider " , getErrorCode(e.getAuthErrorCode()));
+//			return null;
+//		}
+//	}
+	
 	private String getErrorCode(AuthErrorCode errorCode) {
 		String error;
 		switch(errorCode.toString()) {
@@ -81,4 +108,20 @@ implements AuthenticationProvider
 		}
 		return error;
 	}
+	
+//	@Override
+//	public Message<?> preSend(Message<?> message, MessageChannel channel) {
+//
+//		if(message.getHeaders().get("simpMessageType").equals(SimpMessageType.CONNECT)) {
+//			Map nativeHeaders = (Map) message.getHeaders().get("nativeHeaders");
+//			if(nativeHeaders != null) {
+//				List authenTokenList = (List) nativeHeaders.get("Authorization");
+//				if(authenTokenList != null) {
+//					String tokenHeader = (String) authenTokenList.get(0);
+//					checkToken(tokenHeader);
+//				}
+//			}
+//		}
+//		return message;
+//	}
 }

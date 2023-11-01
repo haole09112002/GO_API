@@ -36,10 +36,10 @@ public class ReviewServiceImpl implements IReviewService{
 			Date currentDate = new Date();
 			review.setCreateAt(currentDate);
 			reviewRepository.save(review);
-			return new BaseResponse<Review>("200", review, "Success");
+			return new BaseResponse<Review>( review, "Success");
 		}catch(Exception e) {
 			log.info("Error ReviewService");
-			return new BaseResponse<Review>("400", null, e.getMessage());
+			return new BaseResponse<Review>( null, e.getMessage());
 		}
 		
 	}

@@ -41,6 +41,12 @@ public class Booking implements Serializable {
 	@Column
 	private Date endTime;
 	
+	@Column
+	private String reasonType;
+	
+	@Column(columnDefinition = "text") 
+	private String contentCancel;
+	
 	@ManyToOne
 	@JoinColumn(name = "customer_id")
 	private Customer customer;

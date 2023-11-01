@@ -13,6 +13,7 @@ import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.payload.request.DriverRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
+import com.GOBookingAPI.payload.response.LoginResponse;
 //import com.GOBookingAPI.services.UserService;
 import com.GOBookingAPI.services.IUserService;
 
@@ -40,7 +41,7 @@ public class AccountController {
 	public ResponseEntity<?> Test(){
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		System.out.print(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
-		BaseResponse<User> user = userService.loadUserbyEmail(email);
+		BaseResponse<LoginResponse> user = userService.loadUserbyEmail(email);
 		return ResponseEntity.ok(user);
 	}
 	

@@ -6,9 +6,10 @@ import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.payload.request.DriverRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
+import com.GOBookingAPI.payload.response.LoginResponse;
 
 public interface IUserService {
-	BaseResponse<User> loadUserbyEmail(String email);
+	BaseResponse<LoginResponse> loadUserbyEmail(String email);
 	
 	BaseResponse<Customer> registerCustomer(CustomerRequest customerRequest);
 	

@@ -34,25 +34,13 @@ public class User implements Serializable{
 	private String email;
 	@Column(columnDefinition = "varchar(10)")
 	private String phoneNumber;
-//	@Column(nullable = false )
-//	private Date createDate ;
+	@Column
+	private Date createDate ;
 	@Column
 	private Boolean isNonBlock;
 	
-	@Column
+	@Column(columnDefinition = "text")
 	private String avatarUrl;
-
-	@Column(name = "account_non_expired")
-    private boolean accountNonExpired;
-
-    @Column(name = "is_enabled")
-    private boolean isEnabled;
-
-    @Column(name = "account_non_locked")
-    private boolean accountNonLocked;
-
-    @Column(name = "credentials_non_expired")
-    private boolean credentialsNonExpired;
 	    
 	    
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)

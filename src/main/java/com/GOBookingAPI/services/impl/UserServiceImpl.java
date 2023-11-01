@@ -1,9 +1,11 @@
 package com.GOBookingAPI.services.impl;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Customer;
@@ -14,6 +16,7 @@ import com.GOBookingAPI.entities.VehicleType;
 import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.payload.request.DriverRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
+import com.GOBookingAPI.payload.response.LoginResponse;
 import com.GOBookingAPI.repositories.CustomerRepository;
 import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.repositories.RoleRepository;
@@ -43,18 +46,35 @@ public class UserServiceImpl implements IUserService{
 	private DriverRepository driverRepository;
 	
 	@Override
-	public BaseResponse<User> loadUserbyEmail(String email) {
+	public BaseResponse<LoginResponse> loadUserbyEmail(String email) {
 		try {
 			User user = userRepository.findByEmail(email);
 			if(user == null) {
-				 return new BaseResponse<User>("200" , null ,"User not found");
+				 return new BaseResponse<LoginResponse>( new LoginResponse("unregistered" , null ) ,"User not found");
 			}else {
-				return new BaseResponse<User>("200", user , "Success");
+				String roleName ="";
+				for(Role role : user.getRoles()) {
+					roleName = role.getName();
+					break;
+				}
+				if(!user.getIsNonBlock()) {
+					return new BaseResponse<LoginResponse>(new LoginResponse("blocked" ,roleName),"User is blocked");
+				}
+				else {
+					if(roleName.equals("DRIVER")) {
+						Driver driver = driverRepository.findById(user.getId());
+						if(driver.getStatus().equals("NOACTIVE")) {
+							return new BaseResponse<LoginResponse>(new LoginResponse("uncheck" ,roleName),"Driver uncheck");
+						}
+					}
+					return new BaseResponse<LoginResponse>(new LoginResponse("registered" ,roleName),"User registered");
+					
+				}
 			}
 			
 		}catch(Exception e) {
 			log.info("Error in UserService");
-			return new BaseResponse<User>("400" ,null, e.getMessage());
+			return new BaseResponse<LoginResponse>(null, e.getMessage());
 		}
 	}
 
@@ -62,17 +82,14 @@ public class UserServiceImpl implements IUserService{
 	public BaseResponse<Customer> registerCustomer(CustomerRequest customerRequest) {
 		try {
 			User user = new User();
-			
-			user.setEmail(customerRequest.getEmail());
+			Date currentDate = new Date();
+			user.setEmail(SecurityContextHolder.getContext().getAuthentication().getName());
 			user.setAvatarUrl(customerRequest.getAvatar());
 			user.setPhoneNumber(customerRequest.getPhoneNumber());
-			user.setIsNonBlock(customerRequest.getIsNonBlock());
-			user.setAccountNonExpired(true);
-			user.setAccountNonLocked(true);
-			user.setCredentialsNonExpired(true);
-			user.setEnabled(true);
+			user.setIsNonBlock(false);
+			user.setCreateDate(currentDate);
 			Set<Role> roles = new HashSet<>();
-			roles.add(roleRepository.findByName(customerRequest.getRole()));
+			roles.add(roleRepository.findByName("CUSTOMER"));
 			user.setRoles(roles);
 			userRepository.save(user);
 			User usersaved = userRepository.findByEmail(user.getEmail());
@@ -83,10 +100,10 @@ public class UserServiceImpl implements IUserService{
 			newcustomer.setGender(customerRequest.getGender());
 			newcustomer.setUser(usersaved);
 			customerRepository.save(newcustomer);
-			return new BaseResponse<Customer>("200" , newcustomer , "Success");
+			return new BaseResponse<Customer>( null , "Success");
 		}catch(Exception e) {
 			log.info("Error Register Service!");
-			return new BaseResponse<Customer>("400" , null ,e.getMessage());
+			return new BaseResponse<Customer>( null ,e.getMessage());
 		}
 	}
 
@@ -94,23 +111,19 @@ public class UserServiceImpl implements IUserService{
 	public BaseResponse<Driver> registerDriver(DriverRequest driverRequest) {
 		try {
 			User user = new User();
-			
-			user.setEmail(driverRequest.getEmail());
+			Date currentDate = new Date();
+			user.setEmail(SecurityContextHolder.getContext().getAuthentication().getName());
 			user.setAvatarUrl(driverRequest.getAvatar());
 			user.setPhoneNumber(driverRequest.getPhoneNumber());
-			user.setIsNonBlock(driverRequest.getIsNonBlock());
-			user.setAccountNonExpired(true);
-			user.setAccountNonLocked(true);
-			user.setCredentialsNonExpired(true);
-			user.setEnabled(true);
+			user.setIsNonBlock(false);
+			user.setCreateDate(currentDate);
 			Set<Role> roles = new HashSet<>();
-			roles.add(roleRepository.findByName(driverRequest.getRole()));
+			roles.add(roleRepository.findByName("DRIVER"));
 			user.setRoles(roles);
 			userRepository.save(user);
 			User usersaved = userRepository.findByEmail(user.getEmail());
 			Driver newdriver = new Driver();
 			newdriver.setId(usersaved.getId());
-			newdriver.setActivityArea(driverRequest.getActivityArea());
 			newdriver.setDateOfBirth(driverRequest.getDateOfBirth());
 			newdriver.setFullName(driverRequest.getFullName());
 			newdriver.setGender(driverRequest.getGender());
@@ -122,10 +135,10 @@ public class UserServiceImpl implements IUserService{
 			newdriver.setStatus("NOACTIVE");
 			newdriver.setUser(usersaved);
 			driverRepository.save(newdriver);
-			return new BaseResponse<Driver>("400" , newdriver ,"Success");
+			return new BaseResponse<Driver>( null ,"Success");
 		}catch(Exception e) {
 			log.info("Error Register Service!");
-			return new BaseResponse<Driver>("400" , null ,e.getMessage());
+			return new BaseResponse<Driver>( null ,e.getMessage());
 		}
 	}
 

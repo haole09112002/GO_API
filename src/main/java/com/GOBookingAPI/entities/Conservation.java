@@ -1,10 +1,11 @@
 package com.GOBookingAPI.entities;
 
 import java.io.Serializable;
-import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import com.GOBookingAPI.utils.MesssageType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +32,7 @@ public class Conservation implements Serializable{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id ;
 	@Column
-	private Timestamp createAt;
+	private Date createAt;
 	@ManyToOne
 	@JoinColumn(name = "customer_id")
 	private Customer customer;
@@ -42,6 +43,7 @@ public class Conservation implements Serializable{
 	
 	@Column
 	private Date lastmessageTime;
+	
 	
 	
 	@OneToMany(mappedBy = "conservation")

@@ -13,7 +13,6 @@ public class GlobalException extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(BaseException.class)
 	public ResponseEntity<BaseResponse> handleBaseException(BaseException e){
 		BaseResponse response = BaseResponse.builder()
-				.code(e.getCode())
 				.message(e.getMessage())
 				.build();
 		return ResponseEntity.ok(response) ;

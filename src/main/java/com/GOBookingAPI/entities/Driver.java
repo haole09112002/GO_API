@@ -45,7 +45,7 @@ public class Driver implements Serializable {
 	private Date startWorkDay;
 	@Column(nullable = false , columnDefinition = "varchar(15)")
 	private String idCard;
-	@Column(columnDefinition = "varchar(10)")
+	@Column(columnDefinition = "text")
 	private String licensePlate;
 	@Column( columnDefinition = "varchar(10)")
 	private String status ;
