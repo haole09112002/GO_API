@@ -18,18 +18,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WebSocketEventListener {
 	
-//	private final SimpMessageSendingOperations messageTemplate;
-//	
-//	@EventListener
-//	public void handleWebSocketDisconnectLister(SessionDisconnectEvent event) {
-//		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-//		String senderId = (String) headerAccessor.getSessionAttributes().get("senderId");
-//		if(senderId != null) {
-//			log.info("User disconnected:{}" , senderId);
-//			Message message = new Message();
-//			message.setSenderId(Integer.parseInt(senderId));
-//			message.setType(MesssageType.LEAVER);
-//			messageTemplate.convertAndSend("/topic/public",message);
-//		}
-//	}
+	private final SimpMessageSendingOperations messageTemplate;
+	
+	@EventListener
+	public void handleWebSocketDisconnectLister(SessionDisconnectEvent event) {
+		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+		String senderId = (String) headerAccessor.getSessionAttributes().get("senderId");
+		if(senderId != null) {
+			log.info("User disconnected:{}" , senderId);
+			Message message = new Message();
+			message.setSenderId(Integer.parseInt(senderId));
+			message.setType(MesssageType.LEAVER);
+			messageTemplate.convertAndSend("/topic/public",message);
+		}
+	}
 }

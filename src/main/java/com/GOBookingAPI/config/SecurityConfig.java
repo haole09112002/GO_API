@@ -33,7 +33,7 @@ public class SecurityConfig {
 		
 		http.cors().and() // Kích hoạt CORS
         .csrf().disable();
-		
+		http.authorizeRequests().requestMatchers("/home/**").permitAll();
 		http.authorizeRequests().requestMatchers("/account/register").authenticated().anyRequest().authenticated();
 		http.exceptionHandling().authenticationEntryPoint(entryPoint);
 		http.addFilterBefore(new FirebaseFilter(), BasicAuthenticationFilter.class);
