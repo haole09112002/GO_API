@@ -20,14 +20,14 @@ import lombok.NoArgsConstructor;
 @Data
 public class UserSecurity implements Authentication{
 	
-	private UserRecord userRecord;
+	private User user;
 	
 	private List<GrantedAuthority> authorities;
 	
 	
-	public UserSecurity(UserRecord userRecord ,List<GrantedAuthority> authorities) {
+	public UserSecurity(User user ,List<GrantedAuthority> authorities) {
 		super();
-		this.userRecord = userRecord;
+		this.user = user;
 		this.authorities =authorities;
 	}
 
@@ -35,7 +35,7 @@ public class UserSecurity implements Authentication{
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
-		return userRecord.getEmail();
+		return user.getEmail();
 	}
 
 	@Override

@@ -8,5 +8,4 @@ import com.GOBookingAPI.entities.Booking;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer>{
 
-	Booking findById(int id);
 }

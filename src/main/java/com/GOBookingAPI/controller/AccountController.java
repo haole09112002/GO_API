@@ -40,7 +40,6 @@ public class AccountController {
 	@GetMapping("/login")
 	public ResponseEntity<?> Test(){
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		System.out.print(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
 		BaseResponse<LoginResponse> user = userService.loadUserbyEmail(email);
 		return ResponseEntity.ok(user);
 	}

@@ -13,6 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 public class HomeController {
 	 @GetMapping("/index")
 	    public String hello(Model model) {
+<<<<<<< HEAD
+=======
+	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+>>>>>>> devD
 	        return "index";
 	    }
 }

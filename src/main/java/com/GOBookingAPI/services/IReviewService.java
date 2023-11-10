@@ -5,5 +5,5 @@ import com.GOBookingAPI.payload.request.ReviewRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 
 public interface IReviewService {
-	BaseResponse<Review> createReview(ReviewRequest review);
+	String createReview(ReviewRequest review);
 }

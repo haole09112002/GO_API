@@ -1,6 +1,7 @@
 package com.GOBookingAPI.services.impl;
 
 import java.util.Date;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,13 +40,13 @@ public class BookingServiceImpl implements IBookingService{
 	public Booking createBooking(BookingResquest req) {
 		try {
 			
-			Customer customer = customerRepository.findById(req.getCustomerId());
-			Driver driver = driverRepository.findById(req.getDriverId());
+			Optional<Customer> customer = customerRepository.findById(req.getCustomerId());
+			Optional<Driver> driver = driverRepository.findById(req.getDriverId());
 			
 			Booking booking = new Booking();
 			
-			booking.setCustomer(customer);
-			booking.setDriver(driver);
+//			booking.setCustomer(customer);
+//			booking.setDriver(driver);
 			booking.setStatus(req.getStatus());
 			booking.setPickupLocation(req.getPickUpLocation());
 			booking.setDropoffLocation(req.getDropOffLocation());
@@ -61,31 +62,32 @@ public class BookingServiceImpl implements IBookingService{
 		}
 	}
 	@Override
-	public BaseResponse<Booking> Confirm(int id) {
+	public BaseResponse<?> Confirm(int id) {
 		try {
-			Booking booking = bookingRepository.findById(id);
-			if(booking != null) {
-				Date curentlydate = new Date();
-				booking.setStartTime(curentlydate);
-				bookingRepository.save(booking);
-				return new BaseResponse<Booking>( booking ,"Confirm Success");
-			}else {
-				return new BaseResponse<Booking>( null, "Confirm fail!");
-			}
-			
+//			Optional<Booking> booking = bookingRepository.findById(id);
+//			if(booking != null) {
+//				Date curentlydate = new Date();
+//				booking.setStartTime(curentlydate);
+//				bookingRepository.save(booking);
+//				return new BaseResponse<Booking>( booking ,"Confirm Success");
+//			}else {
+//				return new BaseResponse<Booking>( null, "Confirm fail!");
+//			}
+//			
+			return null ;
 		}catch(Exception e) {
 			log.info("error in Booking Service");
 			return null ;
 		}
 	}
 	@Override
-	public BaseResponse<Booking> Cancel(BookingCancelRequest req) {
+	public BaseResponse<?> Cancel(BookingCancelRequest req) {
 		try {
-			Booking booking = bookingRepository.findById(req.getBookingId());
+			Optional<Booking> booking = bookingRepository.findById(req.getBookingId());
 			if(booking != null) {
-			booking.setReasonType(req.getReasonType());
-			booking.setContentCancel(req.getContent());
-			bookingRepository.save(booking);
+//			booking.setReasonType(req.getReasonType());
+//			booking.setContentCancel(req.getContent());
+//			bookingRepository.save(booking);
 			return new BaseResponse<Booking>(null, "Cancel Success");
 			}else {
 				return new BaseResponse<Booking>( null, "Cancel fail!");
