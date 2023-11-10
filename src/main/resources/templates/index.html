@@ -8,32 +8,15 @@
 
             var socket = new SockJS('/ws');
             stompClient = Stomp.over(socket);
-<<<<<<< HEAD
-            stompClient.connect({}, function(frame) {
-=======
             var headers = {
 	Authorization : "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImQ0OWU0N2ZiZGQ0ZWUyNDE0Nzk2ZDhlMDhjZWY2YjU1ZDA3MDRlNGQiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZ29hcHAtNDUzYmUiLCJhdWQiOiJnb2FwcC00NTNiZSIsImF1dGhfdGltZSI6MTY5OTM2MjE0OCwidXNlcl9pZCI6IlBwR1JnaHpMdURZTXI2QmtVblVBQkphME52djIiLCJzdWIiOiJQcEdSZ2h6THVEWU1yNkJrVW5VQUJKYTBOdnYyIiwiaWF0IjoxNjk5MzYyMTQ4LCJleHAiOjE2OTkzNjU3NDgsImVtYWlsIjoiZGluaG5ndXllbjI4NjIwMDJAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImRpbmhuZ3V5ZW4yODYyMDAyQGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.jDLqk3BUg1bSxhhTeam3ef6mzj5PcrXkmFYOmIO94JGUA7V1_SgN73EipYWBl_68NxCiCTdfhf-dRyfeFIql4j-r_M9dnr9e7c-GRQBvyfOCdAik3cTymUnmDLOL2QMW_AcOUqM3cZYAc2Dx6EaR1d5RgxqcNv87yHkJBBnDqpZSEAdsd_7XQg0o0VRVXVZ_VAlgCJLHMzHhql6-9yzp0nwfBtmsEDtY9P5NlJcVy5UDbhNlcnjBtcgIomET4SDniDGyXhQY7HCpQU1CAvzwhDa893sX_XRP-uHStsOS_TQkjSy6kY0cZ-7suiKzPbWa7k4lrQE7aGgqCn0t9uRO2A"
 };	
 
             stompClient.connect(headers, function(frame) {
->>>>>>> devD
                 console.log(frame);
                 stompClient.subscribe('/all/messages', function(result) {
                     show(JSON.parse(result.body));
                 });
-<<<<<<< HEAD
-            });
-
-            socket = new SockJS('/ws');
-            privateStompClient = Stomp.over(socket);
-            privateStompClient.connect({}, function(frame) {
-                    console.log(frame);
-                    privateStompClient.subscribe('/user/specific', function(result) {
-                    console.log(result.body)
-                        show(JSON.parse(result.body));
-                    });
-                });
-=======
         //         stompClient.subscribe('/user/all/private-messages', function (result) {
         //     	 show(JSON.parse(result.body));
             	
@@ -44,39 +27,25 @@
 		                    });
             });
 
->>>>>>> devD
 
 
             function sendMessage() {
                 var text = document.getElementById('text').value;
-<<<<<<< HEAD
-                stompClient.send("/app/application", {},
-                  JSON.stringify({'text':text}));
-=======
                 stompClient.send("/app/application", headers,
                   JSON.stringify({'content':text}));
->>>>>>> devD
             }
 
              function sendPrivateMessage() {
                 var text = document.getElementById('privateText').value;
                 var to = document.getElementById('to').value;
                 stompClient.send("/app/private", {},
-<<<<<<< HEAD
-                  JSON.stringify({'text':text, 'to':to}));
-=======
                   JSON.stringify({'content':text, 'to':to}));
->>>>>>> devD
             }
 
             function show(message) {
                 var response = document.getElementById('messages');
                 var p = document.createElement('p');
-<<<<<<< HEAD
-                p.innerHTML= "message: "  + message.text;
-=======
                 p.innerHTML= "message: "  + message.content;
->>>>>>> devD
                 response.appendChild(p);
             }
         </script>
