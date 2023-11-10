@@ -16,9 +16,6 @@ public class HomeController {
 	 @GetMapping("/index")
 	    public String hello(Model model) {
 	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	        model.addAttribute("authentication", authentication);
-	        String token = authentication.getPrincipal().toString();
-	        log.info(token);
-	        return "home";
+	        return "index";
 	    }
 }

@@ -7,5 +7,4 @@ import com.GOBookingAPI.entities.Review;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Integer>{
-	Review findById(int id);
 }
