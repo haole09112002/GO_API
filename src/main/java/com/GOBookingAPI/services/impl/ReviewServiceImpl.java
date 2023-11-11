@@ -1,6 +1,7 @@
 package com.GOBookingAPI.services.impl;
 
 import java.util.Date;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,10 +28,10 @@ public class ReviewServiceImpl implements IReviewService{
 	private BookingRepository bookingRepository;
 	
 	@Override
-	public BaseResponse<Review> createReview(ReviewRequest reviewRequest) {
+	public String createReview(ReviewRequest reviewRequest) {
 		try {
-			Booking booking = bookingRepository.findById(reviewRequest.getBookingId())
-					.orElseThrow(() -> new NotFoundException("Không tìm thấy Booking"));
+			Optional<Booking> bookingOptional = bookingRepository.findById(reviewRequest.getBookingId());
+			Booking booking = bookingOptional.get();
 			Review review = new Review();
 			review.setBooking(booking);
 			review.setRating(reviewRequest.getRating());
@@ -38,10 +39,10 @@ public class ReviewServiceImpl implements IReviewService{
 			Date currentDate = new Date();
 			review.setCreateAt(currentDate);
 			reviewRepository.save(review);
-			return new BaseResponse<Review>( review, "Success");
+			return "Success";
 		}catch(Exception e) {
-			log.info("Error ReviewService");
-			return new BaseResponse<Review>( null, e.getMessage());
+			log.info("Error ReviewService {}" , e.getMessage());
+			return "Fail";
 		}
 		
 	}

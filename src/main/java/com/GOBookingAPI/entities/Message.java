@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,7 +36,9 @@ public class Message implements Serializable {
 	private String content;
 	@Column
 	private Date createAt;
-
+	@Transient 
+	private String to;
+	
 	private MesssageType type;
 	
 	@ManyToOne

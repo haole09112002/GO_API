@@ -23,6 +23,7 @@ import com.GOBookingAPI.repositories.RoleRepository;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.repositories.VehicleRepository;
 import com.GOBookingAPI.services.IUserService;
+import com.google.common.base.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,10 +49,12 @@ public class UserServiceImpl implements IUserService{
 	@Override
 	public BaseResponse<LoginResponse> loadUserbyEmail(String email) {
 		try {
-			User user = userRepository.findByEmail(email);
-			if(user == null) {
+			Optional<User> userOptional = userRepository.findByEmail(email);
+		
+			if(!userOptional.isPresent()) {
 				 return new BaseResponse<LoginResponse>( new LoginResponse("unregistered" , null ) ,"User not found");
 			}else {
+				User user = userOptional.get();
 				String roleName ="";
 				for(Role role : user.getRoles()) {
 					roleName = role.getName();
@@ -62,7 +65,8 @@ public class UserServiceImpl implements IUserService{
 				}
 				else {
 					if(roleName.equals("DRIVER")) {
-						Driver driver = driverRepository.findById(user.getId());
+						java.util.Optional<Driver> driverOptional = driverRepository.findById(user.getId());
+						Driver driver = driverOptional.get();
 						if(driver.getStatus().equals("NOACTIVE")) {
 							return new BaseResponse<LoginResponse>(new LoginResponse("uncheck" ,roleName),"Driver uncheck");
 						}
@@ -79,12 +83,7 @@ public class UserServiceImpl implements IUserService{
 	}
 
 	@Override
-	public User getByEmail(String email) {
-		return userRepository.findByEmail(email);
-	}
-
-	@Override
-	public BaseResponse<Customer> registerCustomer(CustomerRequest customerRequest) {
+	public String registerCustomer(CustomerRequest customerRequest) {
 		try {
 			User user = new User();
 			Date currentDate = new Date();
@@ -94,10 +93,12 @@ public class UserServiceImpl implements IUserService{
 			user.setIsNonBlock(false);
 			user.setCreateDate(currentDate);
 			Set<Role> roles = new HashSet<>();
-			roles.add(roleRepository.findByName("CUSTOMER"));
+			Optional<Role> roleOptional = roleRepository.findByName("CUSTOMER");
+			roles.add(roleOptional.get());
 			user.setRoles(roles);
 			userRepository.save(user);
-			User usersaved = userRepository.findByEmail(user.getEmail());
+			Optional<User> userOptional = userRepository.findByEmail(user.getEmail());
+			User usersaved = userOptional.get();
 			Customer newcustomer = new Customer();
 			newcustomer.setId(usersaved.getId());
 			newcustomer.setFullName(customerRequest.getFullName());
@@ -105,15 +106,15 @@ public class UserServiceImpl implements IUserService{
 			newcustomer.setGender(customerRequest.getGender());
 			newcustomer.setUser(usersaved);
 			customerRepository.save(newcustomer);
-			return new BaseResponse<Customer>( newcustomer , "Success");
+			return  "Success";
 		}catch(Exception e) {
-			log.info("Error Register Service!");
-			return new BaseResponse<Customer>( null ,e.getMessage());
+			log.info("Error Register Service!: {}" , e.getMessage());
+			return "Fail";
 		}
 	}
 
 	@Override
-	public BaseResponse<Driver> registerDriver(DriverRequest driverRequest) {
+	public String registerDriver(DriverRequest driverRequest) {
 		try {
 			User user = new User();
 			Date currentDate = new Date();
@@ -123,10 +124,12 @@ public class UserServiceImpl implements IUserService{
 			user.setIsNonBlock(false);
 			user.setCreateDate(currentDate);
 			Set<Role> roles = new HashSet<>();
-			roles.add(roleRepository.findByName("DRIVER"));
+			Optional<Role> roleOptional = roleRepository.findByName("DRIVER");
+			roles.add(roleOptional.get());
 			user.setRoles(roles);
 			userRepository.save(user);
-			User usersaved = userRepository.findByEmail(user.getEmail());
+			Optional<User> userOptional = userRepository.findByEmail(user.getEmail());
+			User usersaved = userOptional.get();
 			Driver newdriver = new Driver();
 			newdriver.setId(usersaved.getId());
 			newdriver.setDateOfBirth(driverRequest.getDateOfBirth());
@@ -135,15 +138,16 @@ public class UserServiceImpl implements IUserService{
 			newdriver.setIdCard(driverRequest.getIdCard());
 			newdriver.setLicensePlate(driverRequest.getLicensePlate());
 			Set<VehicleType> vehicles = new HashSet<>();
-			vehicles.add(vehicleRepository.findByName(driverRequest.getVehicle()));
+			Optional<VehicleType> vehicleOptional = vehicleRepository.findByName(driverRequest.getVehicle());
+			vehicles.add(vehicleOptional.get());
 			newdriver.setVehicles(vehicles);
 			newdriver.setStatus("NOACTIVE");
 			newdriver.setUser(usersaved);
 			driverRepository.save(newdriver);
-			return new BaseResponse<Driver>( null ,"Success");
+			return "Success";
 		}catch(Exception e) {
-			log.info("Error Register Service!");
-			return new BaseResponse<Driver>( null ,e.getMessage());
+			log.info("Error Register Service! {}" , e.getMessage());
+			return "Fail";
 		}
 	}
 

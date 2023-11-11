@@ -11,38 +11,26 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import com.GOBookingAPI.security.Token.GoogleProvider;
+
 
 
 @Configuration
 @EnableWebSocketMessageBroker
-@EnableWebSocket
-public class WebSocketConfig  implements
-WebSocketMessageBrokerConfigurer 
-//WebSocketConfigurer
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer 
 {
-
-
-	@Override
-	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/message").withSockJS();
-		registry.addEndpoint("/message");
-	}
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
-		registry.enableSimpleBroker("/topic");
+		registry.enableSimpleBroker("/all" , "/specific");
 		registry.setApplicationDestinationPrefixes("/app");
 	}
 
-//	@Override
-//    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-////        registry.addHandler(webSocketHandler(), "/websocket");
-//    }
-    
-//    @Bean
-//    public WebSocketHandle webSocketHandler() {
-//        return new ServerWebSocketHandler();
-//    }
-
-
+	@Override
+	public void registerStompEndpoints(StompEndpointRegistry registry) {
+		registry.addEndpoint("/ws")
+		.setHandshakeHandler(new UserHandshakeHandler())
+		.withSockJS();
+//		registry.addEndpoint("/ws").withSockJS();
+	}
 }

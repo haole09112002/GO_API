@@ -8,7 +8,7 @@ import com.GOBookingAPI.payload.response.BaseResponse;
 public interface IBookingService {
 	Booking createBooking(String username, BookingResquest req);
 	
-	BaseResponse<Booking> Confirm(int id);
+	BaseResponse<?> Confirm(int id);
 	
-	BaseResponse<Booking> Cancel(BookingCancelRequest req);
+	BaseResponse<?> Cancel(BookingCancelRequest req);
 }
