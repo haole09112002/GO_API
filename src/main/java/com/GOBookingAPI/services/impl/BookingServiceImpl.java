@@ -1,7 +1,12 @@
 package com.GOBookingAPI.services.impl;
 
-import java.util.Date;
+import java.util.*;
 
+import com.GOBookingAPI.enums.VehicleType;
+import com.GOBookingAPI.exceptions.BadRequestException;
+import com.GOBookingAPI.payload.response.TravelInfoResponse;
+import com.GOBookingAPI.payload.vietmap.Path;
+import com.GOBookingAPI.payload.vietmap.VietMapResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -66,6 +71,22 @@ public class BookingServiceImpl implements IBookingService{
 			return null;
 		}
 	}
+
+	@Override
+	public TravelInfoResponse getTravelInfo(String pickUpLocation, String dropOffLocation) {
+			Map<Integer, Double> amounts = new HashMap<>();
+			for (VehicleType type : VehicleType.values()) {					//todo save database vehicle type
+				VietMapResponse travel = mapService.getRoute(pickUpLocation, dropOffLocation, type.name());
+				if(travel.getCode().equals("ERROR")){
+					throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
+				}
+				Path path = travel.getPaths().get(0);
+				double total = path.getDistance() * type.getPrice();
+				amounts.put(type.getValue(), Math.floor(total + 0.5));
+			}
+			return new TravelInfoResponse(pickUpLocation, dropOffLocation, amounts);
+	}
+
 	@Override
 	public BaseResponse<Booking> Confirm(int id) {
 		try {

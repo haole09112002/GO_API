@@ -38,7 +38,6 @@ public class MapServiceImpl {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             VietMapResponse vietMapResponse = objectMapper.readValue(json, VietMapResponse.class);
-            System.out.println(vietMapResponse.toString());
             return vietMapResponse;
         }catch (JsonProcessingException e){
             log.error("Error convert json to class VietMapResponse", e);
