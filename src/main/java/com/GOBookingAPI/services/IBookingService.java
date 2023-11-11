@@ -6,7 +6,7 @@ import com.GOBookingAPI.payload.request.BookingResquest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 
 public interface IBookingService {
-	Booking createBooking(BookingResquest  req);
+	Booking createBooking(String username, BookingResquest req);
 	
 	BaseResponse<Booking> Confirm(int id);
 	

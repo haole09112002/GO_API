@@ -79,6 +79,11 @@ public class UserServiceImpl implements IUserService{
 	}
 
 	@Override
+	public User getByEmail(String email) {
+		return userRepository.findByEmail(email);
+	}
+
+	@Override
 	public BaseResponse<Customer> registerCustomer(CustomerRequest customerRequest) {
 		try {
 			User user = new User();
@@ -100,7 +105,7 @@ public class UserServiceImpl implements IUserService{
 			newcustomer.setGender(customerRequest.getGender());
 			newcustomer.setUser(usersaved);
 			customerRepository.save(newcustomer);
-			return new BaseResponse<Customer>( null , "Success");
+			return new BaseResponse<Customer>( newcustomer , "Success");
 		}catch(Exception e) {
 			log.info("Error Register Service!");
 			return new BaseResponse<Customer>( null ,e.getMessage());

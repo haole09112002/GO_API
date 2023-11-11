@@ -58,7 +58,7 @@ public class UserSecurity implements Authentication{
 	@Override
 	public Object getPrincipal() {
 		// TODO Auto-generated method stub
-		return null;
+		return userRecord;
 	}
 
 	@Override

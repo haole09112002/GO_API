@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.Review;
+import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.ReviewRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
@@ -28,7 +29,8 @@ public class ReviewServiceImpl implements IReviewService{
 	@Override
 	public BaseResponse<Review> createReview(ReviewRequest reviewRequest) {
 		try {
-			Booking booking = bookingRepository.findById(reviewRequest.getBookingId());
+			Booking booking = bookingRepository.findById(reviewRequest.getBookingId())
+					.orElseThrow(() -> new NotFoundException("Không tìm thấy Booking"));
 			Review review = new Review();
 			review.setBooking(booking);
 			review.setRating(reviewRequest.getRating());

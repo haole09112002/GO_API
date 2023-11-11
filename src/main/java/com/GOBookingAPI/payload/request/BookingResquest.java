@@ -10,12 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BookingResquest {
 	
-	private int customerId;
-	
-	private int driverId;
-	
-	private String status ;
-	
 	private String pickUpLocation ;
 	
 	private String dropOffLocation;
