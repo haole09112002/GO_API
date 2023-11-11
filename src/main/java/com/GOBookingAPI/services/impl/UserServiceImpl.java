@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import  java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.entities.Role;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.entities.VehicleType;
+import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.payload.request.DriverRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
@@ -23,7 +25,6 @@ import com.GOBookingAPI.repositories.RoleRepository;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.repositories.VehicleRepository;
 import com.GOBookingAPI.services.IUserService;
-import com.google.common.base.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,7 +50,7 @@ public class UserServiceImpl implements IUserService{
 	@Override
 	public BaseResponse<LoginResponse> loadUserbyEmail(String email) {
 		try {
-			Optional<User> userOptional = userRepository.findByEmail(email);
+			java.util.Optional<User> userOptional = userRepository.findByEmail(email);
 		
 			if(!userOptional.isPresent()) {
 				 return new BaseResponse<LoginResponse>( new LoginResponse("unregistered" , null ) ,"User not found");
@@ -83,6 +84,12 @@ public class UserServiceImpl implements IUserService{
 	}
 
 	@Override
+	public User getByEmail(String email) {
+		User user = userRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Không tìm thấy user"));
+	    return user;
+	}
+
+	@Override
 	public String registerCustomer(CustomerRequest customerRequest) {
 		try {
 			User user = new User();
@@ -93,12 +100,12 @@ public class UserServiceImpl implements IUserService{
 			user.setIsNonBlock(false);
 			user.setCreateDate(currentDate);
 			Set<Role> roles = new HashSet<>();
-			Optional<Role> roleOptional = roleRepository.findByName("CUSTOMER");
-			roles.add(roleOptional.get());
+			Role role = roleRepository.findByName("CUSTOMER").orElseThrow(()-> new NotFoundException("Khong tim thay role"));
+			roles.add(role);
 			user.setRoles(roles);
 			userRepository.save(user);
-			Optional<User> userOptional = userRepository.findByEmail(user.getEmail());
-			User usersaved = userOptional.get();
+			User usersaved = userRepository.findByEmail(user.getEmail()).orElseThrow(()-> new NotFoundException("Khong tim thay user voi email : " + user.getEmail()));
+
 			Customer newcustomer = new Customer();
 			newcustomer.setId(usersaved.getId());
 			newcustomer.setFullName(customerRequest.getFullName());
@@ -128,7 +135,7 @@ public class UserServiceImpl implements IUserService{
 			roles.add(roleOptional.get());
 			user.setRoles(roles);
 			userRepository.save(user);
-			Optional<User> userOptional = userRepository.findByEmail(user.getEmail());
+			java.util.Optional<User> userOptional = userRepository.findByEmail(user.getEmail());
 			User usersaved = userOptional.get();
 			Driver newdriver = new Driver();
 			newdriver.setId(usersaved.getId());

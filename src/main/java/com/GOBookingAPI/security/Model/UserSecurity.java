@@ -2,20 +2,14 @@ package com.GOBookingAPI.security.Model;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import com.GOBookingAPI.entities.User;
-import com.google.firebase.auth.UserRecord;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
 
 @Data
 public class UserSecurity implements Authentication{
@@ -58,7 +52,7 @@ public class UserSecurity implements Authentication{
 	@Override
 	public Object getPrincipal() {
 		// TODO Auto-generated method stub
-		return userRecord;
+		return null;
 	}
 
 	@Override

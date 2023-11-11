@@ -1,5 +1,6 @@
 package com.GOBookingAPI.services;
 
+import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.payload.request.DriverRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;

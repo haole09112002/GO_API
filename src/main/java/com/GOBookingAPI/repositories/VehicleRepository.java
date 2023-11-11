@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.GOBookingAPI.entities.VehicleType;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<VehicleType, Integer>{

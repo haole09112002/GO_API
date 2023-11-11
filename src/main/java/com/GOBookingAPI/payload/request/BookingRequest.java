@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingResquest {
+public class BookingRequest {
 	
 	private String pickUpLocation ;
 	
 	private String dropOffLocation;
 	
-	private String vehicleType;
+	private int vehicleType;
 }

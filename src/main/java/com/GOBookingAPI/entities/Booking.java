@@ -38,10 +38,10 @@ public class Booking implements Serializable {
 	@Column
 	private Date createAt; 
 	
-	@Column(nullable = false , columnDefinition = "varchar(30)")
+	@Column(nullable = false , columnDefinition = "varchar(100)")
 	private String pickupLocation;
 	
-	@Column(nullable = false , columnDefinition = "varchar(30)")
+	@Column(nullable = false , columnDefinition = "varchar(100)")
 	private String dropoffLocation;
 	
 	@Enumerated(EnumType.STRING)
