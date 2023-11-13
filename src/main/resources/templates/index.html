@@ -1,74 +1,72 @@
 <html>
+
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
-    <script type="text/javascript">
-            var stompClient = null;
-            var privateStompClient = null;
+	<link rel="shortcut icon" href="#">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+	<script type="text/javascript">
+		var stompClient = null;
+		var privateStompClient = null;
 
-            var socket = new SockJS('/ws');
-            stompClient = Stomp.over(socket);
-            var headers = {
-	Authorization : "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImQ0OWU0N2ZiZGQ0ZWUyNDE0Nzk2ZDhlMDhjZWY2YjU1ZDA3MDRlNGQiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZ29hcHAtNDUzYmUiLCJhdWQiOiJnb2FwcC00NTNiZSIsImF1dGhfdGltZSI6MTY5OTM2MjE0OCwidXNlcl9pZCI6IlBwR1JnaHpMdURZTXI2QmtVblVBQkphME52djIiLCJzdWIiOiJQcEdSZ2h6THVEWU1yNkJrVW5VQUJKYTBOdnYyIiwiaWF0IjoxNjk5MzYyMTQ4LCJleHAiOjE2OTkzNjU3NDgsImVtYWlsIjoiZGluaG5ndXllbjI4NjIwMDJAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImRpbmhuZ3V5ZW4yODYyMDAyQGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.jDLqk3BUg1bSxhhTeam3ef6mzj5PcrXkmFYOmIO94JGUA7V1_SgN73EipYWBl_68NxCiCTdfhf-dRyfeFIql4j-r_M9dnr9e7c-GRQBvyfOCdAik3cTymUnmDLOL2QMW_AcOUqM3cZYAc2Dx6EaR1d5RgxqcNv87yHkJBBnDqpZSEAdsd_7XQg0o0VRVXVZ_VAlgCJLHMzHhql6-9yzp0nwfBtmsEDtY9P5NlJcVy5UDbhNlcnjBtcgIomET4SDniDGyXhQY7HCpQU1CAvzwhDa893sX_XRP-uHStsOS_TQkjSy6kY0cZ-7suiKzPbWa7k4lrQE7aGgqCn0t9uRO2A"
-};	
+		var socket = new SockJS('http://localhost:8080/ws?Authorization=Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImY4MzNlOGE3ZmUzZmU0Yjg3ODk0ODIxOWExNjg0YWZhMzczY2E4NmYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI2NTAxMDk4Mzc1MjMtdmNwYmpvZ242cmd1Mmc0azFnb2pzZmM1cnRtNWk3aXEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI2NTAxMDk4Mzc1MjMtdmNwYmpvZ242cmd1Mmc0azFnb2pzZmM1cnRtNWk3aXEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDkxMjA2MzM5OTI4MjA0NTE1ODEiLCJlbWFpbCI6ImRpbmhuZ3V5ZW4yODYyMDAyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiZVZ3VUxzOHc4Zm9qaTlNOFJaV2FIZyIsImlhdCI6MTY5OTg2MDgyNywiZXhwIjoxNjk5ODY0NDI3fQ.awH3DM0dYmSS0qHbjF7of3TfSQh9NDLs-lRXJgWjpgn1F73eC4Wy0a61fF6mjs2bSIJ1wzs3yfYakciHDVAKZZcTW9uq5qHVuO6C9ddEuMaeuoCPPCvPfR6EDnQJhqQV3DyENDTSoOwYSXUa1t4Eam1iBeIVAFnFKRayrBAcpQV2WP348cY9MTmRz11dN8Lpf5qPp5EYp_BhYHV7ZlA-ETbOLcbFD-x4N1vUKzfs3XCuia37e0PZ6c62lRVVDF8D5hjIxNsnDdgLYDqvcBYcJvHkJp9yGMcGYd2Rz4ozrft72oaxKgWuuk4Ut0ciR927lscJsUvJsaBJV02vm2poew');
 
-            stompClient.connect(headers, function(frame) {
-                console.log(frame);
-                stompClient.subscribe('/all/messages', function(result) {
-                    show(JSON.parse(result.body));
-                });
-        //         stompClient.subscribe('/user/all/private-messages', function (result) {
-        //     	 show(JSON.parse(result.body));
-            	
-        // });
-		         stompClient.subscribe('/user/specific', function(result) {
-		                    console.log(result.body)
-		                        show(JSON.parse(result.body));
-		                    });
-            });
+		stompClient = Stomp.over(socket);
+
+		stompClient.connect({}, function (frame) {
+			console.log(frame);
+			stompClient.subscribe('/all/messages', function (result) {
+				show(JSON.parse(result.body));
+			});
+			stompClient.subscribe('/user/specific', function (result) {
+				console.log(result.body)
+				show(JSON.parse(result.body));
+			});
+		});
 
 
 
-            function sendMessage() {
-                var text = document.getElementById('text').value;
-                stompClient.send("/app/application", headers,
-                  JSON.stringify({'content':text}));
-            }
+		function sendMessage() {
+			var text = document.getElementById('text').value;
+			stompClient.send("/app/application", {},
+				JSON.stringify({'content': text}));
+		}
 
-             function sendPrivateMessage() {
-                var text = document.getElementById('privateText').value;
-                var to = document.getElementById('to').value;
-                stompClient.send("/app/private", {},
-                  JSON.stringify({'content':text, 'to':to}));
-            }
+		function sendPrivateMessage() {
+			var text = document.getElementById('privateText').value;
+			var to = document.getElementById('to').value;
+			stompClient.send("/app/private", {},
+				JSON.stringify({'content': text, 'to': to}));
+		}
 
-            function show(message) {
-                var response = document.getElementById('messages');
-                var p = document.createElement('p');
-                p.innerHTML= "message: "  + message.content;
-                response.appendChild(p);
-            }
-        </script>
+		function show(message) {
+			var response = document.getElementById('messages');
+			var p = document.createElement('p');
+			p.innerHTML = "message: " + message.content;
+			response.appendChild(p);
+		}
+	</script>
 </head>
+
 <body>
-<div>
-    <div>
-        <button id="sendMessage" onclick="sendMessage();">Send</button>
-        <input type="text" id="text" placeholder="Text"/>
-    </div>
-    <br />
-    <div>
-        <button id="sendPrivateMessage" onclick="sendPrivateMessage();">Send Private</button>
-        <input type="text" id="privateText" placeholder="Private Message"/>
-        <input type="text" id="to" placeholder="To"/>
-    </div>
-    <br />
-    <br />
-    <br />
+	<div>
+		<div>
+			<button id="sendMessage" onclick="sendMessage();">Send</button>
+			<input type="text" id="text" placeholder="Text" />
+		</div>
+		<br />
+		<div>
+			<button id="sendPrivateMessage" onclick="sendPrivateMessage();">Send Private</button>
+			<input type="text" id="privateText" placeholder="Private Message" />
+			<input type="text" id="to" placeholder="To" />
+		</div>
+		<br />
+		<br />
+		<br />
 
-        <div id="messages"></div>
+		<div id="messages"></div>
 
-</div>
+	</div>
 
 </body>
+
 </html>

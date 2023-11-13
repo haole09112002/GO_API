@@ -1,9 +1,15 @@
 package com.GOBookingAPI.config;
 
+import java.util.List;
+
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.GenericMessage;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import com.GOBookingAPI.entities.Conservation;
@@ -16,20 +22,33 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class WebSocketEventListener {
+public class WebSocketEventListener {	
 	
-//	private final SimpMessageSendingOperations messageTemplate;
-//	
+	private final SimpMessageSendingOperations messageTemplate;
+	
+	@EventListener
+	public void handleWebSocketDisconnectLister(SessionDisconnectEvent event) {
+		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+		String senderId = (String) headerAccessor.getSessionAttributes().get("senderId");
+		if(senderId != null) {
+			log.info("User disconnected:{}" , senderId);
+			Message message = new Message();
+			message.setSenderId(Integer.parseInt(senderId));
+			message.setType(MesssageType.LEAVER);
+			messageTemplate.convertAndSend("/topic/public",message);
+		}
+	}
+	
 //	@EventListener
-//	public void handleWebSocketDisconnectLister(SessionDisconnectEvent event) {
-//		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-//		String senderId = (String) headerAccessor.getSessionAttributes().get("senderId");
-//		if(senderId != null) {
-//			log.info("User disconnected:{}" , senderId);
-//			Message message = new Message();
-//			message.setSenderId(Integer.parseInt(senderId));
-//			message.setType(MesssageType.LEAVER);
-//			messageTemplate.convertAndSend("/topic/public",message);
-//		}
+//	public void handleWebSocketConnectListener(SessionConnectedEvent event) {
+//		MessageHeaderAccessor headerAccessor = 
+//			     MessageHeaderAccessor.getAccessor(event.getMessage().getHeaders(), 
+//			     MessageHeaderAccessor.class);
+//			StompHeaderAccessor stompHeaderAccessor = MessageHeaderAccessor.getAccessor(
+//			                (org.springframework.messaging.Message<?>) headerAccessor.getHeader("simpConnectMessage"),
+//			                StompHeaderAccessor.class) ;
+//			String token = stompHeaderAccessor.getNativeHeader("Authorization").get(0);
+//			System.out.print("1123" + token);
 //	}
+
 }

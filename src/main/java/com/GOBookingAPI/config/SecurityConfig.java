@@ -29,12 +29,14 @@ public class SecurityConfig {
 	GoogleProvider provider;
 	
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+	public SecurityFilterChain filterChain(HttpSecurity http ) throws Exception{
+		
 		
 		http.cors().and() // Kích hoạt CORS 
-        .csrf().disable();	 // vÔ hiệu hoá csrf
-		http.authorizeRequests().requestMatchers("/home/**","/ws/**").permitAll();
-		http.authorizeRequests().requestMatchers("/").authenticated().anyRequest().authenticated();
+
+        .csrf().disable();	
+		http.authorizeRequests().requestMatchers("/home/**").permitAll();
+		http.authorizeRequests().requestMatchers("/","/ws/**").authenticated().anyRequest().authenticated();
 		http.exceptionHandling().authenticationEntryPoint(entryPoint);
 		http.addFilterBefore(new GoogleFilter(), BasicAuthenticationFilter.class);
 		http.authenticationProvider(provider);

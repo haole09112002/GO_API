@@ -25,7 +25,7 @@ public class GoogleEntryPoint  implements AuthenticationEntryPoint{
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException e) throws IOException, ServletException {
-		log.info("fail in commence");
+		log.info("fail in commence {}", e.getMessage());
 		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "unauthorized 401");
 		
 	}
