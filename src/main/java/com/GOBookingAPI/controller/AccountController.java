@@ -14,7 +14,6 @@ import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.payload.request.DriverRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.payload.response.LoginResponse;
-//import com.GOBookingAPI.services.UserService;
 import com.GOBookingAPI.services.IUserService;
 
 import lombok.extern.slf4j.Slf4j;

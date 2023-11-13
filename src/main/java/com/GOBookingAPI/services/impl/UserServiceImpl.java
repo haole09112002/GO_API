@@ -151,4 +151,21 @@ public class UserServiceImpl implements IUserService{
 		}
 	}
 
+	@Override
+	public Optional<User> findByEmail(String email) {
+		try {
+			Optional<User> userOptional = userRepository.findByEmail(email);
+			if(userOptional.isPresent()) {
+				return userOptional;
+			}else {
+				return null ;
+			}
+		}catch(Exception e) {
+			log.info("Error in UserService");
+			return null ;
+		}
+	}
+
+	
+	
 }

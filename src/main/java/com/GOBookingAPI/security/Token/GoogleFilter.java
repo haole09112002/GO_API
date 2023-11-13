@@ -1,6 +1,7 @@
 package com.GOBookingAPI.security.Token;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
@@ -27,10 +28,13 @@ public class GoogleFilter extends OncePerRequestFilter  {
 			throws ServletException, IOException {
 
 		String token = getToken(req);
+		
 		try {
 			if(token != null) {
 				System.out.println("this is Filter  ");
 				SecurityContextHolder.getContext().setAuthentication(new TokenSecurity(token));
+			}else {
+				System.out.println("Error ");
 			}
 		}catch(Exception e) {
 			log.info("Fail in do filter" , e.getMessage());
@@ -39,9 +43,13 @@ public class GoogleFilter extends OncePerRequestFilter  {
 	}
 
 	private String getToken(HttpServletRequest request) {
+		String header1= request.getParameter("Authorization");
 		String header = request.getHeader("Authorization");
 		if(header != null && header.startsWith("Bearer ")) {
 			return header.replace("Bearer ", "");
+		}
+		else if(header1 != null && header1.startsWith("Bearer ")) {
+			return header1.replace("Bearer ", ""); 
 		}
 		return null;
 	}
