@@ -32,7 +32,7 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 		
 		http.cors().and() // Kích hoạt CORS 
-        .csrf().disable();	
+        .csrf().disable();	 // vÔ hiệu hoá csrf
 		http.authorizeRequests().requestMatchers("/home/**","/ws/**").permitAll();
 		http.authorizeRequests().requestMatchers("/").authenticated().anyRequest().authenticated();
 		http.exceptionHandling().authenticationEntryPoint(entryPoint);
