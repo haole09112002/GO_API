@@ -14,7 +14,5 @@ public class CreateMessageRequest {
 	
 	private String content;
 	
-	private int to;
-	
-	
+	private int id_conservation ;
 }

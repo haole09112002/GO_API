@@ -10,7 +10,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.GOBookingAPI.entities.Message;
-
+import com.GOBookingAPI.payload.request.CreateMessageRequest;
+import com.GOBookingAPI.services.IMessageService;
 import com.GOBookingAPI.services.impl.NotificationServiceImpl;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,9 @@ public class MessageController {
 	@Autowired
 	private NotificationServiceImpl notificationService;
 	
+	@Autowired
+	private IMessageService messageService;
+	
     @MessageMapping("/application")
     @SendTo("/all/messages")
     public Message send(final Message message ) throws Exception {
@@ -33,7 +37,8 @@ public class MessageController {
     }
     
     @MessageMapping("/private")
-    public void sendToSpecificUser(@Payload Message message) {
-        simpMessagingTemplate.convertAndSendToUser(message.getTo(), "/specific", message);
+    public void sendToSpecificUser(@Payload CreateMessageRequest message) {
+    	messageService.createMessage(message);
+        simpMessagingTemplate.convertAndSendToUser(String.valueOf(message.getId_receiver()), "/specific", message);
     }
 }

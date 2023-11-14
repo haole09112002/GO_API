@@ -11,6 +11,7 @@ import com.GOBookingAPI.entities.Conservation;
 import com.GOBookingAPI.entities.Customer;
 import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.payload.request.CreateConservationRequest;
+import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.ConservationRepository;
 import com.GOBookingAPI.repositories.CustomerRepository;
@@ -36,7 +37,7 @@ public class ConservationServiceImpl implements IConservationService {
 	private BookingRepository bookingRepository;
 	
 	@Override
-	public String createConservation(CreateConservationRequest conservationRequest) {
+	public BaseResponse<?> createConservation(CreateConservationRequest conservationRequest) {
 		try {
 			Optional<Driver> driverOptional = driverRepository.findById(conservationRequest.getId_driver());
 			if(!driverOptional.isPresent()) {
@@ -59,10 +60,10 @@ public class ConservationServiceImpl implements IConservationService {
 			conservation.setCreateAt(curent);
 			
 			conservationRepository.save(conservation);
-			return "Success";
+			return new BaseResponse<Conservation>(null,"Success");
 		}catch(Exception e) {
 			log.info("Error in Service {}" , e.getMessage());
-			return "Fail";
+			return new BaseResponse<Conservation>(null,"Fail");
 		}
 	}
 

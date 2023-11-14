@@ -2,6 +2,7 @@ package com.GOBookingAPI.services.impl;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,6 @@ import com.GOBookingAPI.repositories.RoleRepository;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.repositories.VehicleRepository;
 import com.GOBookingAPI.services.IUserService;
-import com.google.common.base.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -83,7 +83,7 @@ public class UserServiceImpl implements IUserService{
 	}
 
 	@Override
-	public String registerCustomer(CustomerRequest customerRequest) {
+	public BaseResponse<Customer> registerCustomer(CustomerRequest customerRequest) {
 		try {
 			User user = new User();
 			Date currentDate = new Date();
@@ -106,15 +106,15 @@ public class UserServiceImpl implements IUserService{
 			newcustomer.setGender(customerRequest.getGender());
 			newcustomer.setUser(usersaved);
 			customerRepository.save(newcustomer);
-			return  "Success";
+			return  new BaseResponse<Customer>(null, "Success");
 		}catch(Exception e) {
 			log.info("Error Register Service!: {}" , e.getMessage());
-			return "Fail";
+			return  new BaseResponse<Customer>(null, "Success");
 		}
 	}
 
 	@Override
-	public String registerDriver(DriverRequest driverRequest) {
+	public BaseResponse<Driver> registerDriver(DriverRequest driverRequest) {
 		try {
 			User user = new User();
 			Date currentDate = new Date();
@@ -144,10 +144,10 @@ public class UserServiceImpl implements IUserService{
 			newdriver.setStatus("NOACTIVE");
 			newdriver.setUser(usersaved);
 			driverRepository.save(newdriver);
-			return "Success";
+			return new BaseResponse<Driver>(null,"Success");
 		}catch(Exception e) {
 			log.info("Error Register Service! {}" , e.getMessage());
-			return "Fail";
+			return new BaseResponse<Driver>(null,"Fail");
 		}
 	}
 

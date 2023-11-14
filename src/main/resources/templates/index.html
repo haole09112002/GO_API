@@ -7,9 +7,21 @@
 	<script type="text/javascript">
 		var stompClient = null;
 		var privateStompClient = null;
+		function getParameterByName(name, url) {
+			if (!url) url = window.location.href;
+			name = name.replace(/[\[\]]/g, "\\$&");
+			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+				results = regex.exec(url);
+			if (!results) return null;
+			if (!results[2]) return '';
+			return decodeURIComponent(results[2].replace(/\+/g, " "));
+		}
 
-		var socket = new SockJS('http://localhost:8080/ws?Authorization=Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImY4MzNlOGE3ZmUzZmU0Yjg3ODk0ODIxOWExNjg0YWZhMzczY2E4NmYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI2NTAxMDk4Mzc1MjMtdmNwYmpvZ242cmd1Mmc0azFnb2pzZmM1cnRtNWk3aXEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI2NTAxMDk4Mzc1MjMtdmNwYmpvZ242cmd1Mmc0azFnb2pzZmM1cnRtNWk3aXEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDkxMjA2MzM5OTI4MjA0NTE1ODEiLCJlbWFpbCI6ImRpbmhuZ3V5ZW4yODYyMDAyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiZVZ3VUxzOHc4Zm9qaTlNOFJaV2FIZyIsImlhdCI6MTY5OTg2MDgyNywiZXhwIjoxNjk5ODY0NDI3fQ.awH3DM0dYmSS0qHbjF7of3TfSQh9NDLs-lRXJgWjpgn1F73eC4Wy0a61fF6mjs2bSIJ1wzs3yfYakciHDVAKZZcTW9uq5qHVuO6C9ddEuMaeuoCPPCvPfR6EDnQJhqQV3DyENDTSoOwYSXUa1t4Eam1iBeIVAFnFKRayrBAcpQV2WP348cY9MTmRz11dN8Lpf5qPp5EYp_BhYHV7ZlA-ETbOLcbFD-x4N1vUKzfs3XCuia37e0PZ6c62lRVVDF8D5hjIxNsnDdgLYDqvcBYcJvHkJp9yGMcGYd2Rz4ozrft72oaxKgWuuk4Ut0ciR927lscJsUvJsaBJV02vm2poew');
+		// Sử dụng hàm để lấy giá trị của tham số "Authorization" từ URL
+		var authorizationParam = getParameterByName('Authorization');
 
+		// In giá trị ra console để kiểm tra
+		var socket = new SockJS(`http://localhost:8080/ws?Authorization=${authorizationParam}`);
 		stompClient = Stomp.over(socket);
 
 		stompClient.connect({}, function (frame) {
@@ -33,9 +45,11 @@
 
 		function sendPrivateMessage() {
 			var text = document.getElementById('privateText').value;
-			var to = document.getElementById('to').value;
+			var id_conservation = document.getElementById('id_conservation').value;
+			var id_receiver = document.getElementById('id_receiver').value;
+			var id_sender = document.getElementById('id_sender').value;
 			stompClient.send("/app/private", {},
-				JSON.stringify({'content': text, 'to': to}));
+				JSON.stringify({'content': text, 'id_receiver': id_receiver, 'id_conservation' : id_conservation , 'id_sender' :id_sender}));
 		}
 
 		function show(message) {
@@ -57,7 +71,9 @@
 		<div>
 			<button id="sendPrivateMessage" onclick="sendPrivateMessage();">Send Private</button>
 			<input type="text" id="privateText" placeholder="Private Message" />
-			<input type="text" id="to" placeholder="To" />
+			<input type="text" id="id_conservation" placeholder="id_conservation" />
+				<input type="text" id="id_sender" placeholder="id_sender" />
+			<input type="text" id="id_receiver" placeholder="id_receiver" />
 		</div>
 		<br />
 		<br />

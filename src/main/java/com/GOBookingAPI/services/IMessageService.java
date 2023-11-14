@@ -1,7 +1,9 @@
 package com.GOBookingAPI.services;
 
+
 import com.GOBookingAPI.payload.request.CreateMessageRequest;
+import com.GOBookingAPI.payload.response.BaseResponse;
 
 public interface IMessageService {
-	String createMessage(CreateMessageRequest messageRequest);
+	BaseResponse<?> createMessage(CreateMessageRequest messageRequest);
 }

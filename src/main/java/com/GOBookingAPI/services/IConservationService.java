@@ -1,7 +1,9 @@
 package com.GOBookingAPI.services;
 
+
 import com.GOBookingAPI.payload.request.CreateConservationRequest;
+import com.GOBookingAPI.payload.response.BaseResponse;
 
 public interface IConservationService {
-	String createConservation(CreateConservationRequest conservationRequest);
+	BaseResponse<?> createConservation(CreateConservationRequest conservationRequest);
 }
