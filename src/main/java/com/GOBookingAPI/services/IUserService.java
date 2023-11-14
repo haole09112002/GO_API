@@ -3,6 +3,7 @@ package com.GOBookingAPI.services;
 
 import java.util.Optional;
 
+
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.payload.request.DriverRequest;
@@ -11,6 +12,8 @@ import com.GOBookingAPI.payload.response.LoginResponse;
 
 public interface IUserService {
 	BaseResponse<LoginResponse> loadUserbyEmail(String email);
+
+	User getByEmail(String email);
 	
 	BaseResponse<?> registerCustomer(CustomerRequest customerRequest);
 	

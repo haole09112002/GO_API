@@ -5,11 +5,10 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.GOBookingAPI.entities.Booking;
+import com.GOBookingAPI.entities.User;
 
 @Repository
-public interface BookingRepository extends JpaRepository<Booking, Integer>{
+public interface MyUserRepository extends JpaRepository<User, Integer>{
 
-	Optional<Booking> findById(int id);
-	
+	Optional<User> findByEmail(String email);
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.Review;
+import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.ReviewRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.repositories.BookingRepository;

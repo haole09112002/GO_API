@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import com.GOBookingAPI.entities.VehicleType;
 
+import java.util.Optional;
+
 @Repository
 public interface VehicleRepository extends JpaRepository<VehicleType, Integer>{
 	Optional<VehicleType> findByName(String name);

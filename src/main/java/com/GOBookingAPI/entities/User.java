@@ -21,9 +21,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 @Getter
 @Setter
 @Entity @NoArgsConstructor @AllArgsConstructor
+@ToString
 @Table(name = "User")
 public class User implements Serializable{
 	
@@ -53,5 +55,6 @@ public class User implements Serializable{
 	
 	@OneToOne(mappedBy = "user")
 	private Driver driver;
+	
 	
 }

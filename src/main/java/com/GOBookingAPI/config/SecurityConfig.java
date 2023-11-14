@@ -33,9 +33,9 @@ public class SecurityConfig {
 		
 		
 		http.cors().and() // Kích hoạt CORS 
-
-        .csrf().disable();	
+        .csrf().disable();
 		http.authorizeRequests().requestMatchers("/home/**").permitAll();
+		http.authorizeRequests().requestMatchers("/bookings/**").permitAll();
 		http.authorizeRequests().requestMatchers("/","/ws/**").authenticated().anyRequest().authenticated();
 		http.exceptionHandling().authenticationEntryPoint(entryPoint);
 		http.addFilterBefore(new GoogleFilter(), BasicAuthenticationFilter.class);

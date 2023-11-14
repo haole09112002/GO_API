@@ -5,8 +5,12 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Optional;
 
+import com.GOBookingAPI.enums.BookingStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,20 +28,28 @@ import lombok.Setter;
 @Entity @NoArgsConstructor @AllArgsConstructor
 @Table(name = "Booking")
 public class Booking implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+	
 	@Column
 	private Date createAt; 
-	@Column(nullable = false , columnDefinition = "varchar(30)")
+	
+	@Column(nullable = false , columnDefinition = "varchar(100)")
 	private String pickupLocation;
-	@Column(nullable = false , columnDefinition = "varchar(30)")
+	
+	@Column(nullable = false , columnDefinition = "varchar(100)")
 	private String dropoffLocation;
-	@Column(nullable = false, columnDefinition = "varchar(30)")
-	private String status;
+	
+	@Enumerated(EnumType.STRING)
+	private BookingStatus status;
+	
 	@Column
 	private Date startTime;
+	
 	@Column
 	private Date endTime;
 	

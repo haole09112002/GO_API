@@ -1,44 +1,97 @@
 package com.GOBookingAPI.exceptions;
 
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.ui.Model;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
+@RestControllerAdvice
+public class ControllerExceptionHandler{
 
+    @ExceptionHandler(NotFoundException.class)
+    public ErrorResponse handlerNotFoundException(NotFoundException ex) {
+//		String message = "Please provide Request Body in valid JSON format";
+        List<String> messages = new ArrayList<>(1);
+        messages.add(ex.getMessage());
+        return new ErrorResponse(false, messages, HttpStatus.NOT_FOUND.getReasonPhrase(), HttpStatus.NOT_FOUND);
+    }
 
-@ControllerAdvice
-public class ControllerExceptionHandler {
+    @ExceptionHandler(BadRequestException.class)
+    public ErrorResponse resolveException(BadRequestException ex) {
+//		String message = "Please provide Request Body in valid JSON format";
+        List<String> messages = new ArrayList<>(1);
+        messages.add(ex.getMessage());
+        return new ErrorResponse(false, messages, HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
+    }
 
-	@ExceptionHandler(NotFoundException.class)
-	public String handlerNotFoundException(NotFoundException ex, Model model)
-	{			
-		model.addAttribute("error", new ErrorResponse(false,ex.getMessage(), HttpStatus.NOT_FOUND.getReasonPhrase(),HttpStatus.NOT_FOUND));
-		return "error";
-	}
-	
-	
-	@ExceptionHandler(BadRequestException.class)
-	public String resolveException(BadRequestException ex, Model model)
-	{		
-		model.addAttribute("error", new ErrorResponse(false,ex.getMessage(), HttpStatus.BAD_REQUEST.getReasonPhrase(),HttpStatus.BAD_REQUEST));
-		return "error";
-		
-	}
-	
-	@ExceptionHandler(AppException.class)
-	public String resolveException(AppException ex, Model model)
-	{		
-		model.addAttribute("error",new ErrorResponse(false,ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),HttpStatus.INTERNAL_SERVER_ERROR));
-		return "error";
-	}
-	
-	@ExceptionHandler(FileStorageException.class)
-	public String resolveException(FileStorageException ex, Model model)
-	{		
-		model.addAttribute("error",new ErrorResponse(false,ex.getMessage(), HttpStatus.NOT_FOUND.getReasonPhrase(),HttpStatus.NOT_FOUND));
-		return "error";
-	}
+    @ExceptionHandler(AppException.class)
+    public ErrorResponse resolveException(AppException ex) {
+//		String message = "Please provide Request Body in valid JSON format";
+        List<String> messages = new ArrayList<>(1);
+        messages.add(ex.getMessage());
+        return new ErrorResponse(false, messages, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ErrorResponse resolveException(FileStorageException ex) {
+//		String message = "Please provide Request Body in valid JSON format";
+        List<String> messages = new ArrayList<>(1);
+        messages.add(ex.getMessage());
+        return new ErrorResponse(false, messages, HttpStatus.NOT_FOUND.getReasonPhrase(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
+        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
+        List<String> errorMessages = new ArrayList<>();
+        for (FieldError fieldError : fieldErrors) {
+            errorMessages.add("Field '" + fieldError.getField() + "': " + fieldError.getDefaultMessage());
+        }
+        return new ErrorResponse(false, errorMessages, HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidation2Exception(ConstraintViolationException ex) {
+        List<String> details = ex.getConstraintViolations().stream()
+                        .map(e ->  e.getPropertyPath().toString()+ " : "  + e.getMessage())
+                        .toList();
+        return new ErrorResponse(false, details, HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDeniedException(AccessDeniedException ex) {
+        List<String> messages = new ArrayList<>(1);
+        messages.add(ex.getMessage());
+        return new ErrorResponse(false, messages, HttpStatus.FORBIDDEN.getReasonPhrase(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleAuthenticationException(AuthenticationException ex) {
+        List<String> messages = new ArrayList<>(1);
+        messages.add(ex.getMessage());
+        return new ErrorResponse(false, messages, HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleAuthenticationException(BadCredentialsException ex) {
+        List<String> messages = new ArrayList<>(1);
+        messages.add(ex.getMessage());
+        return new ErrorResponse(false, messages, HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+    }
 }
