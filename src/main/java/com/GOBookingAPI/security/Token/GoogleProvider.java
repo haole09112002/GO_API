@@ -63,7 +63,6 @@ implements AuthenticationProvider
 						}else {
 							System.out.print("This is Provider");
 							 User user = userOptional.get();
-							 System.out.println(user);
 							return new UserSecurity(user, user.getRoles().stream().map(role-> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
 						}
 						} else {

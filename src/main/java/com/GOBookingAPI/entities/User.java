@@ -41,7 +41,7 @@ public class User implements Serializable{
 	@Column
 	private Boolean isNonBlock;
 	
-	@Column(columnDefinition = "text")
+	@Column(columnDefinition = "longtext")
 	private String avatarUrl;
 	    
 	    

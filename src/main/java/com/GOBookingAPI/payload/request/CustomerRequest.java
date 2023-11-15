@@ -2,6 +2,7 @@ package com.GOBookingAPI.payload.request;
 
 import java.util.Date;
 
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,11 +14,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CustomerRequest {
 
-	private String avatar;
+	private MultipartFile avatar;
 	
 	private String phoneNumber;
 	
-	private Date dateOfBirth;
+	private String dateOfBirth;
 	
 	private String fullName;
 	
