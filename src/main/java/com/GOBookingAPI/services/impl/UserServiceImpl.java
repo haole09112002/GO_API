@@ -66,7 +66,7 @@ public class UserServiceImpl implements IUserService{
 					roleName = role.getName();
 					break;
 				}
-				if(!user.getIsNonBlock()) {
+				if(user.getIsNonBlock()) {
 					return new BaseResponse<LoginResponse>(new LoginResponse("blocked" ,roleName),"User is blocked");
 				}
 				else {
