@@ -27,9 +27,9 @@ public class Customer implements Serializable{
 	
 	@Id
 	private int id;
-	@Column(nullable = false , columnDefinition = "Varchar(30)")
+	@Column(columnDefinition = "Varchar(30)")
 	private String fullName ;
-	@Column(nullable = false)
+	@Column
 	private Boolean gender ;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
 	@Column
