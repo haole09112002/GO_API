@@ -35,7 +35,6 @@ public class BookingController {
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<?> createBooking(@RequestBody @Valid BookingRequest bookingRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.print(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
         User user = userService.getByEmail(email);
         if (user != null) {
             return ResponseEntity.ok(bookingService.createBooking(user.getEmail(), bookingRequest));
