@@ -18,7 +18,7 @@ public class ReviewController {
 	@Autowired
 	private IReviewService reviewService;
 	
-	@PostMapping("/create")
+	@PostMapping("/")
 	@PreAuthorize("hasRole('CUSTOMER')")
 	public ResponseEntity<?> createReview(@RequestBody ReviewRequest reviewRequest){
 		return ResponseEntity.ok(reviewService.createReview(reviewRequest));

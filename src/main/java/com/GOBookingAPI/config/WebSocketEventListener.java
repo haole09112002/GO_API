@@ -39,16 +39,5 @@ public class WebSocketEventListener {
 		}
 	}
 	
-//	@EventListener
-//	public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-//		MessageHeaderAccessor headerAccessor = 
-//			     MessageHeaderAccessor.getAccessor(event.getMessage().getHeaders(), 
-//			     MessageHeaderAccessor.class);
-//			StompHeaderAccessor stompHeaderAccessor = MessageHeaderAccessor.getAccessor(
-//			                (org.springframework.messaging.Message<?>) headerAccessor.getHeader("simpConnectMessage"),
-//			                StompHeaderAccessor.class) ;
-//			String token = stompHeaderAccessor.getNativeHeader("Authorization").get(0);
-//			System.out.print("1123" + token);
-//	}
 
 }

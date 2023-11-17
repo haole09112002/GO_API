@@ -20,7 +20,7 @@ public class ConservationController {
 	@Autowired
 	private IConservationService conservationService;
 	
-	@PostMapping("/create-conservation")
+	@PostMapping("/")
 	public ResponseEntity<?> createConservation(@RequestBody CreateConservationRequest conservationRequest){
 		return ResponseEntity.ok(conservationService.createConservation(conservationRequest));
 	}
