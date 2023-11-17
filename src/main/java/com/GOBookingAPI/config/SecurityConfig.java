@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.GOBookingAPI.security.Token.GoogleEntryPoint;
 import com.GOBookingAPI.security.Token.GoogleFilter;
@@ -20,7 +22,7 @@ import com.GOBookingAPI.security.Token.GoogleProvider;
 @EnableMethodSecurity
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig {
+public class SecurityConfig implements WebMvcConfigurer{
 	
 	@Autowired
 	GoogleEntryPoint entryPoint;
@@ -42,4 +44,11 @@ public class SecurityConfig {
 		http.authenticationProvider(provider);
 		return http.build();
 	}
+
+	@Override
+	public void addCorsMappings(CorsRegistry registry) {
+		registry.addMapping("/**").allowedOrigins("http://127.0.0.1:3000" , "http://127.0.0.1:5500").allowedMethods("GET","POST","PUT","DELETE");
+	}
+	
+	
 }
