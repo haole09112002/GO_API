@@ -57,11 +57,11 @@ implements AuthenticationProvider
 						if(!userOptional.isPresent()) {
 							User user = new User();
 							user.setEmail(email);
-							System.out.print("This is Provider and provider null");
+							System.out.println("This is Provider and provider null");
 							return new UserSecurity(user, null);
 							
 						}else {
-							System.out.print("This is Provider");
+							System.out.println("This is Provider");
 							 User user = userOptional.get();
 							return new UserSecurity(user, user.getRoles().stream().map(role-> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
 						}
