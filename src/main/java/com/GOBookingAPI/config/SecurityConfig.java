@@ -34,8 +34,8 @@ public class SecurityConfig implements WebMvcConfigurer{
 	public SecurityFilterChain filterChain(HttpSecurity http ) throws Exception{
 		
 		
-		http.cors().and() // Kích hoạt CORS 
-        .csrf().disable();
+		http.cors().disable();
+        http.csrf().disable();
 		http.authorizeRequests().requestMatchers("/home/**").permitAll();
 		http.authorizeRequests().requestMatchers("/bookings/**").permitAll();
 		http.authorizeRequests().requestMatchers("/","/ws/**").authenticated().anyRequest().authenticated();
@@ -45,10 +45,10 @@ public class SecurityConfig implements WebMvcConfigurer{
 		return http.build();
 	}
 
-	@Override
-	public void addCorsMappings(CorsRegistry registry) {
-		registry.addMapping("/**").allowedOrigins("http://127.0.0.1:3000" , "http://127.0.0.1:5500").allowedMethods("GET","POST","PUT","DELETE");
-	}
+//	@Override
+//	public void addCorsMappings(CorsRegistry registry) {
+//		registry.addMapping("/**").allowedOrigins("http://127.0.0.1:3000" , "http://127.0.0.1:5500").allowedMethods("GET","POST","PUT","DELETE");
+//	}
 	
 	
 }
