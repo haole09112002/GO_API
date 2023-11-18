@@ -16,6 +16,8 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.GOBookingAPI.security.Token.GoogleEntryPoint;
 import com.GOBookingAPI.security.Token.GoogleFilter;
 import com.GOBookingAPI.security.Token.GoogleProvider;
@@ -56,7 +58,4 @@ public class SecurityConfig implements WebMvcConfigurer{
         .maxAge(-1)   // add maxAge
         .allowCredentials(false);
 	}
-
-	
-	
 }
