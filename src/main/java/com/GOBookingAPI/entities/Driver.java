@@ -34,18 +34,18 @@ public class Driver implements Serializable {
 	
 	@Id
 	private int id;
-	@Column(nullable = false , columnDefinition = "varchar(30)")
+	@Column( columnDefinition = "varchar(30)")
 	private String fullName ;
-	@Column(nullable = false)
+	@Column
 	private Boolean gender ;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
 	@Column
 	private Date dateOfBirth;
 	@Column
 	private Date startWorkDay;
-	@Column(nullable = false , columnDefinition = "varchar(15)")
+	@Column( columnDefinition = "varchar(15)")
 	private String idCard;
-	@Column(columnDefinition = "text")
+	@Column(columnDefinition = "longtext")
 	private String licensePlate;
 	@Column( columnDefinition = "varchar(10)")
 	private String status ;

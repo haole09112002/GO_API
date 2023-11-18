@@ -1,13 +1,16 @@
 package com.GOBookingAPI.services.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import  java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.GOBookingAPI.entities.Customer;
 import com.GOBookingAPI.entities.Driver;
@@ -19,12 +22,14 @@ import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.payload.request.DriverRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.payload.response.LoginResponse;
+import com.GOBookingAPI.payload.response.RegisterResponse;
 import com.GOBookingAPI.repositories.CustomerRepository;
 import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.repositories.RoleRepository;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.repositories.VehicleRepository;
 import com.GOBookingAPI.services.IUserService;
+import com.google.api.client.util.Base64;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,7 +55,7 @@ public class UserServiceImpl implements IUserService{
 	@Override
 	public BaseResponse<LoginResponse> loadUserbyEmail(String email) {
 		try {
-			java.util.Optional<User> userOptional = userRepository.findByEmail(email);
+			Optional<User> userOptional = userRepository.findByEmail(email);
 		
 			if(!userOptional.isPresent()) {
 				 return new BaseResponse<LoginResponse>( new LoginResponse("unregistered" , null ) ,"User not found");
@@ -61,12 +66,12 @@ public class UserServiceImpl implements IUserService{
 					roleName = role.getName();
 					break;
 				}
-				if(!user.getIsNonBlock()) {
+				if(user.getIsNonBlock()) {
 					return new BaseResponse<LoginResponse>(new LoginResponse("blocked" ,roleName),"User is blocked");
 				}
 				else {
 					if(roleName.equals("DRIVER")) {
-						java.util.Optional<Driver> driverOptional = driverRepository.findById(user.getId());
+						Optional<Driver> driverOptional = driverRepository.findById(user.getId());
 						Driver driver = driverOptional.get();
 						if(driver.getStatus().equals("NOACTIVE")) {
 							return new BaseResponse<LoginResponse>(new LoginResponse("uncheck" ,roleName),"Driver uncheck");
@@ -84,18 +89,19 @@ public class UserServiceImpl implements IUserService{
 	}
 
 	@Override
+
 	public User getByEmail(String email) {
 		User user = userRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Không tìm thấy user"));
 	    return user;
 	}
 
 	@Override
-	public String registerCustomer(CustomerRequest customerRequest) {
+	public RegisterResponse registerCustomer(CustomerRequest customerRequest ,MultipartFile avatar) {
 		try {
+			
 			User user = new User();
 			Date currentDate = new Date();
 			user.setEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-			user.setAvatarUrl(customerRequest.getAvatar());
 			user.setPhoneNumber(customerRequest.getPhoneNumber());
 			user.setIsNonBlock(false);
 			user.setCreateDate(currentDate);
@@ -103,30 +109,39 @@ public class UserServiceImpl implements IUserService{
 			Role role = roleRepository.findByName("CUSTOMER").orElseThrow(()-> new NotFoundException("Khong tim thay role"));
 			roles.add(role);
 			user.setRoles(roles);
+			if(avatar != null) {
+				byte[] avatarBytes = avatar.getBytes();
+
+	            String avatarString = Base64.encodeBase64String(avatarBytes);
+	            user.setAvatarUrl(avatarString);
+			}
 			userRepository.save(user);
 			User usersaved = userRepository.findByEmail(user.getEmail()).orElseThrow(()-> new NotFoundException("Khong tim thay user voi email : " + user.getEmail()));
 
 			Customer newcustomer = new Customer();
+			if(customerRequest.getDateOfBirth() != null) {
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				Date dateofBirth = dateFormat.parse(customerRequest.getDateOfBirth());
+				newcustomer.setDateOfBirth(dateofBirth);
+			}
 			newcustomer.setId(usersaved.getId());
 			newcustomer.setFullName(customerRequest.getFullName());
-			newcustomer.setDateOfBirth(customerRequest.getDateOfBirth());
 			newcustomer.setGender(customerRequest.getGender());
 			newcustomer.setUser(usersaved);
 			customerRepository.save(newcustomer);
-			return  "Success";
+			return  new RegisterResponse("Success");
 		}catch(Exception e) {
 			log.info("Error Register Service!: {}" , e.getMessage());
-			return "Fail";
+			return   new RegisterResponse( "Fail");
 		}
 	}
 
 	@Override
-	public String registerDriver(DriverRequest driverRequest) {
+	public RegisterResponse registerDriver(DriverRequest driverRequest ) {
 		try {
 			User user = new User();
 			Date currentDate = new Date();
 			user.setEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-			user.setAvatarUrl(driverRequest.getAvatar());
 			user.setPhoneNumber(driverRequest.getPhoneNumber());
 			user.setIsNonBlock(false);
 			user.setCreateDate(currentDate);
@@ -134,16 +149,31 @@ public class UserServiceImpl implements IUserService{
 			Optional<Role> roleOptional = roleRepository.findByName("DRIVER");
 			roles.add(roleOptional.get());
 			user.setRoles(roles);
+			if(driverRequest.getAvatar() != null) {
+				byte[] avatarBytes = driverRequest.getAvatar().getBytes();
+				String avatarString = Base64.encodeBase64String(avatarBytes);
+				user.setAvatarUrl(avatarString);
+			}
+			
 			userRepository.save(user);
-			java.util.Optional<User> userOptional = userRepository.findByEmail(user.getEmail());
+			Optional<User> userOptional = userRepository.findByEmail(user.getEmail());
 			User usersaved = userOptional.get();
 			Driver newdriver = new Driver();
+			if(driverRequest.getDateOfBirth() != null) {
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				Date dateofBirth = dateFormat.parse(driverRequest.getDateOfBirth());
+				newdriver.setDateOfBirth(dateofBirth);
+			}
+			if(driverRequest.getLicensePlate() != null) {
+				 byte[] licensePlateBytes = driverRequest.getLicensePlate().getBytes();
+				   String licensePlateString = Base64.encodeBase64String(licensePlateBytes);
+				   newdriver.setLicensePlate(licensePlateString);
+			}
 			newdriver.setId(usersaved.getId());
-			newdriver.setDateOfBirth(driverRequest.getDateOfBirth());
 			newdriver.setFullName(driverRequest.getFullName());
 			newdriver.setGender(driverRequest.getGender());
 			newdriver.setIdCard(driverRequest.getIdCard());
-			newdriver.setLicensePlate(driverRequest.getLicensePlate());
+			
 			Set<VehicleType> vehicles = new HashSet<>();
 			Optional<VehicleType> vehicleOptional = vehicleRepository.findByName(driverRequest.getVehicle());
 			vehicles.add(vehicleOptional.get());
@@ -151,11 +181,28 @@ public class UserServiceImpl implements IUserService{
 			newdriver.setStatus("NOACTIVE");
 			newdriver.setUser(usersaved);
 			driverRepository.save(newdriver);
-			return "Success";
+			return  new RegisterResponse("Success");
 		}catch(Exception e) {
 			log.info("Error Register Service! {}" , e.getMessage());
-			return "Fail";
+			return  new RegisterResponse("Fail");
 		}
 	}
 
+	@Override
+	public Optional<User> findByEmail(String email) {
+		try {
+			Optional<User> userOptional = userRepository.findByEmail(email);
+			if(userOptional.isPresent()) {
+				return userOptional;
+			}else {
+				return null ;
+			}
+		}catch(Exception e) {
+			log.info("Error in UserService");
+			return null ;
+		}
+	}
+
+	
+	
 }
