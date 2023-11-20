@@ -102,7 +102,7 @@ public class UserServiceImpl implements IUserService{
 			String email =SecurityContextHolder.getContext().getAuthentication().getName();
 			Optional<User> userOptional = userRepository.findByEmail(email);
 			if(!userOptional.isPresent()) {
-				user = registerUser(email, customerRequest.getPhoneNumber(), customerRequest.getAvatar(), "DRIVER");
+				user = registerUser(email, customerRequest.getPhoneNumber(), customerRequest.getAvatar(), "CUSTOMER");
 			}else {
 				user = userOptional.get();
 			}
