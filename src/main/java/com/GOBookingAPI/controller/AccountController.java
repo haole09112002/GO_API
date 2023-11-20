@@ -31,7 +31,7 @@ public class AccountController {
 	
 	@PostMapping("/register-customer")
 	public ResponseEntity<?> registerCustomer(@ModelAttribute CustomerRequest customerRequest){
-		return ResponseEntity.ok(userService.registerCustomer(customerRequest, customerRequest.getAvatar()));
+		return ResponseEntity.ok(userService.registerCustomer(customerRequest));
 	}
 	
 	@PostMapping("/register-driver")
