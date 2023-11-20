@@ -1,10 +1,7 @@
 package com.GOBookingAPI.entities;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Date;
-import java.util.Optional;
-
 import com.GOBookingAPI.enums.BookingStatus;
 
 import jakarta.persistence.Column;
@@ -46,7 +43,10 @@ public class Booking implements Serializable {
 	
 	@Enumerated(EnumType.STRING)
 	private BookingStatus status;
-	
+
+	@Column
+	private double amount;
+
 	@Column
 	private Date startTime;
 	
@@ -75,4 +75,7 @@ public class Booking implements Serializable {
 	
 	@OneToOne(mappedBy = "booking")
 	private Review review;
+
+	@Enumerated(EnumType.STRING)
+	private com.GOBookingAPI.enums.VehicleType vehicleType;
 }

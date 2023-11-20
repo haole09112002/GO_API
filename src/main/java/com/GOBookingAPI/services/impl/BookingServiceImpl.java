@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.BadRequestException;
+import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.payload.response.TravelInfoResponse;
 import com.GOBookingAPI.payload.vietmap.Path;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
@@ -29,67 +30,120 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class BookingServiceImpl implements IBookingService{
+public class BookingServiceImpl implements IBookingService {
 
-	@Autowired
-	private BookingRepository bookingRepository;
-	
-	@Autowired
-	private CustomerRepository customerRepository;
-	
-	@Autowired
-	private DriverRepository driverRepository;
-	
-	@Autowired
-	private VehicleRepository vehicleRepository;
-	
-	@Autowired
-	private MyUserRepository myUserRepository;
+    @Autowired
+    private BookingRepository bookingRepository;
 
-	@Autowired
-	private MapServiceImpl mapService;
-	@Override
-	public Booking createBooking(String username, BookingRequest req) {
-		try {
-			User user = myUserRepository.findByEmail(username).orElseThrow(()-> new NotFoundException("Không tìm thấy khách hàng"));
-			Customer customer = customerRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy Customer"));
-			System.out.print(user.toString());
-			Booking booking = new Booking();
-			booking.setCustomer(customer);
-			booking.setDriver(null);
-			booking.setStatus(BookingStatus.WAITING);
-			booking.setPickupLocation(req.getPickUpLocation());
-			booking.setDropoffLocation(req.getDropOffLocation());
-			mapService.getRoute(req.getPickUpLocation(), req.getDropOffLocation(), "motorcycle");
-			Date currentDate = new Date();
-			booking.setCreateAt(currentDate);
-			bookingRepository.save(booking);
-			return booking;
-			
-		}catch(Exception e) {
-			log.error("error in bookingService", e);
-			return null;
-		}
-	}
+    @Autowired
+    private CustomerRepository customerRepository;
 
-	@Override
-	public TravelInfoResponse getTravelInfo(String pickUpLocation, String dropOffLocation) {
-			Map<Integer, Double> amounts = new HashMap<>();
-			for (VehicleType type : VehicleType.values()) {					//todo save database vehicle type
-				VietMapResponse travel = mapService.getRoute(pickUpLocation, dropOffLocation, type.name());
-				if(travel.getCode().equals("ERROR")){
-					throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
-				}
-				Path path = travel.getPaths().get(0);
-				double total = path.getDistance() * type.getPrice();
-				amounts.put(type.getValue(), Math.floor(total + 0.5));
-			}
-			return new TravelInfoResponse(pickUpLocation, dropOffLocation, amounts);
-	}
+    @Autowired
+    private DriverRepository driverRepository;
 
-	@Override
-	public BaseResponse<Booking> Confirm(int id) {
-		try {
+    @Autowired
+    private VehicleRepository vehicleRepository;
+
+    @Autowired
+    private MyUserRepository myUserRepository;
+
+    @Autowired
+    private MapServiceImpl mapService;
+
+    @Override
+    public BookingResponse createBooking(String username, BookingRequest req) {
+        User user = myUserRepository.findByEmail(username).orElseThrow(() -> new NotFoundException("Không tìm thấy khách hàng"));
+        Customer customer = customerRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy Customer"));
+        System.out.print(user.toString());
+        VietMapResponse vietMapResponse = mapService.getRoute(req.getPickUpLocation(), req.getDropOffLocation(), VehicleType.getTypeByValue(req.getVehicleType()).name());
+        double amount = this.calculatePrice(vietMapResponse.getFirstPath().getDistance(), VehicleType.getTypeByValue(req.getVehicleType()));
+        Booking booking = new Booking();
+        booking.setCustomer(customer);
+        booking.setDriver(null);
+        booking.setStatus(BookingStatus.WAITING);
+        booking.setPickupLocation(req.getPickUpLocation());
+        booking.setDropoffLocation(req.getDropOffLocation());
+        booking.setAmount(amount);
+        booking.setVehicleType(VehicleType.getTypeByValue(req.getVehicleType()));
+        booking.setCreateAt(new Date());
+        bookingRepository.save(booking);
+        BookingResponse resp = new BookingResponse();
+        resp.setId(booking.getId());
+        resp.setDriver(null);
+        resp.setCreateAt(booking.getCreateAt());
+        resp.setPayment(null);
+        resp.setAmount(booking.getAmount());
+        resp.setDropOffLocation(booking.getDropoffLocation());
+        resp.setPickupLocation(booking.getPickupLocation());
+        resp.setStatus(booking.getStatus());
+        resp.setVehicleType(booking.getVehicleType());
+        resp.setDistance(vietMapResponse.getFirstPath().getDistance());
+        resp.setPredictTime(vietMapResponse.getFirstPath().getTime());
+        return resp;
+    }
+
+    @Override
+    public void changeBookingStatus(String username, int bookingId, BookingStatus targetStatus) {
+        User user = myUserRepository.findByEmail(username).orElseThrow(() -> new NotFoundException("Không tìm thấy khách hàng"));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + bookingId));
+        if (!booking.getCustomer().getUser().getEmail().equals(username)) {
+            throw new BadRequestException("Booking id " + booking + " không thuộc về khách hàng " + username);
+        }
+        booking.setStatus(targetStatus);
+        bookingRepository.save(booking);
+//		boolean isSuccess = false;
+//		switch (targetStatus){
+//			case CANCELLED:
+//				if(booking.getStatus() == BookingStatus.WAITING || booking.getStatus() == BookingStatus.PAID)
+//					isSuccess = true;
+//				break;
+//			case PAID:
+//				if(booking.getStatus() == BookingStatus.WAITING){
+//					isSuccess = true;
+//				}
+//				break;
+//			case WAITING:
+//				if(booking.getStatus() == null){
+//					booking.setStatus(targetStatus);
+//					isSuccess = true;
+//				}
+//				break;
+//
+//			case REFUNDED:
+//				if(booking.getStatus() == BookingStatus.CANCELLED){
+//					isSuccess = true;
+//				}
+//				break;
+//			case COMPLETE:
+//				if(booking.getStatus() == BookingStatus.CANCELLED){
+//					isSuccess = true;
+//				}
+//				break;
+//			case ON_RIDE:
+//				break;
+//			default:
+//				throw new BadRequestException("Booking status không tồn tại");
+//		}
+    }
+
+    @Override
+    public TravelInfoResponse getTravelInfo(String pickUpLocation, String dropOffLocation) {
+        Map<Integer, Double> amounts = new HashMap<>();
+        for (VehicleType type : VehicleType.values()) {                    //todo save database vehicle type
+            VietMapResponse travel = mapService.getRoute(pickUpLocation, dropOffLocation, type.name());
+            if (travel.getCode().equals("ERROR")) {
+                throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
+            }
+            Path path = travel.getPaths().get(0);
+            double total = this.calculatePrice(path.getDistance(), type);
+            amounts.put(type.getValue(), total);
+        }
+        return new TravelInfoResponse(pickUpLocation, dropOffLocation, amounts);
+    }
+
+    @Override
+    public BaseResponse<Booking> Confirm(int id) {
+        try {
 //			Booking booking = bookingRepository.findById(id);
 //			if(booking != null) {
 //				Date curentlydate = new Date();
@@ -99,15 +153,16 @@ public class BookingServiceImpl implements IBookingService{
 //			}else {
 //				return new BaseResponse<Booking>( null, "Confirm fail!");
 //			}
-			return null ;
-		}catch(Exception e) {
-			log.info("error in Booking Service");
-			return null ;
-		}
-	}
-	@Override
-	public BaseResponse<Booking> Cancel(BookingCancelRequest req) {
-		try {
+            return null;
+        } catch (Exception e) {
+            log.info("error in Booking Service");
+            return null;
+        }
+    }
+
+    @Override
+    public BaseResponse<Booking> Cancel(BookingCancelRequest req) {
+        try {
 //			Booking booking = bookingRepository.findById(req.getBookingId());
 //			if(booking != null) {
 //			booking.setReasonType(req.getReasonType());
@@ -117,14 +172,17 @@ public class BookingServiceImpl implements IBookingService{
 //			}else {
 //				return new BaseResponse<Booking>( null, "Cancel fail!");
 //			}
-			return null;
-		}catch(Exception e) {
-			log.info("error in Booking Service");
-			return null ;
-		}
-	}
-	
-	
-	
+            return null;
+        } catch (Exception e) {
+            log.info("error in Booking Service");
+            return null;
+        }
+    }
+
+    public double calculatePrice(double distance, VehicleType vehicleType) {
+        double total = distance * vehicleType.getPrice();
+        return Math.floor(total + 0.5);
+    }
+
 
 }

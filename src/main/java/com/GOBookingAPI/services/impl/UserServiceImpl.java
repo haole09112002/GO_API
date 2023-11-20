@@ -1,12 +1,16 @@
 package com.GOBookingAPI.services.impl;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import  java.util.Optional;
+import java.util.Optional;
+
+import com.GOBookingAPI.exceptions.BadRequestException;
+import com.google.api.gax.rpc.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -29,7 +33,6 @@ import com.GOBookingAPI.repositories.RoleRepository;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.repositories.VehicleRepository;
 import com.GOBookingAPI.services.IUserService;
-import com.google.api.client.util.Base64;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -207,6 +210,4 @@ public class UserServiceImpl implements IUserService{
 		}
 	}
 
-	
-	
 }

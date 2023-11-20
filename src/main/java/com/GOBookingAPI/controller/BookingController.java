@@ -31,7 +31,7 @@ public class BookingController {
     @Autowired
     private IUserService userService;
 
-    @PostMapping("/create")
+    @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<?> createBooking(@RequestBody @Valid BookingRequest bookingRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
