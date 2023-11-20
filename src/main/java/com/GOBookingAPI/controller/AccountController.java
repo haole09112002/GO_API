@@ -1,5 +1,7 @@
 package com.GOBookingAPI.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,8 +32,13 @@ public class AccountController {
 	private IUserService userService;
 	
 	@PostMapping("/register-customer")
-	public ResponseEntity<?> registerCustomer(@ModelAttribute CustomerRequest customerRequest){
-		return ResponseEntity.ok(userService.registerCustomer(customerRequest));
+	public ResponseEntity<?> registerCustomer(   
+			  @RequestParam("phoneNumber") String phoneNumber,
+			  @RequestParam(name = "isMale", required = false)  boolean isMale,
+			  @RequestParam(name = "dateOfBirth", required = false) String dateOfBirth,
+			  @RequestParam(name = "avatar", required = false) MultipartFile avatar,
+			  @RequestParam(name = "fullName") String fullName){
+		return ResponseEntity.ok(userService.registerCustomer(avatar, phoneNumber, fullName, isMale, dateOfBirth));
 	}
 	
 	@PostMapping("/register-driver")
