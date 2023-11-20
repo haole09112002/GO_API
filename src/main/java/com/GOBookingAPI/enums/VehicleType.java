@@ -1,5 +1,7 @@
 package com.GOBookingAPI.enums;
 
+import com.GOBookingAPI.exceptions.BadRequestException;
+
 public enum VehicleType {
 
     MOTORCYCLE(1, 8),
@@ -27,6 +29,6 @@ public enum VehicleType {
                 return type;
             }
         }
-        throw new IllegalArgumentException("Invalid VehicleType value: " + value);
+        throw new BadRequestException("Invalid VehicleType value: " + value);
     }
 }
