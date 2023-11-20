@@ -1,16 +1,22 @@
 package com.GOBookingAPI.payload.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.io.Serializable;
 
-@Builder
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class RegisterResponse {
+public class PaymentResponse implements Serializable {
+
+	private String status;
+	
 	private String message;
 	
-	private String error;
+	private String URL;
 }

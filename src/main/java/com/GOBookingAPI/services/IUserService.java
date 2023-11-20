@@ -17,7 +17,9 @@ public interface IUserService {
 
 	User getByEmail(String email);
 	
-	RegisterResponse registerCustomer(CustomerRequest customerRequest ,MultipartFile avatar );
+	User registerUser(String email , String phoneNumber, MultipartFile avatar , String Namerole);
+	
+	RegisterResponse registerCustomer(CustomerRequest customerRequest);
 	
 	RegisterResponse registerDriver(DriverRequest driverRequest);
 	

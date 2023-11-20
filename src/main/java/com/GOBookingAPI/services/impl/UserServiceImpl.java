@@ -96,43 +96,31 @@ public class UserServiceImpl implements IUserService{
 	}
 
 	@Override
-	public RegisterResponse registerCustomer(CustomerRequest customerRequest ,MultipartFile avatar) {
+	public RegisterResponse registerCustomer(CustomerRequest customerRequest ) {
 		try {
-			
 			User user = new User();
-			Date currentDate = new Date();
-			user.setEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-			user.setPhoneNumber(customerRequest.getPhoneNumber());
-			user.setIsNonBlock(false);
-			user.setCreateDate(currentDate);
-			Set<Role> roles = new HashSet<>();
-			Role role = roleRepository.findByName("CUSTOMER").orElseThrow(()-> new NotFoundException("Khong tim thay role"));
-			roles.add(role);
-			user.setRoles(roles);
-			if(avatar != null) {
-				byte[] avatarBytes = avatar.getBytes();
-
-	            String avatarString = Base64.encodeBase64String(avatarBytes);
-	            user.setAvatarUrl(avatarString);
+			String email =SecurityContextHolder.getContext().getAuthentication().getName();
+			Optional<User> userOptional = userRepository.findByEmail(email);
+			if(!userOptional.isPresent()) {
+				user = registerUser(email, customerRequest.getPhoneNumber(), customerRequest.getAvatar(), "DRIVER");
+			}else {
+				user = userOptional.get();
 			}
-			userRepository.save(user);
-			User usersaved = userRepository.findByEmail(user.getEmail()).orElseThrow(()-> new NotFoundException("Khong tim thay user voi email : " + user.getEmail()));
-
 			Customer newcustomer = new Customer();
 			if(customerRequest.getDateOfBirth() != null) {
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 				Date dateofBirth = dateFormat.parse(customerRequest.getDateOfBirth());
 				newcustomer.setDateOfBirth(dateofBirth);
 			}
-			newcustomer.setId(usersaved.getId());
+			newcustomer.setId(user.getId());
 			newcustomer.setFullName(customerRequest.getFullName());
 			newcustomer.setGender(customerRequest.getGender());
-			newcustomer.setUser(usersaved);
+			newcustomer.setUser(user);
 			customerRepository.save(newcustomer);
-			return  new RegisterResponse("Success");
+			return  new RegisterResponse("Success",null);
 		}catch(Exception e) {
 			log.info("Error Register Service!: {}" , e.getMessage());
-			return   new RegisterResponse( "Fail");
+			return   new RegisterResponse( "Fail" , "Error Register Customer! " + e.getMessage());
 		}
 	}
 
@@ -140,24 +128,13 @@ public class UserServiceImpl implements IUserService{
 	public RegisterResponse registerDriver(DriverRequest driverRequest ) {
 		try {
 			User user = new User();
-			Date currentDate = new Date();
-			user.setEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-			user.setPhoneNumber(driverRequest.getPhoneNumber());
-			user.setIsNonBlock(false);
-			user.setCreateDate(currentDate);
-			Set<Role> roles = new HashSet<>();
-			Optional<Role> roleOptional = roleRepository.findByName("DRIVER");
-			roles.add(roleOptional.get());
-			user.setRoles(roles);
-			if(driverRequest.getAvatar() != null) {
-				byte[] avatarBytes = driverRequest.getAvatar().getBytes();
-				String avatarString = Base64.encodeBase64String(avatarBytes);
-				user.setAvatarUrl(avatarString);
+			String email =SecurityContextHolder.getContext().getAuthentication().getName();
+			Optional<User> userOptional = userRepository.findByEmail(email);
+			if(!userOptional.isPresent()) {
+				user = registerUser(email, driverRequest.getPhoneNumber(), driverRequest.getAvatar(), "DRIVER");
+			}else {
+				user = userOptional.get();
 			}
-			
-			userRepository.save(user);
-			Optional<User> userOptional = userRepository.findByEmail(user.getEmail());
-			User usersaved = userOptional.get();
 			Driver newdriver = new Driver();
 			if(driverRequest.getDateOfBirth() != null) {
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -169,7 +146,7 @@ public class UserServiceImpl implements IUserService{
 				   String licensePlateString = Base64.encodeBase64String(licensePlateBytes);
 				   newdriver.setLicensePlate(licensePlateString);
 			}
-			newdriver.setId(usersaved.getId());
+			newdriver.setId(user.getId());
 			newdriver.setFullName(driverRequest.getFullName());
 			newdriver.setGender(driverRequest.getGender());
 			newdriver.setIdCard(driverRequest.getIdCard());
@@ -179,12 +156,12 @@ public class UserServiceImpl implements IUserService{
 			vehicles.add(vehicleOptional.get());
 			newdriver.setVehicles(vehicles);
 			newdriver.setStatus("NOACTIVE");
-			newdriver.setUser(usersaved);
+			newdriver.setUser(user);
 			driverRepository.save(newdriver);
-			return  new RegisterResponse("Success");
+			return  new RegisterResponse("Success",null);
 		}catch(Exception e) {
 			log.info("Error Register Service! {}" , e.getMessage());
-			return  new RegisterResponse("Fail");
+			return  new RegisterResponse("Fail","Error Register Driver! " + e.getMessage());
 		}
 	}
 
@@ -198,7 +175,34 @@ public class UserServiceImpl implements IUserService{
 				return null ;
 			}
 		}catch(Exception e) {
-			log.info("Error in UserService");
+			log.info("Error find Email");
+			return null ;
+		}
+	}
+
+	@Override
+	public User registerUser(String email , String phoneNumber, MultipartFile avatar, String Namerole) {
+		try {
+			User user = new User();
+			Date currentDate = new Date();
+			user.setEmail(email);
+			user.setPhoneNumber(phoneNumber);
+			user.setIsNonBlock(false);
+			user.setCreateDate(currentDate);
+			Set<Role> roles = new HashSet<>();
+			Role role = roleRepository.findByName(Namerole).orElseThrow(()-> new NotFoundException("Khong tim thay role"));
+			roles.add(role);
+			user.setRoles(roles);
+			if(avatar != null) {
+				byte[] avatarBytes = avatar.getBytes();
+
+	            String avatarString = Base64.encodeBase64String(avatarBytes);
+	            user.setAvatarUrl(avatarString);
+			}
+			userRepository.save(user);
+			return user;
+		}catch(Exception e) {
+			log.info("Error Register User");
 			return null ;
 		}
 	}
