@@ -12,6 +12,7 @@ import java.util.Optional;
 import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.response.RegisterCustomerResponse;
+import com.GOBookingAPI.utils.DriverStatus;
 import com.google.api.gax.rpc.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -132,39 +133,41 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public RegisterResponse registerDriver(DriverRequest driverRequest) {
+    public RegisterResponse registerDriver(MultipartFile avatar, String phoneNumber, String fullName, boolean isMale, String dateOfBirth, MultipartFile licensePlate, String idCard, VehicleType vehicleType, String numberPlate) {
         try {
-//            User user = new User();
 //            String email = SecurityContextHolder.getContext().getAuthentication().getName();
 //            Optional<User> userOptional = userRepository.findByEmail(email);
-//            if (!userOptional.isPresent()) {
-//                user = registerUser(email, driverRequest.getPhoneNumber(), driverRequest.getAvatar(), "DRIVER");
-//            } else {
-//                user = userOptional.get();
+//            if (userOptional.isPresent()) {
+//                throw new BadRequestException("User has already been registered");
 //            }
-//            Driver newdriver = new Driver();
-//            if (driverRequest.getDateOfBirth() != null) {
-//                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-//                Date dateofBirth = dateFormat.parse(driverRequest.getDateOfBirth());
-//                newdriver.setDateOfBirth(dateofBirth);
-//            }
-//            if (driverRequest.getLicensePlate() != null) {
-//                byte[] licensePlateBytes = driverRequest.getLicensePlate().getBytes();
-//                String licensePlateString = Base64.encodeBase64String(licensePlateBytes);
-//                newdriver.setLicensePlate(licensePlateString);
-//            }
-//            newdriver.setId(user.getId());
-//            newdriver.setFullName(driverRequest.getFullName());
-//            newdriver.setGender(driverRequest.getGender());
-//            newdriver.setIdCard(driverRequest.getIdCard());
-//
+//            User user = userOptional.orElseGet(() -> registerUser(email, phoneNumber, avatar, RoleEnum.DRIVER));
+//            Driver newDriver = new Driver();
+//            Date date = null;
+//            if (dateOfBirth != null) {
+//                try {
+//                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//                    date = dateFormat.parse(dateOfBirth);
+//                    newDriver.setDateOfBirth(date);
+//                } catch (Exception e) {
+//                    newDriver.setDateOfBirth(null);
+//                }
+//            } else
+//                newDriver.setDateOfBirth(null);
+//            newDriver.setId(user.getId());
+//            newDriver.setFullName(fullName);
+//            newDriver.setGender(isMale);
+//            newDriver.setUser(user);
 //            Set<VehicleType> vehicles = new HashSet<>();
-//            Optional<VehicleType> vehicleOptional = vehicleRepository.findByName(driverRequest.getVehicle());
-//            vehicles.add(vehicleOptional.get());
-//            newdriver.setVehicles(vehicles);
-//            newdriver.setStatus("NOACTIVE");
-//            newdriver.setUser(user);
-//            driverRepository.save(newdriver);
+//            VehicleType vehicle = vehicleRepository.findByName(vehicleType.getName()).orElseThrow(() -> new NotFoundException("Khong tim thay vehicel type"));
+//            vehicles.add(vehicle);
+//            newDriver.setVehicles(vehicles);
+//            newDriver.setStatus(DriverStatus.NOT_ACTIVATED);
+//            newDriver.setUser(user);
+//            newDriver.setIdCard(idCard);
+//            newDriver.set(idCard);
+//            String url = fileStorageService.createImgUrl(licensePlate);
+//            newDriver.setLicensePlate(url);
+//            driverRepository.save(newDriver);
             return null;
         } catch (Exception e) {
             log.info("Error Register Service! {}", e.getMessage());
@@ -174,12 +177,12 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public Optional<User> findByEmail(String email) {           //todo xoa
-            Optional<User> userOptional = userRepository.findByEmail(email);
-            if (userOptional.isPresent()) {
-                return userOptional;
-            } else {
-                return null;
-            }
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            return userOptional;
+        } else {
+            return null;
+        }
     }
 
     @Transactional

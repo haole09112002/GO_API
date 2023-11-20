@@ -31,7 +31,7 @@ public class AccountController {
 	@Autowired
 	private IUserService userService;
 	
-	@PostMapping("/register-customer")
+	@PostMapping("/customer")
 	public ResponseEntity<?> registerCustomer(   
 			  @RequestParam("phoneNumber") String phoneNumber,
 			  @RequestParam(name = "isMale", required = false)  boolean isMale,
@@ -41,9 +41,10 @@ public class AccountController {
 		return ResponseEntity.ok(userService.registerCustomer(avatar, phoneNumber, fullName, isMale, dateOfBirth));
 	}
 	
-	@PostMapping("/register-driver")
+	@PostMapping("/driver")
 	public ResponseEntity<?> registerDriver(@ModelAttribute DriverRequest driverRequest ){
-		return ResponseEntity.ok(userService.registerDriver(driverRequest ));
+		return ResponseEntity.ok("Đang bảo trì !! heheehhee :<");
+//		return ResponseEntity.ok(userService.registerDriver(driverRequest ));
 	}
 	
 	@GetMapping("/login")
