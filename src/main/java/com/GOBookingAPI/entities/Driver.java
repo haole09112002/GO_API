@@ -28,7 +28,7 @@ public class Driver implements Serializable {
 	private String fullName ;
 
 	@Column
-	private Boolean gender ;
+	private boolean gender ;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
 	@Column
@@ -45,10 +45,15 @@ public class Driver implements Serializable {
 
     @Enumerated(EnumType.STRING)
 	private DriverStatus status ;
+
 	@Column( columnDefinition = "varchar(50)")
 	private String activityArea;
+
 	@Column
 	private Double rating ;
+
+	@Column
+	private String drivingLicense;
 
 //	@OneToOne
 //	@JoinColumn(name = "vehicle_id" , referencedColumnName = "id")
@@ -71,4 +76,7 @@ public class Driver implements Serializable {
 	@OneToMany(mappedBy = "driver")
 	@JsonIgnore
 	private List<Conservation> conservations = new ArrayList<>();
+
+	@Column
+	private String imgUrl;
 }

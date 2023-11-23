@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.GOBookingAPI.entities.VehicleType;
 import com.GOBookingAPI.enums.RoleEnum;
+import com.GOBookingAPI.payload.request.DriverRegisterRequest;
 import com.GOBookingAPI.payload.response.RegisterCustomerResponse;
 import org.springframework.web.multipart.MultipartFile;
 import com.GOBookingAPI.entities.User;
@@ -21,7 +22,7 @@ public interface IUserService {
 	
 	RegisterCustomerResponse registerCustomer(MultipartFile avatar, String phoneNumber, String fullName, boolean isMale, String dateOfBirth);
 
-	RegisterResponse registerDriver(MultipartFile avatar, String phoneNumber, String fullName, boolean isMale, String dateOfBirth, MultipartFile licensePlate, String idCard, VehicleType vehicleType, String numberPlate);
+	RegisterResponse registerDriver(DriverRegisterRequest request);
 
 	Optional<User> findByEmail(String email);
 	
