@@ -1,5 +1,6 @@
 package com.GOBookingAPI.services.impl;
 
+import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -31,5 +32,9 @@ public class WebSocketServiceImpl {
     	message1.setContent(message);
         notificationService.sendPrivateNotification(id);
         messagingTemplate.convertAndSendToUser(id, "/specific", message1);
+    }
+
+    public void notifyBookingStatus(int userId, BookingStatusResponse resp) {
+        messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/bookings/status", resp);
     }
 }

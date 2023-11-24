@@ -4,6 +4,7 @@ package com.GOBookingAPI.controller;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.exceptions.BadCredentialsException;
+import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.services.IUserService;
 import com.GOBookingAPI.utils.AppUtils;
 import jakarta.validation.Valid;
@@ -71,9 +72,13 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getListBookingByUser(email, AppUtils.convertStringToDate(from), AppUtils.convertStringToDate(to), page, size));
     }
 
-    @PutMapping("/cancel")
+    @PutMapping("/{bookingId}/cancel")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<?> CancelBooking(@RequestBody BookingCancelRequest bookingCancelRequest) {
-        return ResponseEntity.ok(bookingService.Cancel(bookingCancelRequest));
+    public ResponseEntity<BookingStatusResponse> cancelBooking(
+            @PathVariable int bookingId,
+            @RequestBody BookingCancelRequest cancelRequest) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        BookingStatusResponse response = bookingService.cancelBookingForCustomer(email, bookingId, cancelRequest);
+        return ResponseEntity.ok(response);
     }
 }

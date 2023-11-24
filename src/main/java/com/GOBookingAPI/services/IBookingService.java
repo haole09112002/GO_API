@@ -3,10 +3,8 @@ package com.GOBookingAPI.services;
 import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.payload.request.BookingCancelRequest;
 import com.GOBookingAPI.payload.request.BookingRequest;
-import com.GOBookingAPI.payload.response.BaseResponse;
-import com.GOBookingAPI.payload.response.BookingResponse;
-import com.GOBookingAPI.payload.response.PagedResponse;
-import com.GOBookingAPI.payload.response.TravelInfoResponse;
+import com.GOBookingAPI.payload.request.BookingStatusRequest;
+import com.GOBookingAPI.payload.response.*;
 
 import java.util.Date;
 
@@ -25,5 +23,7 @@ public interface IBookingService {
 
     PagedResponse<BookingResponse> getListBookingByUser(String email, Date from, Date to, int page, int size);
 
-    void changeBookingStatus(int bookingId, BookingStatus status);
+    BookingResponse changeBookingStatusForAdmin(int bookingId, BookingStatus status);
+
+    BookingStatusResponse cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req);
 }

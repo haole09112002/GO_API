@@ -7,4 +7,5 @@ public enum BookingStatus {
 	WAITING,						// Khách hàng đã đặt xe và đang chờ thanh toán
 	PAID,							// Chuyến đi đã thanh toán và đang đợi tài xế đến
 	REFUNDED,						// Chuyến đi đã được hoàn tiền
+	WAITING_REFUND					// chuyến đi dang chờ hoàn tiền
 }

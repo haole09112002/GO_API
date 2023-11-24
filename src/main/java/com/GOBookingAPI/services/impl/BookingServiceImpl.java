@@ -9,15 +9,15 @@ import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.exceptions.AppException;
 import com.GOBookingAPI.exceptions.BadRequestException;
-import com.GOBookingAPI.payload.response.BookingResponse;
-import com.GOBookingAPI.payload.response.PagedResponse;
-import com.GOBookingAPI.payload.response.TravelInfoResponse;
+import com.GOBookingAPI.payload.request.BookingStatusRequest;
+import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.payload.vietmap.Path;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
 import com.GOBookingAPI.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Booking;
@@ -27,7 +27,6 @@ import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.BookingCancelRequest;
 import com.GOBookingAPI.payload.request.BookingRequest;
-import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.CustomerRepository;
 import com.GOBookingAPI.repositories.DriverRepository;
@@ -58,6 +57,9 @@ public class BookingServiceImpl implements IBookingService {
 
     @Autowired
     private MapServiceImpl mapService;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @Override
     public BookingResponse createBooking(String username, BookingRequest req) {
@@ -219,10 +221,110 @@ public class BookingServiceImpl implements IBookingService {
                 bookingPage.getTotalElements(), bookingPage.getTotalPages(), bookingPage.isLast());
     }
 
-    @Override
-    public void changeBookingStatus(int bookingId, BookingStatus status) {
-
+    @Override           // use for ADMIN
+    public BookingResponse changeBookingStatusForAdmin(int bookingId, BookingStatus status) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
+        BookingResponse resp = new BookingResponse();
+        resp.setId(booking.getId());
+        resp.setDriver(booking.getDriver());
+        resp.setCreateAt(booking.getCreateAt());
+        resp.setPayment(booking.getPayment());
+        resp.setAmount(booking.getAmount());
+        resp.setDropOffLocation(booking.getDropoffLocation());
+        resp.setPickupLocation(booking.getPickupLocation());
+        resp.setStatus(booking.getStatus());
+        resp.setVehicleType(booking.getVehicleType());
+        return resp;
     }
+
+//    @Override
+//    public BookingStatusResponse changeBookingStatusAndNotify(String email, BookingStatusRequest req) {
+//        User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
+//        Booking booking = bookingRepository.findById(req.getBookingId()).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
+//        switch (req.getBookingStatus()) {
+//            case CANCELLED:
+//                if (booking.getStatus() == BookingStatus.CANCELLED)
+//                    throw new BadRequestException("Đơn đặt đã bị hủy trước đó");
+//                if (booking.getStatus() == BookingStatus.ON_RIDE)
+//                    throw new BadRequestException("Bạn đang di chuyển trên xe không thể hủy");
+//                if (booking.getStatus() == BookingStatus.REFUNDED)
+//                    throw new BadRequestException("Đơn đặt đã được hoàn tiền, không thể hủy");
+////				if(booking.getStatus() == BookingStatus.WAITING || booking.getStatus() == BookingStatus.PAID)
+//
+//                break;
+//            case PAID:
+//                if (booking.getStatus() != BookingStatus.WAITING) {
+//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
+//                }
+//                break;
+//
+//            case REFUNDED:
+//                if (booking.getStatus() != BookingStatus.CANCELLED) {
+//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
+//                }
+//                break;
+//            case COMPLETE:
+//                if (booking.getStatus() != BookingStatus.ON_RIDE) {
+//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
+//                }
+//                break;
+//            case ON_RIDE:
+//                if (booking.getStatus() != BookingStatus.PAID) {
+//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
+//                }
+//            default:
+//                throw new BadRequestException("Booking status không tồn tại");
+//        }
+//        booking.setStatus(req.getBookingStatus());
+//        bookingRepository.save(booking);
+//        BookingStatusResponse resp = new BookingStatusResponse(booking.getId(), booking.getStatus());
+//        return resp;
+////        messagingTemplate.convertAndSendToUser(String.valueOf(user.getId()), "/bookings/status", req);
+//    }
+
+    @Override
+    public BookingStatusResponse cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req) {
+        User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
+        Booking booking = bookingRepository.findById(req.getBookingId()).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
+
+        if (user.getId() !=(booking.getCustomer().getUser().getId())) {
+            throw new AccessDeniedException("Booking này không thuộc về bạn");
+        }
+
+        BookingStatus currentStatus = booking.getStatus();
+        BookingStatus requestedStatus = BookingStatus.CANCELLED;
+
+        if (currentStatus == BookingStatus.CANCELLED) {
+            throw new BadRequestException("Đơn đặt đã bị hủy trước đó");
+        }
+
+        switch (currentStatus) {
+            case ON_RIDE:
+                throw new BadRequestException("Bạn đang di chuyển trên xe không thể hủy");
+            case REFUNDED:
+                throw new BadRequestException("Đơn đặt đã được hoàn tiền, không thể hủy");
+            case WAITING_REFUND:
+                throw new BadRequestException("Đơn đặt đang chờ hoàn tiền, không thể hủy");
+            case WAITING:
+                // todo kiem tra da qua thoi gian chua
+                if (requestedStatus != BookingStatus.CANCELLED) {
+                    throw new BadRequestException("Bạn chỉ có thể hủy đơn");
+                }
+                break;
+            case PAID:
+                if (requestedStatus != BookingStatus.WAITING_REFUND) {
+                    throw new BadRequestException("Bạn chỉ có thể chuyển sang trạng thái chờ hoàn tiền");
+                }
+                break;
+        }
+
+        booking.setStatus(requestedStatus);
+        bookingRepository.save(booking);
+
+        // Trả về thông tin trạng thái mới của đơn đặt
+        return new BookingStatusResponse(booking.getId(), booking.getStatus());
+    }
+
 
     @Override
     public BaseResponse<Booking> Confirm(int id) {
