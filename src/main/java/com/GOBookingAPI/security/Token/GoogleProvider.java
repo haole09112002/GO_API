@@ -17,8 +17,6 @@ import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.security.Model.TokenSecurity;
 import com.GOBookingAPI.security.Model.UserSecurity;
-import com.google.firebase.auth.AuthErrorCode;
-import com.google.firebase.auth.UserRecord;
 
 import lombok.extern.slf4j.Slf4j;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
