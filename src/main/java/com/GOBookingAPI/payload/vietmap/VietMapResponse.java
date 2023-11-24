@@ -25,4 +25,8 @@ public class VietMapResponse {
 
     @JsonProperty("paths")
     private List<Path> paths;
+
+    public Path getFirstPath(){
+        return this.paths.get(0);
+    }
 }

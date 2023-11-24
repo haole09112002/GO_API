@@ -22,7 +22,7 @@
 		var authorizationParam = getParameterByName('Authorization');
 
 		// In giá trị ra console để kiểm tra
-		var socket = new SockJS(`http:/localhost:8080/ws?Authorization=${authorizationParam}`, {transports: ['websocket', 'polling', 'flashsocket']});
+		var socket = new SockJS(`http://localhost:8080/ws?Authorization=${authorizationParam}`, { transports: ['websocket', 'polling', 'flashsocket'] });
 		stompClient = Stomp.over(socket);
 
 		stompClient.connect({}, function (frame) {
@@ -39,11 +39,9 @@
 
 
 		function sendMessage() {
-			var title = document.getElementById('id_title').value;
-			var location = document.getElementById('id_location').value;
-			var id_user = document.getElementById('id_user').value;
-			stompClient.send("/app/application", {Authorization: authorizationParam},
-				JSON.stringify({'title': title , 'location' : location , "userid" : id_user}));
+			var text = document.getElementById('text').value;
+			stompClient.send("/app/application", {},
+				JSON.stringify({'content': text}));
 		}
 
 		function sendPrivateMessage() {

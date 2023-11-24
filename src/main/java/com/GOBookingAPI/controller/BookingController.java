@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.*;
 import com.GOBookingAPI.payload.request.BookingCancelRequest;
 import com.GOBookingAPI.payload.request.BookingRequest;
 import com.GOBookingAPI.payload.request.BookingWebSocketRequest;
+
+import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.services.IBookingService;
 import com.GOBookingAPI.services.IConservationService;
 import com.GOBookingAPI.services.IDriverService;
@@ -54,6 +56,7 @@ public class BookingController {
     private IConservationService conservationService;
     
     @PostMapping("/create")
+
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<?> createBooking(@RequestBody @Valid BookingRequest bookingRequest) throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -63,7 +66,8 @@ public class BookingController {
         	BookingWebSocketRequest websocket = new BookingWebSocketRequest();
         	websocket.setTitle(WebSocketBookingTitle.BOOKING.toString());
         	
-        	Booking booking = bookingService.createBooking(user.getEmail(), bookingRequest);
+
+        	BookingResponse booking = bookingService.createBooking(user.getEmail(), bookingRequest);
         	websocket.setBookingid(booking.getId());
         	webSocketService.notify(websocket);
         	Thread.sleep(30*1000*1);

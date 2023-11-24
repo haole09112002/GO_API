@@ -9,15 +9,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.GOBookingAPI.security.Token.GoogleEntryPoint;
 import com.GOBookingAPI.security.Token.GoogleFilter;
 import com.GOBookingAPI.security.Token.GoogleProvider;
@@ -40,7 +34,7 @@ public class SecurityConfig implements WebMvcConfigurer{
 		
 		http.cors();		// Kích hoạt CORS 
         http.csrf().disable();
-		http.authorizeRequests().requestMatchers("/home/**").permitAll();
+		http.authorizeRequests().requestMatchers("/home/**", "/api/**").permitAll();
 		http.authorizeRequests().requestMatchers("/bookings/**").permitAll();
 		http.authorizeRequests().requestMatchers("/**","/ws/**").authenticated().anyRequest().authenticated();
 		http.exceptionHandling().authenticationEntryPoint(entryPoint);

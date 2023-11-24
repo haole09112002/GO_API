@@ -21,6 +21,7 @@ import java.util.List;
 public class ControllerExceptionHandler{
 
     @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handlerNotFoundException(NotFoundException ex) {
 //		String message = "Please provide Request Body in valid JSON format";
         List<String> messages = new ArrayList<>(1);
@@ -29,6 +30,7 @@ public class ControllerExceptionHandler{
     }
 
     @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse resolveException(BadRequestException ex) {
 //		String message = "Please provide Request Body in valid JSON format";
         List<String> messages = new ArrayList<>(1);
@@ -37,6 +39,7 @@ public class ControllerExceptionHandler{
     }
 
     @ExceptionHandler(AppException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse resolveException(AppException ex) {
 //		String message = "Please provide Request Body in valid JSON format";
         List<String> messages = new ArrayList<>(1);
@@ -45,6 +48,7 @@ public class ControllerExceptionHandler{
     }
 
     @ExceptionHandler(FileStorageException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse resolveException(FileStorageException ex) {
 //		String message = "Please provide Request Body in valid JSON format";
         List<String> messages = new ArrayList<>(1);

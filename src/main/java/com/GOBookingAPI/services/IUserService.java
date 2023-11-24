@@ -1,12 +1,13 @@
 package com.GOBookingAPI.services;
 
-
 import java.util.Optional;
 
+import com.GOBookingAPI.entities.VehicleType;
+import com.GOBookingAPI.enums.RoleEnum;
+import com.GOBookingAPI.payload.request.DriverRegisterRequest;
+import com.GOBookingAPI.payload.response.RegisterCustomerResponse;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.GOBookingAPI.entities.User;
-import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.payload.request.DriverRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.payload.response.LoginResponse;
@@ -17,12 +18,12 @@ public interface IUserService {
 
 	User getByEmail(String email);
 	
-	User registerUser(String email , String phoneNumber, MultipartFile avatar , String Namerole);
+	User registerUser(String email , String phoneNumber, MultipartFile avatar , RoleEnum role);
 	
-	RegisterResponse registerCustomer(CustomerRequest customerRequest);
-	
-	RegisterResponse registerDriver(DriverRequest driverRequest);
-	
+	RegisterCustomerResponse registerCustomer(MultipartFile avatar, String phoneNumber, String fullName, boolean isMale, String dateOfBirth);
+
+	RegisterResponse registerDriver(DriverRegisterRequest request);
+
 	Optional<User> findByEmail(String email);
 	
 }

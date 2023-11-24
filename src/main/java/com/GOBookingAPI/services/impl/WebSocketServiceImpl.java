@@ -35,7 +35,8 @@ public class WebSocketServiceImpl implements IWebSocketService {
     	
 			messagingTemplate.convertAndSend("/all/booking", websocket);
 //        notificationService.sendGlobalNotification();
-        
+
+        //gui ve tai xe ranh  ko co idBOoking
     }
 
 	@Override
