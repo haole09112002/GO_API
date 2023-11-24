@@ -1,14 +1,23 @@
 package com.GOBookingAPI.services.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import com.GOBookingAPI.entities.Role;
+import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.enums.VehicleType;
+import com.GOBookingAPI.exceptions.AccessDeniedException;
+import com.GOBookingAPI.exceptions.AppException;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.response.BookingResponse;
+import com.GOBookingAPI.payload.response.PagedResponse;
 import com.GOBookingAPI.payload.response.TravelInfoResponse;
 import com.GOBookingAPI.payload.vietmap.Path;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
+import com.GOBookingAPI.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Booking;
@@ -139,6 +148,80 @@ public class BookingServiceImpl implements IBookingService {
             amounts.put(type.getValue(), total);
         }
         return new TravelInfoResponse(pickUpLocation, dropOffLocation, amounts);
+    }
+
+    @Override
+    public BookingResponse getBookingByBookingId(String email, int bookingId) {
+        User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
+        if (user.getRoles().stream().anyMatch(role -> (RoleEnum.DRIVER.equals(role.getName())))) {
+            if (booking.getDriver() == null) {
+                throw new NotFoundException("Không tìm thấy booking");
+            } else if (booking.getDriver().getUser().getId() != user.getId()) {
+                throw new NotFoundException("Không tìm thấy booking");
+            }
+        }
+        if (user.getRoles().stream().anyMatch(role -> (RoleEnum.CUSTOMER.equals(role.getName())))) {
+            if (booking.getCustomer().getUser().getId() != user.getId()) {
+                throw new NotFoundException("Không tìm thấy booking");
+            }
+        }
+        BookingResponse resp = new BookingResponse();
+        resp.setId(booking.getId());
+        resp.setDriver(booking.getDriver());
+        resp.setCreateAt(booking.getCreateAt());
+        resp.setPayment(booking.getPayment());
+        resp.setAmount(booking.getAmount());
+        resp.setDropOffLocation(booking.getDropoffLocation());
+        resp.setPickupLocation(booking.getPickupLocation());
+        resp.setStatus(booking.getStatus());
+        resp.setVehicleType(booking.getVehicleType());
+        return resp;
+    }
+
+    @Override
+    public PagedResponse<BookingResponse> getListBookingByUser(String email, Date from, Date to, int page, int size) {
+        AppUtils.validatePageNumberAndSize(page, size);
+        PageRequest pageable = PageRequest.of(page, size);
+        User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
+        Page<Booking> bookingPage = null;
+        Iterator<Role> iterator = user.getRoles().iterator();
+        if (iterator.hasNext()) {
+            switch (iterator.next().getName()) {
+                case ADMIN:
+                    bookingPage = bookingRepository.findBookingBetweenAndCustomer(from, to, user.getId(), pageable);
+                    break;
+                case DRIVER:
+                    bookingPage = bookingRepository.findBookingBetweenAndDriver(from, to, user.getId(), pageable);
+                    break;
+                case CUSTOMER:
+                    bookingPage = bookingRepository.findBookingBetween(from, to, pageable);
+                    break;
+            }
+        } else {
+            throw new AppException("Có lỗi xảy ra");
+        }
+        List<BookingResponse> bookingResponses = new ArrayList<>(bookingPage.getContent().size());
+        bookingResponses = bookingPage.getContent().stream().map(booking -> {
+            BookingResponse resp = new BookingResponse();
+            resp.setId(booking.getId());
+            resp.setDriver(booking.getDriver());
+            resp.setCreateAt(booking.getCreateAt());
+            resp.setPayment(booking.getPayment());
+            resp.setAmount(booking.getAmount());
+            resp.setDropOffLocation(booking.getDropoffLocation());
+            resp.setPickupLocation(booking.getPickupLocation());
+            resp.setStatus(booking.getStatus());
+            resp.setVehicleType(booking.getVehicleType());
+            return resp;
+        }).collect(Collectors.toList());
+        return new PagedResponse<>(bookingResponses, bookingPage.getNumber(), bookingPage.getSize(),
+                bookingPage.getTotalElements(), bookingPage.getTotalPages(), bookingPage.isLast());
+    }
+
+    @Override
+    public void changeBookingStatus(int bookingId, BookingStatus status) {
+
     }
 
     @Override
