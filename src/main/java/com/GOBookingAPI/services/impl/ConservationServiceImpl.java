@@ -37,17 +37,17 @@ public class ConservationServiceImpl implements IConservationService {
 	private BookingRepository bookingRepository;
 	
 	@Override
-	public BaseResponse<?> createConservation(CreateConservationRequest conservationRequest) {
+	public BaseResponse<?> createConservation(int id_customer , int id_driver ,int id_booking) {
 		try {
-			Optional<Driver> driverOptional = driverRepository.findById(conservationRequest.getId_driver());
+			Optional<Driver> driverOptional = driverRepository.findById(id_driver);
 			if(!driverOptional.isPresent()) {
 				return null;
 			}
-			Optional<Customer> customerOptional = customerRepository.findById(conservationRequest.getId_customer());
+			Optional<Customer> customerOptional = customerRepository.findById(id_customer);
 			if(!customerOptional.isPresent()) {
 				return null;
 			}
-			Optional<Booking> bookOptional = bookingRepository.findById(conservationRequest.getId_booking());
+			Optional<Booking> bookOptional = bookingRepository.findById(id_booking);
 			if(!customerOptional.isPresent()) {
 				return null;
 			}

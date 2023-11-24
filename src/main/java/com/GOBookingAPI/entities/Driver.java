@@ -53,7 +53,8 @@ public class Driver implements Serializable {
 	private String activityArea;
 	@Column
 	private Double rating ;
-	
+	@Column(columnDefinition = "varchar(100)")
+	private String location;
 //	@OneToOne
 //	@JoinColumn(name = "vehicle_id" , referencedColumnName = "id")
 //	private VehicleType vehicle;
