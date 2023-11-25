@@ -47,6 +47,7 @@ public class WebSocketController {
     @MessageMapping("/application")
     public void sendLocation(final LocationWebSocketRequest location ) throws Exception {
     	webSocketService.ListenLocationDriver(location);
+
     }
     
     @MessageMapping("/private")

@@ -56,6 +56,7 @@
 			var id_status = document.getElementById('id_status').value;
 			stompClient.send("/app/application", {},
 				JSON.stringify({'driverId': id_driver , 'location' : location , "status" : id_status}));
+
 		}
 
 		function sendPrivateMessage() {
