@@ -9,4 +9,6 @@ public interface IWebSocketService {
 	void notify( BookingWebSocketRequest location);
 	void sendMessagePrivate(CreateMessageRequest message);
 	void notifyBookingStatus(int userId, BookingStatusResponse resp);
+	void notifyDriverChosenForCustomer(int customerId, int driverId);
+	void notifyNewBookingForDriver(int driverId, int bookingId);
 }

@@ -48,4 +48,15 @@ public class WebSocketServiceImpl implements IWebSocketService {
         messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/bookings/status", resp);
     }
 
+    @Override
+    public void notifyDriverChosenForCustomer(int customerId, int driverId) {
+        messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/bookings/driver", driverId);
+
+    }
+
+    @Override
+    public void notifyNewBookingForDriver(int driverId, int bookingId) {
+        messagingTemplate.convertAndSendToUser(String.valueOf(driverId), "/bookings/new", bookingId);
+    }
+
 }

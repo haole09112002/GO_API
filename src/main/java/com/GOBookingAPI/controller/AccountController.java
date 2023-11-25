@@ -52,9 +52,9 @@ public class AccountController {
 
     @GetMapping("/login")
     public ResponseEntity<?> Test() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        BaseResponse<LoginResponse> user = userService.loadUserbyEmail(email);
-        return ResponseEntity.ok(user);
+//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+//        BaseResponse<LoginResponse> user = userService.loadUserbyEmail(email);
+        return ResponseEntity.ok("API NÀY KO ĐC SỬ DỤNG");
     }
 
 }

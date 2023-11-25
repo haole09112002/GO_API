@@ -8,6 +8,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.GOBookingAPI.entities.Booking;
+import com.GOBookingAPI.enums.BookingStatus;
+import com.GOBookingAPI.repositories.BookingRepository;
+import com.GOBookingAPI.services.IWebSocketService;
+import com.GOBookingAPI.utils.DriverStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,48 +30,61 @@ import com.GOBookingAPI.utils.ManagerLocation;
 public class DriverServiceImpl implements IDriverService {
 	@Autowired
 	private MapServiceImpl mapService;
+
 	@Autowired
 	private ManagerLocation managerLocation;
+
 	@Autowired
 	private DriverRepository driverRepository;
+
+	@Autowired
+	private IWebSocketService webSocketService;
+
+	@Autowired
+	private BookingRepository bookingRepository;
+
 	@Override
 	public Driver findDriverBooking(String locationCustomer) {
-		System.out.println("2" + managerLocation.getAll());
-		Driver driverChosen = new Driver();
-		int id_driver = 0;
-		double minDistance = 1000000;
-			for(LocationDriver driver : managerLocation.getAll()) {
-				VietMapResponse travel = mapService.getRoute(locationCustomer, driver.getLocation(), "MOTORCYCLE");
-				if(travel.getCode().equals("ERROR")){
-					throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
-				}
-				Path path = travel.getPaths().get(0);
-				if(path.getDistance() <= minDistance) {
-					minDistance = path.getDistance();
-					id_driver = driver.getIddriver();
-					
-				}
-			}
-		driverChosen = driverRepository.findById(id_driver).orElseThrow(() -> new NotFoundException("Khong tim thay Driver"));
-		return driverChosen;
-		
+		List<Driver> list = driverRepository.findByStatus(DriverStatus.FREE);
+		if(!list.isEmpty())
+			return list.get(0);
+		System.out.println("DRIVER FREE POS: " + managerLocation.getAll().toString());
+//		Driver driverChosen = new Driver();
+//		int id_driver = 0;
+//		double minDistance = 1000000;
+//			for(LocationDriver driver : managerLocation.getAll()) {
+//				VietMapResponse travel = mapService.getRoute(locationCustomer, driver.getLocation(), "MOTORCYCLE");
+//				if(travel.getCode().equals("ERROR")){
+//					throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
+//				}
+//				Path path = travel.getPaths().get(0);
+//				if(path.getDistance() <= minDistance) {
+//					minDistance = path.getDistance();
+//					id_driver = driver.getIddriver();
+//
+//				}
+//			}
+//		driverChosen = driverRepository.findById(id_driver).orElseThrow(() -> new NotFoundException("Khong tim thay Driver"));
+		return null;
 	}
 
 	private static final int WAITING_TIME_SECONDS = 2; // Thời gian chờ sau
 
 	@Override
-	public void scheduleFindDriverTask(int bookingId) {
+	public void scheduleFindDriverTask(Booking booking) {
 		ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-		executorService.schedule(() -> findAndNotifyDriver(bookingId), WAITING_TIME_SECONDS, TimeUnit.SECONDS);
+		executorService.schedule(() -> findAndNotifyDriver(booking), WAITING_TIME_SECONDS, TimeUnit.SECONDS);
 	}
 
-	private void findAndNotifyDriver(int bookingId) {
+	private void findAndNotifyDriver(Booking booking) {
 		// Viết logic để tìm tài xế phù hợp dựa trên vị trí => hiện tại cứ random
-
+		Driver driver = this.findDriverBooking(booking.getPickupLocation());
 		//// câp nhat thong tin booking => lưu db
-
+		booking.setStatus(BookingStatus.WAITING_DRIVER);
+		bookingRepository.save(booking);
 		// gui thong tin tai xe ve khach
-
+		webSocketService.notifyDriverChosenForCustomer(booking.getCustomer().getId(), driver.getId());
 		// gui thong tin booking ve tai xe
+		webSocketService.notifyNewBookingForDriver(driver.getId(), booking.getId());
 	}
 }

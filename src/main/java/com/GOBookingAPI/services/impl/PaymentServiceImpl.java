@@ -62,6 +62,6 @@ public class PaymentServiceImpl implements IPaymentService {
         //todo sendRequestChangeBookingStatus => BookingStatus.PAID for customer
         webSocketService.notifyBookingStatus(user.getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
         //todo sendRequestDriverLocation for all driver free
-        driverService.scheduleFindDriverTask(booking.getId());      //todo
+        driverService.scheduleFindDriverTask(booking);      //todo
     }
 }

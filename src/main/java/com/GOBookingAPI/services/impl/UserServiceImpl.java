@@ -62,37 +62,38 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public BaseResponse<LoginResponse> loadUserbyEmail(String email) {
-        try {
-            Optional<User> userOptional = userRepository.findByEmail(email);
-
-            if (!userOptional.isPresent()) {
-                return new BaseResponse<LoginResponse>(new LoginResponse("unregistered", null), "User not found");
-            } else {
-                User user = userOptional.get();
-                String roleName = "";
-                for (Role role : user.getRoles()) {
-                    roleName = role.getName();
-                    break;
-                }
-                if (user.getIsNonBlock()) {
-                    return new BaseResponse<LoginResponse>(new LoginResponse("blocked", roleName), "User is blocked");
-                } else {
-                    if (roleName.equals("DRIVER")) {
-                        Optional<Driver> driverOptional = driverRepository.findById(user.getId());
-                        Driver driver = driverOptional.get();
-                        if (driver.getStatus().equals("NOACTIVE")) {
-                            return new BaseResponse<LoginResponse>(new LoginResponse("uncheck", roleName), "Driver uncheck");
-                        }
-                    }
-                    return new BaseResponse<LoginResponse>(new LoginResponse("registered", roleName), "User registered");
-
-                }
-            }
-
-        } catch (Exception e) {
-            log.info("Error in UserService");
-            return new BaseResponse<LoginResponse>(null, e.getMessage());
-        }
+//        try {
+//            Optional<User> userOptional = userRepository.findByEmail(email);
+//
+//            if (!userOptional.isPresent()) {
+//                return new BaseResponse<LoginResponse>(new LoginResponse("unregistered", null), "User not found");
+//            } else {
+//                User user = userOptional.get();
+//                RoleEnum roleName ;
+//                for (Role role : user.getRoles()) {
+//                    roleName = role.getName();
+//                    break;
+//                }
+//                if (user.getIsNonBlock()) {
+//                    return new BaseResponse<LoginResponse>(new LoginResponse("blocked", roleName), "User is blocked");
+//                } else {
+//                    if (roleName.equals(RoleEnum.DRIVER)) {
+//                        Optional<Driver> driverOptional = driverRepository.findById(user.getId());
+//                        Driver driver = driverOptional.get();
+//                        if (driver.getStatus().equals(DriverStatus.NOT_ACTIVATED)) {
+//                            return new BaseResponse<LoginResponse>(new LoginResponse("uncheck", roleName), "Driver uncheck");
+//                        }
+//                    }
+//                    return new BaseResponse<LoginResponse>(new LoginResponse("registered", roleName), "User registered");
+//
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            log.info("Error in UserService");
+//            return new BaseResponse<LoginResponse>(null, e.getMessage());
+//        }
+        return null;
     }
 
     @Override
