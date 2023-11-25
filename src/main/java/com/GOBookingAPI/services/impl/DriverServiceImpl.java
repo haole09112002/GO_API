@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Driver;
+import com.GOBookingAPI.enums.WebSocketBookingTitle;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.vietmap.Path;
@@ -28,11 +29,11 @@ public class DriverServiceImpl implements IDriverService {
 	private DriverRepository driverRepository;
 	@Override
 	public Driver findDriverBooking(String locationCustomer) {
-		System.out.println("2" + managerLocation.getAll());
+		System.out.println("2" + managerLocation.getByStatus(WebSocketBookingTitle.FREE.toString()));
 		Driver driverChosen = new Driver();
 		int id_driver = 0;
 		double minDistance = 1000000;
-			for(LocationDriver driver : managerLocation.getAll()) {
+			for(LocationDriver driver : managerLocation.getByStatus(WebSocketBookingTitle.FREE.toString())) {
 				VietMapResponse travel = mapService.getRoute(locationCustomer, driver.getLocation(), "MOTORCYCLE");
 				if(travel.getCode().equals("ERROR")){
 					throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
