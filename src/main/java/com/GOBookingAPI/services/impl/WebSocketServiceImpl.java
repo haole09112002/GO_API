@@ -1,7 +1,6 @@
 package com.GOBookingAPI.services.impl;
 
-import java.util.Optional;
-
+import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +30,7 @@ public class WebSocketServiceImpl implements IWebSocketService {
         this.notificationService = notificationService;
     }
 
+    @Override
     public void notify(BookingWebSocketRequest websocket) {	
     	
 			messagingTemplate.convertAndSend("/all/booking", websocket);
@@ -43,5 +43,10 @@ public class WebSocketServiceImpl implements IWebSocketService {
 	public void sendMessagePrivate(CreateMessageRequest message) {
 		messagingTemplate.convertAndSendToUser(String.valueOf(message.getId_receiver()), "/specific", message);
 	}
+
+	@Override
+	public void notifyBookingStatus(int userId, BookingStatusResponse resp) {
+        messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/bookings/status", resp);
+    }
 
 }

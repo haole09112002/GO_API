@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,7 +53,21 @@ public class DriverServiceImpl implements IDriverService {
 		
 	}
 
-	
-	
+	private static final int WAITING_TIME_SECONDS = 2; // Thời gian chờ sau
 
+	@Override
+	public void scheduleFindDriverTask(int bookingId) {
+		ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+		executorService.schedule(() -> findAndNotifyDriver(bookingId), WAITING_TIME_SECONDS, TimeUnit.SECONDS);
+	}
+
+	private void findAndNotifyDriver(int bookingId) {
+		// Viết logic để tìm tài xế phù hợp dựa trên vị trí => hiện tại cứ random
+
+		//// câp nhat thong tin booking => lưu db
+
+		// gui thong tin tai xe ve khach
+
+		// gui thong tin booking ve tai xe
+	}
 }
