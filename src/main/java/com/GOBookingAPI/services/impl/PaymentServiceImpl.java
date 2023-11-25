@@ -43,6 +43,7 @@ public class PaymentServiceImpl implements IPaymentService {
     @Transactional
     public void handlePaymentTransaction(PaymentRequest req) {      // callback from VNpay
         //todo valid data;
+    	System.out.println(req.getEmail());
         User user = userRepository.findByEmail(req.getEmail()).orElseThrow(() -> new NotFoundException("Không tìm thấy khách hàng"));
         Booking booking = bookingRepository.findById(req.getBookingId()).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + req.getBookingId()));
         if(user.getId() != booking.getCustomer().getUser().getId())
@@ -50,18 +51,19 @@ public class PaymentServiceImpl implements IPaymentService {
         if(booking.getStatus() != BookingStatus.WAITING){
             throw  new BadRequestException("Booking không ở trạng thái cần thanh toán");
         }
-        booking.setStatus(BookingStatus.PAID);
-        bookingRepository.save(booking);
-        Payment payment = new Payment();
-        payment.setAmount(req.getAmount());
-        payment.setTransactionId(req.getTransactionId());
-        payment.setTimeStamp(req.getTimeStamp());
-        payment.setCustomer(user.getCustomer());
-        payment.setBooking(booking);
-        paymentRepository.save(payment);
-        //todo sendRequestChangeBookingStatus => BookingStatus.PAID for customer
-        webSocketService.notifyBookingStatus(user.getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
+        // check gia tien
+//        booking.setStatus(BookingStatus.PAID);
+//        bookingRepository.save(booking);
+//        Payment payment = new Payment();
+//        payment.setAmount(req.getAmount());
+//        payment.setTransactionId(req.getTransactionId());
+//        payment.setTimeStamp(req.getTimeStamp());
+//        payment.setCustomer(user.getCustomer());
+//        payment.setBooking(booking);
+//        paymentRepository.save(payment);
+//        //todo sendRequestChangeBookingStatus => BookingStatus.PAID for customer
+//        webSocketService.notifyBookingStatus(user.getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
         //todo sendRequestDriverLocation for all driver free
-        driverService.scheduleFindDriverTask(booking.getId());      //todo
+        driverService.scheduleFindDriverTask(booking.getId(),booking.getPickupLocation());      //todo
     }
 }

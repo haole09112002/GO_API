@@ -39,35 +39,14 @@ public class WebSocketController {
     SimpMessagingTemplate simpMessagingTemplate;
 
 	@Autowired
-	private NotificationServiceImpl notificationService;
-	
-	@Autowired
 	private IMessageService messageService;
 	
 	@Autowired
 	private IWebSocketService webSocketService;
 	
-	@Autowired
-	public ManagerLocation managerLocation;
-	
-	 
     @MessageMapping("/application")
-    @SendTo("/all/booking")
-    public LocationWebSocketRequest send(final LocationWebSocketRequest location ) throws Exception {
-//    	 Thread.sleep(1000);
-//    	 notificationService.sendGlobalNotification();
-    	 if(location.getTitle().equals(WebSocketBookingTitle.FREE.toString())) {
-    		 LocationDriver loca = new LocationDriver();
-    		 loca.setIddriver(location.getUserid());
-    		 loca.setLocation(location.getLocation());
-    		 loca.setStatus(WebSocketBookingTitle.FREE.toString());
-    		 if(!managerLocation.checkAddOrUpdate(location.getUserid(),WebSocketBookingTitle.FREE.toString())) {
-        		 managerLocation.addData(loca);
-    		 }else {
-    			 managerLocation.updateData(loca);
-    		 }	
-    	 }	
-    	 return location;
+    public void sendLocation(final LocationWebSocketRequest location ) throws Exception {
+    	webSocketService.ListenLocationDriver(location);
     }
     
     @MessageMapping("/private")
@@ -76,8 +55,4 @@ public class WebSocketController {
     	webSocketService.sendMessagePrivate(message);
     }
     
-    @PostMapping("/send-notify")
-    public void sendNotification(@RequestBody final BookingWebSocketRequest location) {
-    	webSocketService.notify(location);
-    }
 }

@@ -71,7 +71,7 @@ public class UserServiceImpl implements IUserService {
                 User user = userOptional.get();
                 String roleName = "";
                 for (Role role : user.getRoles()) {
-                    roleName = role.getName();
+                    roleName = String.valueOf( role.getName());
                     break;
                 }
                 if (user.getIsNonBlock()) {

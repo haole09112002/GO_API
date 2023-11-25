@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LocationWebSocketRequest {
 	
-	private String title;
+	private int driverId;
+	
 	private String location;
-	private int userid;
+	
+	private String status;
 }

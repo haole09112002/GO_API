@@ -28,9 +28,9 @@ public class DataInitializer {
         Role cus = new Role();
         Role driver = new Role();
         Role admin = new Role();
-        cus.setName(RoleEnum.CUSTOMER.name());
-        driver.setName(RoleEnum.DRIVER.name());
-        admin.setName(RoleEnum.ADMIN.name());
+//        cus.setName(RoleEnum.CUSTOMER.name());
+//        driver.setName(RoleEnum.DRIVER.name());
+//        admin.setName(RoleEnum.ADMIN.name());
         roleRepository.save(cus);
         roleRepository.save(driver);
         roleRepository.save(admin);

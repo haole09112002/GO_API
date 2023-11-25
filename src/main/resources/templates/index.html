@@ -34,16 +34,28 @@
 				console.log(result.body)
 				show(JSON.parse(result.body));
 			});
+			stompClient.subscribe('/user/customer-status', function (result) {
+				console.log(result.body)
+				showStatusCustomer(JSON.parse(result.body));
+			});
+			stompClient.subscribe('/user/customer-infodriver', function (result) {
+				console.log(result.body)
+				showInfoDriver(JSON.parse(result.body));
+			});
+			stompClient.subscribe('/driver', function (result) {
+				console.log(result.body)
+				showDriver(JSON.parse(result.body));
+			});
 		});
 
 
 
 		function sendMessage() {
-			var title = document.getElementById('id_title').value;
+			var id_driver = document.getElementById('id_driver').value;
 			var location = document.getElementById('id_location').value;
-			var id_user = document.getElementById('id_user').value;
-			stompClient.send("/app/application", {Authorization: authorizationParam},
-				JSON.stringify({'title': title , 'location' : location , "userid" : id_user}));
+			var id_status = document.getElementById('id_status').value;
+			stompClient.send("/app/application", {},
+				JSON.stringify({'driverId': id_driver , 'location' : location , "status" : id_status}));
 		}
 
 		function sendPrivateMessage() {
@@ -64,7 +76,26 @@
 		function showLocation(BookingWebSocketRequest) {
 			var response = document.getElementById('location');
 			var p = document.createElement('p');
-			p.innerHTML = "title: " + BookingWebSocketRequest.title;
+			p.innerHTML = "driverId: " + BookingWebSocketRequest.driverId;
+			response.appendChild(p);
+		}
+			function showStatusCustomer(BookingStatusResponse) {
+			var response = document.getElementById('status');
+			var p = document.createElement('p');
+			p.innerHTML = "statusCustomer: " + BookingStatusResponse.bookingStatus;
+			response.appendChild(p);
+		}
+			function showInfoDriver(Driver) {
+			var response = document.getElementById('driver');
+			var p = document.createElement('p');
+			p.innerHTML = "InfoDriver: " + Driver.fullName;
+			response.appendChild(p);
+		}
+		
+			function showDriver(Booking) {
+			var response = document.getElementById('booking');
+			var p = document.createElement('p');
+			p.innerHTML = "InfoBooking: " + Booking.amount;
 			response.appendChild(p);
 		}
 	</script>
@@ -74,9 +105,9 @@
 	<div>
 		<div>
 			<button id="sendMessage" onclick="sendMessage();">Send</button>
-			<input type="text" id="id_title" placeholder="title" />
+			<input type="text" id="id_driver" placeholder="iddriver" />
 			<input type="text" id="id_location" placeholder="location" />
-			<input type="text" id="id_user" placeholder="id_user" />
+			<input type="text" id="id_status" placeholder="status" />
 		</div>
 		<br />
 		<div>
@@ -92,6 +123,9 @@
 
 		<div id="messages"></div>
 		<div id="location"></div>
+		<div id="status"></div>
+		<div id="driver"></div>
+		<div id="booking"></div>
 	</div>
 
 </body>

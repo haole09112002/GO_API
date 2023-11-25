@@ -10,5 +10,5 @@ import com.GOBookingAPI.utils.LocationDriver;
 public interface IDriverService {
 	Driver findDriverBooking(String locationCustomer);
 
-	void scheduleFindDriverTask(int bookingId);
+	void scheduleFindDriverTask(int bookingId, String locationCustomer);
 }
