@@ -12,6 +12,7 @@ import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.PaymentRepository;
 import com.GOBookingAPI.repositories.UserRepository;
+import com.GOBookingAPI.services.IDriverService;
 import com.GOBookingAPI.services.IPaymentService;
 import com.GOBookingAPI.services.IWebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Autowired
     private IWebSocketService webSocketService;
+
+    @Autowired
+    private IDriverService driverService;
 
 
 
@@ -58,5 +62,6 @@ public class PaymentServiceImpl implements IPaymentService {
         //todo sendRequestChangeBookingStatus => BookingStatus.PAID for customer
         webSocketService.notifyBookingStatus(user.getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
         //todo sendRequestDriverLocation for all driver free
+        driverService.scheduleFindDriverTask(booking.getId());      //todo
     }
 }
