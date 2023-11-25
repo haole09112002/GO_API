@@ -63,17 +63,17 @@ public class BookingController {
         User user = userService.getByEmail(email);
         if (user != null) {
         	// ban socket cho toan bo tai xe
-        	BookingWebSocketRequest websocket = new BookingWebSocketRequest();
-        	websocket.setTitle(WebSocketBookingTitle.BOOKING.toString());
+//        	BookingWebSocketRequest websocket = new BookingWebSocketRequest();
+//        	websocket.setTitle(WebSocketBookingTitle.BOOKING.toString());
         	
 
         	BookingResponse booking = bookingService.createBooking(user.getEmail(), bookingRequest);
-        	websocket.setBookingid(booking.getId());
-        	webSocketService.notify(websocket);
-        	Thread.sleep(30*1000*1);
-        	Driver driver = driverService.findDriverBooking(bookingRequest.getPickUpLocation());
-        	conservationService.createConservation(user.getId(), driver.getId(), booking.getId());
-        	return ResponseEntity.ok(driver);
+//        	websocket.setBookingid(booking.getId());
+//        	webSocketService.notify(websocket);
+//        	Thread.sleep(30*1000*1);
+//        	Driver driver = driverService.findDriverBooking(bookingRequest.getPickUpLocation());
+//        	conservationService.createConservation(user.getId(), driver.getId(), booking.getId());
+        	return ResponseEntity.ok(booking);
         }
         throw new AccessDeniedException("User don't have permit to access");
     }

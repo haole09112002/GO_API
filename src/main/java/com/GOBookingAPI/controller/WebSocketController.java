@@ -56,15 +56,15 @@ public class WebSocketController {
     public LocationWebSocketRequest send(final LocationWebSocketRequest location ) throws Exception {
 //    	 Thread.sleep(1000);
 //    	 notificationService.sendGlobalNotification();
-    	 if(location.getTitle().equals(WebSocketBookingTitle.READYBOOKING.toString())) {
+    	 if(location.getTitle().equals(WebSocketBookingTitle.FREE.toString())) {
     		 LocationDriver loca = new LocationDriver();
     		 loca.setIddriver(location.getUserid());
     		 loca.setLocation(location.getLocation());
-    		 loca.setStatus(WebSocketBookingTitle.READYBOOKING.toString());
-    		 if(!managerLocation.checkAddOrUpdate(location.getUserid())) {
+    		 loca.setStatus(WebSocketBookingTitle.FREE.toString());
+    		 if(!managerLocation.checkAddOrUpdate(location.getUserid(),WebSocketBookingTitle.FREE.toString())) {
         		 managerLocation.addData(loca);
     		 }else {
-    			 managerLocation.UpdateData(loca);
+    			 managerLocation.updateData(loca);
     		 }	
     	 }	
     	 return location;
