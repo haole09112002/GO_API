@@ -217,7 +217,7 @@ public class UserServiceImpl implements IUserService {
         user.setIsNonBlock(true);
         user.setCreateDate(currentDate);
         Set<Role> roles = new HashSet<>();
-        Role role = roleRepository.findByName(roleEnum.name()).orElseThrow(() -> new NotFoundException("Khong tim thay role"));
+        Role role = roleRepository.findByName(roleEnum).orElseThrow(() -> new NotFoundException("Khong tim thay role"));
         roles.add(role);
         user.setRoles(roles);
         if(avatar == null && roleEnum.equals(RoleEnum.DRIVER))
