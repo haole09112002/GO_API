@@ -26,7 +26,6 @@ import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.IMessageService;
 import com.GOBookingAPI.services.IWebSocketService;
-import com.GOBookingAPI.services.impl.NotificationServiceImpl;
 import com.GOBookingAPI.utils.LocationDriver;
 import com.GOBookingAPI.utils.ManagerLocation;
 
@@ -44,10 +43,9 @@ public class WebSocketController {
 	@Autowired
 	private IWebSocketService webSocketService;
 	
-    @MessageMapping("/application")
+    @MessageMapping("/location")
     public void sendLocation(final LocationWebSocketRequest location ) throws Exception {
     	webSocketService.ListenLocationDriver(location);
-
     }
     
     @MessageMapping("/private")

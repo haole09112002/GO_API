@@ -14,4 +14,6 @@ public class LocationWebSocketRequest {
 	private String location;
 	
 	private String status;
+	
+	private int customerId ;
 }

@@ -40,9 +40,17 @@ public class ManagerLocation {
 
 	public List<LocationDriver> getByStatus(String status) {
 		List<LocationDriver> locaList = new ArrayList<>();
-		for (LocationDriver locaDriver : locationMapFree.values()) {
-			if (locaDriver.getStatus().equals(status)) {
-				locaList.add(locaDriver);
+		if(status.equals(WebSocketBookingTitle.FREE.toString())) {
+			for (LocationDriver locaDriver : locationMapFree.values()) {
+				if (locaDriver.getStatus().equals(status)) {
+					locaList.add(locaDriver);
+				}
+			}
+		}else {
+			for (LocationDriver locaDriver : locationMapBusy.values()) {
+				if (locaDriver.getStatus().equals(status)) {
+					locaList.add(locaDriver);
+				}
 			}
 		}
 		return locaList;
@@ -53,6 +61,27 @@ public class ManagerLocation {
 			return locationMapFree.containsKey(idDriver);
 		} else  {
 			return locationMapBusy.containsKey(idDriver);
+		}
+	}
+	
+	public LocationDriver getById(int driverId, String status) {
+		if(status.equals(WebSocketBookingTitle.FREE.toString())) {
+			return locationMapFree.get(driverId);
+		}else {
+			return locationMapBusy.get(driverId);
+		}
+	}
+	public void UpdateStatusDriver(int driverId) {
+		if(locationMapFree.containsKey(driverId)) {
+			LocationDriver location = locationMapFree.get(driverId);
+			location.setStatus(WebSocketBookingTitle.BUSY.toString());
+			locationMapFree.remove(driverId);
+			locationMapBusy.put(location.getIddriver(), location);
+		}else if(locationMapBusy.containsKey(driverId)){
+			LocationDriver location = locationMapBusy.get(driverId);
+			location.setStatus(WebSocketBookingTitle.FREE.toString());
+			locationMapBusy.remove(driverId);
+			locationMapFree.put(location.getIddriver(), location);
 		}
 	}
 }
