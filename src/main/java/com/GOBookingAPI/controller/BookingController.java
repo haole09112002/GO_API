@@ -55,7 +55,6 @@ public class BookingController {
         User user = userService.getByEmail(email);
         if (user != null) {
             return ResponseEntity.ok(bookingService.createBooking(user.getEmail(), bookingRequest));
-
         }
         throw new AccessDeniedException("User don't have permit to access");
     }

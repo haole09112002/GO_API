@@ -66,8 +66,11 @@ public class BookingServiceImpl implements IBookingService {
         User user = myUserRepository.findByEmail(username).orElseThrow(() -> new NotFoundException("Không tìm thấy khách hàng"));
         Customer customer = customerRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy Customer"));
         System.out.print(user.toString());
-        VietMapResponse vietMapResponse = mapService.getRoute(req.getPickUpLocation(), req.getDropOffLocation(), VehicleType.getTypeByValue(req.getVehicleType()).name());
-        double amount = this.calculatePrice(vietMapResponse.getFirstPath().getDistance(), VehicleType.getTypeByValue(req.getVehicleType()));
+        VietMapResponse vietMapResponse = mapService.getRoute(req.getPickUpLocation(), req.getDropOffLocation(), req.getVehicleType().name());
+        if (vietMapResponse.getCode().equals("ERROR")) {
+            throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
+        }
+        double amount = this.calculatePrice(vietMapResponse.getFirstPath().getDistance(), req.getVehicleType());
         Booking booking = new Booking();
         booking.setCustomer(customer);
         booking.setDriver(null);
@@ -75,7 +78,7 @@ public class BookingServiceImpl implements IBookingService {
         booking.setPickupLocation(req.getPickUpLocation());
         booking.setDropoffLocation(req.getDropOffLocation());
         booking.setAmount(amount);
-        booking.setVehicleType(VehicleType.getTypeByValue(req.getVehicleType()));
+        booking.setVehicleType(req.getVehicleType());
         booking.setCreateAt(new Date());
         bookingRepository.save(booking);
         BookingResponse resp = new BookingResponse();
