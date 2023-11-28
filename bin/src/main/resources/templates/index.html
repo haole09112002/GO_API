@@ -1,0 +1,97 @@
+<html>
+
+<head>
+	<link rel="shortcut icon" href="#">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+	<meta name="referrer" content="same-origin">
+	<script type="text/javascript">
+		var stompClient = null;
+		var privateStompClient = null;
+		function getParameterByName(name, url) {
+			if (!url) url = window.location.href;
+			name = name.replace(/[\[\]]/g, "\\$&");
+			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+				results = regex.exec(url);
+			if (!results) return null;
+			if (!results[2]) return '';
+			return decodeURIComponent(results[2].replace(/\+/g, " "));
+		}
+
+		// Sử dụng hàm để lấy giá trị của tham số "Authorization" từ URL
+		var authorizationParam = getParameterByName('Authorization');
+
+		// In giá trị ra console để kiểm tra
+		var socket = new SockJS(`http://localhost:8080/ws?Authorization=${authorizationParam}`, { transports: ['websocket', 'polling', 'flashsocket'] });
+		stompClient = Stomp.over(socket);
+
+		stompClient.connect({}, function (frame) {
+			console.log(frame);
+			stompClient.subscribe('/all/booking', function (result) {
+				showLocation(JSON.parse(result.body));
+			});
+			stompClient.subscribe('/user/specific', function (result) {
+				console.log(result.body)
+				show(JSON.parse(result.body));
+			});
+		});
+
+
+
+		function sendMessage() {
+			var text = document.getElementById('text').value;
+			stompClient.send("/app/application", {},
+				JSON.stringify({'content': text}));
+		}
+
+		function sendPrivateMessage() {
+			var text = document.getElementById('privateText').value;
+			var id_conservation = document.getElementById('id_conservation').value;
+			var id_receiver = document.getElementById('id_receiver').value;
+			var id_sender = document.getElementById('id_sender').value;
+			stompClient.send("/app/private", {},
+				JSON.stringify({'content': text, 'id_receiver': id_receiver, 'id_conservation': id_conservation, 'id_sender': id_sender}));
+		}
+
+		function show(message) {
+			var response = document.getElementById('messages');
+			var p = document.createElement('p');
+			p.innerHTML = "message: " + message.content;
+			response.appendChild(p);
+		}
+		function showLocation(BookingWebSocketRequest) {
+			var response = document.getElementById('location');
+			var p = document.createElement('p');
+			p.innerHTML = "title: " + BookingWebSocketRequest.title;
+			response.appendChild(p);
+		}
+	</script>
+</head>
+
+<body>
+	<div>
+		<div>
+			<button id="sendMessage" onclick="sendMessage();">Send</button>
+			<input type="text" id="id_title" placeholder="title" />
+			<input type="text" id="id_location" placeholder="location" />
+			<input type="text" id="id_user" placeholder="id_user" />
+		</div>
+		<br />
+		<div>
+			<button id="sendPrivateMessage" onclick="sendPrivateMessage();">Send Private</button>
+			<input type="text" id="privateText" placeholder="Private Message" />
+			<input type="text" id="id_conservation" placeholder="id_conservation" />
+			<input type="text" id="id_sender" placeholder="id_sender" />
+			<input type="text" id="id_receiver" placeholder="id_receiver" />
+		</div>
+		<br />
+		<br />
+		<br />
+
+		<div id="messages"></div>
+		<div id="location"></div>
+	</div>
+
+</body>
+
+</html>

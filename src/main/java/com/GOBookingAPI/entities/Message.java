@@ -3,7 +3,6 @@ package com.GOBookingAPI.entities;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.GOBookingAPI.utils.MesssageType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,7 +38,6 @@ public class Message implements Serializable {
 	@Transient 
 	private String to;
 	
-	private MesssageType type;
 	
 	@ManyToOne
 	@JoinColumn(name = "conservation_id")

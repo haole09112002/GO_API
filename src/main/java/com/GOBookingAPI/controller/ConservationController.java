@@ -17,12 +17,5 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/conservation")
 public class ConservationController {
 	
-	@Autowired
-	private IConservationService conservationService;
-	
-	@PostMapping("/")
-	public ResponseEntity<?> createConservation(@RequestBody CreateConservationRequest conservationRequest){
-		return ResponseEntity.ok(conservationService.createConservation(conservationRequest));
-	}
 	
 }

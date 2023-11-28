@@ -14,7 +14,6 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import com.GOBookingAPI.entities.Conservation;
 import com.GOBookingAPI.entities.Message;
-import com.GOBookingAPI.utils.MesssageType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +33,6 @@ public class WebSocketEventListener {
 			log.info("User disconnected:{}" , senderId);
 			Message message = new Message();
 			message.setSenderId(Integer.parseInt(senderId));
-			message.setType(MesssageType.LEAVER);
 			messageTemplate.convertAndSend("/topic/public",message);
 		}
 	}

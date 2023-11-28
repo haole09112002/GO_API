@@ -22,26 +22,47 @@
 		var authorizationParam = getParameterByName('Authorization');
 
 		// In giá trị ra console để kiểm tra
-		var socket = new SockJS(`http://localhost:8080/ws?Authorization=${authorizationParam}`, { transports: ['websocket', 'polling', 'flashsocket'] });
+		var socket = new SockJS(`https://goapi-production-9e3a.up.railway.app/ws?Authorization=${authorizationParam}`, {transports: ['websocket', 'polling', 'flashsocket']});
 		stompClient = Stomp.over(socket);
 
 		stompClient.connect({}, function (frame) {
 			console.log(frame);
-			stompClient.subscribe('/all/messages', function (result) {
-				show(JSON.parse(result.body));
+			stompClient.subscribe('/user/driver-notify', function (result) {
+				console.log(result.body)
+				showLocation(JSON.parse(result.body));
 			});
 			stompClient.subscribe('/user/specific', function (result) {
 				console.log(result.body)
 				show(JSON.parse(result.body));
 			});
+			stompClient.subscribe('/user/customer-status', function (result) {
+				console.log(result.body)
+				showStatusCustomer(JSON.parse(result.body));
+			});
+			stompClient.subscribe('/user/customer-info', function (result) {
+				console.log(result.body)
+				showInfoDriver(JSON.parse(result.body));
+			});
+			stompClient.subscribe('/user/driver', function (result) {
+				console.log(result.body)
+				showBooking(JSON.parse(result.body));
+			});
+			stompClient.subscribe('/user/customer-locaDri', function (result) {
+				console.log(result.body)
+				showLocationToCustomer(JSON.parse(result.body));
+			});
 		});
 
 
 
-		function sendMessage() {
-			var text = document.getElementById('text').value;
-			stompClient.send("/app/application", {},
-				JSON.stringify({'content': text}));
+		function sendLocation() {
+			var id_driver = document.getElementById('id_driver').value;
+			var location = document.getElementById('id_location').value;
+			var id_status = document.getElementById('id_status').value;
+			var id_customer = document.getElementById('id_customer').value;
+			stompClient.send("/app/location", {},
+				JSON.stringify({'driverId': id_driver , 'location' : location , "status" : id_status ,"customerId" : id_customer}));
+
 		}
 
 		function sendPrivateMessage() {
@@ -50,7 +71,7 @@
 			var id_receiver = document.getElementById('id_receiver').value;
 			var id_sender = document.getElementById('id_sender').value;
 			stompClient.send("/app/private", {},
-				JSON.stringify({'content': text, 'id_receiver': id_receiver, 'id_conservation' : id_conservation , 'id_sender' :id_sender}));
+				JSON.stringify({'content': text, 'id_receiver': id_receiver, 'id_conservation': id_conservation, 'id_sender': id_sender}));
 		}
 
 		function show(message) {
@@ -59,21 +80,55 @@
 			p.innerHTML = "message: " + message.content;
 			response.appendChild(p);
 		}
+		function showLocation(json) {
+			var response = document.getElementById('location');
+			var p = document.createElement('p');
+			p.innerHTML = "title: " + json.title;
+			response.appendChild(p);
+		}
+			function showStatusCustomer(BookingStatusResponse) {
+			var response = document.getElementById('status');
+			var p = document.createElement('p');
+			p.innerHTML = "statusCustomer: " + BookingStatusResponse.bookingStatus;
+			response.appendChild(p);
+		}
+			function showInfoDriver(Driver) {
+			var response = document.getElementById('driver');
+			var p = document.createElement('p');
+			p.innerHTML = "InfoDriver: " + Driver.fullName;
+			response.appendChild(p);
+		}
+		
+			function showBooking(BookingWebSocketResponse) {
+			var response = document.getElementById('booking');
+			var p = document.createElement('p');
+			p.innerHTML = "InfoBooking: " + BookingWebSocketResponse.customerId;
+			response.appendChild(p);
+		}
+		function showLocationToCustomer(LocationDriver) {
+			var response = document.getElementById('locationToCustomer');
+			var p = document.createElement('p');
+			p.innerHTML = "location: " + LocationDriver.location;
+			response.appendChild(p);
+		}
 	</script>
 </head>
 
 <body>
 	<div>
 		<div>
-			<button id="sendMessage" onclick="sendMessage();">Send</button>
-			<input type="text" id="text" placeholder="Text" />
+			<button id="sendMessage" onclick="sendLocation();">Send</button>
+			<input type="text" id="id_driver" placeholder="iddriver" />
+			<input type="text" id="id_location" placeholder="location" />
+			<input type="text" id="id_status" placeholder="status" />
+			<input type="text" id="id_customer" placeholder="id_customer" />
 		</div>
 		<br />
 		<div>
 			<button id="sendPrivateMessage" onclick="sendPrivateMessage();">Send Private</button>
 			<input type="text" id="privateText" placeholder="Private Message" />
 			<input type="text" id="id_conservation" placeholder="id_conservation" />
-				<input type="text" id="id_sender" placeholder="id_sender" />
+			<input type="text" id="id_sender" placeholder="id_sender" />
 			<input type="text" id="id_receiver" placeholder="id_receiver" />
 		</div>
 		<br />
@@ -81,7 +136,11 @@
 		<br />
 
 		<div id="messages"></div>
-
+		<div id="location"></div>
+		<div id="status"></div>
+		<div id="driver"></div>
+		<div id="booking"></div>
+		<div id="locationToCustomer"></div>
 	</div>
 
 </body>

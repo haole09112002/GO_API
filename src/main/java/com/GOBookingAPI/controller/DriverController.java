@@ -1,17 +1,27 @@
 package com.GOBookingAPI.controller;
 
-import java.security.Principal;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.GOBookingAPI.payload.request.BookingStatusRequest;
+import com.GOBookingAPI.services.IWebSocketService;
 
 @RestController
 @RequestMapping("/driver")
 public class DriverController {
-	@GetMapping("/index")
-	public ResponseEntity<String> index(Principal principal){
-		return ResponseEntity.ok("Welcome to admin page : " + principal.getName());
+	
+	@Autowired
+	private IWebSocketService webSocketService;
+	
+	@PostMapping("/status-booking")
+	public ResponseEntity<?> start(@RequestBody BookingStatusRequest req){
+		webSocketService.updateBookStatus(req.getBookingId(), req.getBookingStatus());
+		return ResponseEntity.ok("OK");
 	}
+	
 }
