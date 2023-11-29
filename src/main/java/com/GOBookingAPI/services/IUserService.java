@@ -8,7 +8,6 @@ import com.GOBookingAPI.payload.request.DriverRegisterRequest;
 import com.GOBookingAPI.payload.response.RegisterCustomerResponse;
 import org.springframework.web.multipart.MultipartFile;
 import com.GOBookingAPI.entities.User;
-import com.GOBookingAPI.payload.request.DriverRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.payload.response.LoginResponse;
 import com.GOBookingAPI.payload.response.RegisterResponse;

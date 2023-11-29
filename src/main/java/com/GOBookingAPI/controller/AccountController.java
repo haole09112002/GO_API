@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.GOBookingAPI.payload.request.CustomerRequest;
-import com.GOBookingAPI.payload.request.DriverRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.payload.response.LoginResponse;
 import com.GOBookingAPI.services.IUserService;
@@ -47,7 +46,6 @@ public class AccountController {
     @PostMapping("/driver")
     public ResponseEntity<?> registerDriver(@ModelAttribute @Valid DriverRegisterRequest request
                                             ) {
-//		return ResponseEntity.ok("Đang bảo trì !! heheehhee :<");
         return ResponseEntity.ok(userService.registerDriver(request));
     }
 

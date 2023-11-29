@@ -1,6 +1,7 @@
 package com.GOBookingAPI.services.impl;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,15 @@ public class MessageServiceImpl implements IMessageService {
 			log.info("Error in Service {}" , e.getMessage());
 			return new BaseResponse<Message>(null,"Fail");
 		}
+	}
+	@Override
+	public List<Message> getAllMessageByConservationId(int ConservationId) {
+//		List<Message> messages = messageRepository.getAllByConservationId(ConservationId);
+//		isf(messages.isEmpty()) {
+			return null;
+//		}else {
+//			return messages;
+//		}
 	}
 
 }

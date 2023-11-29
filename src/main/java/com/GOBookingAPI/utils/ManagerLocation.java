@@ -84,4 +84,11 @@ public class ManagerLocation {
 			locationMapFree.put(location.getIddriver(), location);
 		}
 	}
+	
+	public void DeteleData(int driverId) {
+		if(locationMapFree.containsKey(driverId)) {
+			locationMapFree.remove(driverId);
+		}else if(locationMapBusy.containsKey(driverId)) {
+			locationMapBusy.remove(driverId);		}
+	}
 }

@@ -22,7 +22,7 @@
 		var authorizationParam = getParameterByName('Authorization');
 
 		// In giá trị ra console để kiểm tra
-		var socket = new SockJS(`https://goapi-production-9e3a.up.railway.app/ws?Authorization=${authorizationParam}`, {transports: ['websocket', 'polling', 'flashsocket']});
+		var socket = new SockJS(`http://localhost:8080/ws?Authorization=${authorizationParam}`, {transports: ['websocket', 'polling', 'flashsocket']});
 		stompClient = Stomp.over(socket);
 
 		stompClient.connect({}, function (frame) {
