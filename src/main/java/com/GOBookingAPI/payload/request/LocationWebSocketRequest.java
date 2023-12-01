@@ -12,8 +12,4 @@ public class LocationWebSocketRequest {
 	private int driverId;
 	
 	private String location;
-	
-	private String status;
-	
-	private int customerId ;
 }
