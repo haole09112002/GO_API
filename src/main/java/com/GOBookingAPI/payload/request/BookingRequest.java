@@ -1,6 +1,7 @@
 package com.GOBookingAPI.payload.request;
 
 
+import com.GOBookingAPI.enums.VehicleType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.Arrays;
 
 @Data
 @AllArgsConstructor
@@ -21,6 +24,14 @@ public class BookingRequest {
 	private String dropOffLocation;
 
 	@NotNull(message = "VehicleType cannot be null")
-	@Min(value = 1, message = "Giá trị phải lớn hơn 0")
-	private int vehicleType;
+//	@EnumValidator(enumClass = VehicleType.class, message = "Invalid VehicleType value")
+	private VehicleType vehicleType;
+
+	public void setVehicleType(VehicleType vehicleType) {
+		if (vehicleType != null && Arrays.asList(VehicleType.values()).contains(vehicleType)) {
+			this.vehicleType = vehicleType;
+		} else {
+			throw new IllegalArgumentException("Invalid VehicleType value");
+		}
+	}
 }
