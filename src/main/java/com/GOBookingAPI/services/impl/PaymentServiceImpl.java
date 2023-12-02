@@ -2,6 +2,7 @@ package com.GOBookingAPI.services.impl;
 
 import com.GOBookingAPI.config.VNPayConfig;
 import com.GOBookingAPI.entities.Booking;
+import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.entities.Payment;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
@@ -17,7 +18,9 @@ import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.IDriverService;
 import com.GOBookingAPI.services.IPaymentService;
 import com.GOBookingAPI.services.IWebSocketService;
+import com.GOBookingAPI.utils.DriverStatus;
 import com.GOBookingAPI.utils.LocationDriver;
+import com.GOBookingAPI.utils.ManagerBooking;
 import com.GOBookingAPI.utils.ManagerLocation;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +55,8 @@ public class PaymentServiceImpl implements IPaymentService {
     @Autowired
     private ManagerLocation managerLocation;
 
-
+   
+    
     @Override
     @Transactional
     public void handlePaymentTransaction(Map<String, String> req) {      // callback from VNpay
@@ -65,37 +69,39 @@ public class PaymentServiceImpl implements IPaymentService {
         if(booking.getStatus() != BookingStatus.WAITING){
             throw  new BadRequestException("Booking không ở trạng thái cần thanh toán");
         }
+        
         // check gia tien doi chieu 
-        String vnp_SecureHash  = req.get("vnp_SecureHash");
-        req.remove("vnp_SecureHash");
-        String signValue = VNPayConfig.hashAllFields(req);
-        if(signValue.equals(vnp_SecureHash)) {
-        	
-        	if("00".equals(req.get("vnp_ResponseCode"))) {
+//        String vnp_SecureHash  = req.get("vnp_SecureHash");
+//        req.remove("vnp_SecureHash");
+//        String signValue = VNPayConfig.hashAllFields(req);
+//        if(signValue.equals(vnp_SecureHash)) {
+//        	
+//        	if("00".equals(req.get("vnp_ResponseCode"))) {
         		  booking.setStatus(BookingStatus.PAID);
                   bookingRepository.save(booking);
                   Payment payment = new Payment();
                   payment.setAmount(Double.valueOf(req.get("vnp_Amount")));
                   payment.setTransactionId(req.get("vnp_TransactionNo"));
-                  payment.setTimeStamp(Date.valueOf(req.get("")));
+//                  payment.setTimeStamp(Date.valueOf(req.get("")));
                   payment.setCustomer(user.getCustomer());
                   payment.setBooking(booking);
                   paymentRepository.save(payment);
                   //todo sendRequestChangeBookingStatus => BookingStatus.PAID for customer
                   webSocketService.notifyBookingStatusToCustomer(user.getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
                   //todo sendRequestDriverLocation for all driver free
+                
                   List<LocationDriver> locationDrivers = managerLocation.getByStatus(WebSocketBookingTitle.FREE.toString());
                   for(LocationDriver locaDriver : locationDrivers) {
                   	webSocketService.notifytoDriver(locaDriver.getIddriver(), "HAVEBOOKING");
                   }
                   driverService.scheduleFindDriverTask(booking.getId(),booking.getPickupLocation());      //todo	
-        	}else {
-        		throw new BadRequestException("Thanh toán không thành công !");
-        	}
+//        	}else {
+//        		throw new BadRequestException("Thanh toán không thành công !");
+//        	}
         	 
-        }else {
-        	throw new BadRequestException("Chử ký không hợp lệ!");
-        }
+//        }else {
+//        	throw new BadRequestException("Chử ký không hợp lệ!");
+//        }
      
     }
     

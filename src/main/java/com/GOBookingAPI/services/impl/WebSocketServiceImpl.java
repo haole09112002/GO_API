@@ -1,7 +1,6 @@
 package com.GOBookingAPI.services.impl;
 
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
-import com.GOBookingAPI.payload.response.BookingWebSocketResponse;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -24,9 +23,11 @@ import com.GOBookingAPI.payload.request.LocationWebSocketRequest;
 import com.GOBookingAPI.payload.request.BookingWebSocketRequest;
 import com.GOBookingAPI.payload.response.LocationCustomerResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
+import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.IWebSocketService;
 import com.GOBookingAPI.utils.LocationDriver;
+import com.GOBookingAPI.utils.ManagerBooking;
 import com.GOBookingAPI.utils.ManagerLocation;
 
 import net.minidev.json.JSONObject;
@@ -35,13 +36,15 @@ import net.minidev.json.JSONObject;
 public class WebSocketServiceImpl implements IWebSocketService {
 
 	private final SimpMessagingTemplate messagingTemplate;
-
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private DriverRepository driverRepository;
 	@Autowired
 	public ManagerLocation managerLocation;
 	@Autowired
 	private BookingRepository bookingRepository;
+	
+	@Autowired
+	private ManagerBooking managerBooking;
     @Autowired
     public WebSocketServiceImpl(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
@@ -53,36 +56,50 @@ public class WebSocketServiceImpl implements IWebSocketService {
     	 LocationDriver loca = new LocationDriver();
 		 loca.setIddriver(websocket.getDriverId());
 		 loca.setLocation(websocket.getLocation());
-		 loca.setStatus(websocket.getStatus());
-		 if(!managerLocation.checkAddOrUpdate(websocket.getDriverId(),websocket.getStatus())) {
-    		 managerLocation.addData(loca);
+		 if(managerLocation.checkAddOrUpdate(websocket.getDriverId())) {
+			 Driver driver = driverRepository.findById(websocket.getDriverId()).orElseThrow(() -> new NotFoundException("Khong tim thay Driver"));
+    		 loca.setStatus(driver.getStatus().toString());
+			 managerLocation.addData(loca);
 		 }else {
+			 if(managerLocation.checkStatus(loca.getIddriver())) {
+				 loca.setStatus(WebSocketBookingTitle.FREE.toString());
+			 }else {
+				 loca.setStatus(WebSocketBookingTitle.BUSY.toString());
+			 }
 			 managerLocation.updateData(loca);
-		 }		
-		 if(websocket.getCustomerId() != 0) {
-			 messagingTemplate.convertAndSendToUser(String.valueOf(websocket.getCustomerId()), "/customer-locaDri", loca);
+			 int customerId = managerBooking.CheckBooking(loca.getIddriver());
+			 if(customerId != 0) {
+				 JSONObject json = new JSONObject();
+				 json.put("driverId", loca.getIddriver());
+				 json.put("location", loca.getLocation());
+				 messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_location", json);
+			 }
 		 }
-//			messagingTemplate.convertAndSend("/all/booking", websocket);
+		 managerLocation.getById(loca.getIddriver());
     }
 
 	@Override
 	public void sendMessagePrivate(CreateMessageRequest message) {
-		messagingTemplate.convertAndSendToUser(String.valueOf(message.getId_receiver()), "/specific", message);
+		messagingTemplate.convertAndSendToUser(String.valueOf(message.getId_receiver()), "/message_receive", message);
 	}
 
 	@Override
 	public void notifyBookingStatusToCustomer(int userId, BookingStatusResponse resp) {
-        messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/customer-status", resp);
+        messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/booking_status", resp);
     }
 
 	@Override
-	public void notifyBookingToDriver(int driverId, BookingWebSocketResponse booking) {
-		messagingTemplate.convertAndSendToUser(String.valueOf(driverId), "/driver", booking);
+	public void notifyBookingToDriver(int driverId,int bookingId) {
+		JSONObject json = new JSONObject() ;
+		json.put("bookingId", bookingId);
+		messagingTemplate.convertAndSendToUser(String.valueOf(driverId), "/driver_booking", json);
 	}
 
 	@Override
-	public void notifyDriverToCustomer(int customerId, Driver driver) {
-		  messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer-info", driver);
+	public void notifyDriverToCustomer(int customerId, int  driverId) {
+		JSONObject json = new JSONObject();
+		json.put("driverId", driverId);
+	    messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_info", json);
 	}
 
 	@Override
@@ -99,10 +116,9 @@ public class WebSocketServiceImpl implements IWebSocketService {
 
 	@Override
 	public void notifytoDriver(int driverId, String title) {
-		
 		JSONObject json = new JSONObject();
 		json.put("title", title);
-		messagingTemplate.convertAndSendToUser( String.valueOf(driverId),"/driver-notify", json);
+		messagingTemplate.convertAndSendToUser( String.valueOf(driverId),"/driver_notify", json);
 	}
 
 }

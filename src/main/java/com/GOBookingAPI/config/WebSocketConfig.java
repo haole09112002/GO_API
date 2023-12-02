@@ -29,7 +29,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
 	
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
-		registry.enableSimpleBroker("/all" , "/specific" , "/driver-notify" ,"/customer-status" , "/customer-info" ,"/customer-locaDri", "/driver");
+		registry.enableSimpleBroker("/all" , "/message_receive" , "/driver_notify" ,"/booking_status" , "/customer_driver_info" ,"/customer_driver_location", "/driver_booking");
 		registry.setApplicationDestinationPrefixes("/app", "/user");
 	}
 
