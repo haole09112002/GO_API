@@ -37,8 +37,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws")
 		.setAllowedOrigins("http://127.0.0.1:5500" ,"http://localhost:5500" ,"http://localhost:3000","https://goapi-production-9e3a.up.railway.app")
-		.setHandshakeHandler(new UserHandshakeHandler(userService))
-		.withSockJS();
+		.setHandshakeHandler(new UserHandshakeHandler(userService));
+//		.withSockJS();
 //		registry.addEndpoint("/ws");
 	}
 }
