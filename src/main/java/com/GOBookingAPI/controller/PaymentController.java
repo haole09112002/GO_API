@@ -118,7 +118,7 @@ public class PaymentController {
 // //	        job.addProperty("data", paymentUrl);
 // //	        Gson gson = new Gson();
 // //	        resp.getWriter().write(gson.toJson(job));
-			System.out.prinln("test");
+			System.out.println("test");
 			return ResponseEntity.ok("Test");
 	}
 //	@ModelAttribute PaymentRequest req
