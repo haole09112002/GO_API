@@ -1,4 +1,4 @@
-package com.GOBookingAPI.services.impl;
+	package com.GOBookingAPI.services.impl;
 
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 
@@ -72,7 +72,9 @@ public class WebSocketServiceImpl implements IWebSocketService {
 				 JSONObject json = new JSONObject();
 				 json.put("driverId", loca.getIddriver());
 				 json.put("location", loca.getLocation());
+				 System.out.println("Vị trí" + loca.getLocation());
 				 messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_location", json);
+				 messagingTemplate.convertAndSendToUser(String.valueOf(loca.getIddriver()), "/customer_driver_location", json);
 			 }
 		 }
 		 managerLocation.getById(loca.getIddriver());
@@ -81,6 +83,8 @@ public class WebSocketServiceImpl implements IWebSocketService {
 	@Override
 	public void sendMessagePrivate(CreateMessageRequest message) {
 		messagingTemplate.convertAndSendToUser(String.valueOf(message.getId_receiver()), "/message_receive", message);
+		System.out.println("Tin nhắn" + message.getContent());
+		messagingTemplate.convertAndSendToUser(String.valueOf(message.getId_sender()), "/message_receive", message);
 	}
 
 	@Override
