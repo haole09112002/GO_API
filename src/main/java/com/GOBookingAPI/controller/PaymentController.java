@@ -38,13 +38,13 @@ public class PaymentController {
         return ResponseEntity.ok("payment");
 	}
 	
-	@PostMapping("/returnUrl")
+	@GetMapping("/returnUrl")
 	public ResponseEntity<?> test(@RequestParam Map<String, String> req) {
         return ResponseEntity.ok("payment");
 	}
 	
 	@GetMapping("/create")
-	public ResponseEntity<?> create() throws UnsupportedEncodingException{
+	public ResponseEntity<?> create(@RequestParam Map<String, String> req) throws UnsupportedEncodingException{
 // //		  String vnp_Version = "2.1.0";
 // //	        String vnp_Command = "pay";
 // 	        String orderType = "other";
@@ -118,7 +118,9 @@ public class PaymentController {
 // //	        job.addProperty("data", paymentUrl);
 // //	        Gson gson = new Gson();
 // //	        resp.getWriter().write(gson.toJson(job));
-			System.out.println("test");
+		
+		
+			System.out.println(req);
 			return ResponseEntity.ok("Test");
 	}
 //	@ModelAttribute PaymentRequest req
