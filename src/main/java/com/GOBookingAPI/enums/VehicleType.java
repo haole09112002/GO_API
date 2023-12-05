@@ -4,8 +4,8 @@ import com.GOBookingAPI.exceptions.BadRequestException;
 
 public enum VehicleType {
 
-    MOTORCYCLE(1, 8),
-    CAR(2, 12);
+    MOTORCYCLE(1, 8000),
+    CAR(2, 12000);
 
     private final int value;
     private final double price;
@@ -19,8 +19,8 @@ public enum VehicleType {
         return value;
     }
 
-    public int getPrice() {
-        return value;
+    public double getPrice() {
+        return price;
     }
 
     public static VehicleType getTypeByValue(int value) {

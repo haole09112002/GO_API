@@ -45,7 +45,7 @@ public class Booking implements Serializable {
 	private BookingStatus status;
 
 	@Column
-	private double amount;
+	private long amount;
 
 	@Column
 	private Date startTime;

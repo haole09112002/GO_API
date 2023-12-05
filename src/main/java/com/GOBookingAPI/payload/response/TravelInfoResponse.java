@@ -15,5 +15,5 @@ import java.util.Map;
 public class TravelInfoResponse {
     private String pickUpLocation;
     private String dropOffLocation;
-    private Map<Integer, Double> amounts;
+    private Map<Integer, Long> amounts;
 }
