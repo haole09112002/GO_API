@@ -71,7 +71,7 @@ public class Booking implements Serializable {
 	private Payment payment;
 	
 	@OneToOne(mappedBy = "booking")
-	private Conservation conservation;
+	private Conversation conservation;
 	
 	@OneToOne(mappedBy = "booking")
 	private Review review;

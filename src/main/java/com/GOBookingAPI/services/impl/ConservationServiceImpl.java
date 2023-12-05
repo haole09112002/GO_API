@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Booking;
-import com.GOBookingAPI.entities.Conservation;
+import com.GOBookingAPI.entities.Conversation;
 import com.GOBookingAPI.entities.Customer;
 import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.payload.request.CreateConservationRequest;
@@ -53,17 +53,17 @@ public class ConservationServiceImpl implements IConservationService {
 			}
 			Date curent = new Date();
 			
-			Conservation conservation = new Conservation();
+			Conversation conservation = new Conversation();
 			conservation.setDriver(driverOptional.get());
 			conservation.setCustomer(customerOptional.get());
 			conservation.setBooking(bookOptional.get());
 			conservation.setCreateAt(curent);
 			
 			conservationRepository.save(conservation);
-			return new BaseResponse<Conservation>(null,"Success");
+			return new BaseResponse<Conversation>(null,"Success");
 		}catch(Exception e) {
 			log.info("Error in Service {}" , e.getMessage());
-			return new BaseResponse<Conservation>(null,"Fail");
+			return new BaseResponse<Conversation>(null,"Fail");
 		}
 	}
 

@@ -71,37 +71,78 @@ public class PaymentServiceImpl implements IPaymentService {
         }
         
         // check gia tien doi chieu 
-//        String vnp_SecureHash  = req.get("vnp_SecureHash");
-//        req.remove("vnp_SecureHash");
-//        String signValue = VNPayConfig.hashAllFields(req);
-//        if(signValue.equals(vnp_SecureHash)) {
-//        	
-//        	if("00".equals(req.get("vnp_ResponseCode"))) {
-        		  booking.setStatus(BookingStatus.PAID);
-                  bookingRepository.save(booking);
-                  Payment payment = new Payment();
-                  payment.setAmount(Double.valueOf(req.get("vnp_Amount")));
-                  payment.setTransactionId(req.get("vnp_TransactionNo"));
-//                  payment.setTimeStamp(Date.valueOf(req.get("")));
-                  payment.setCustomer(user.getCustomer());
-                  payment.setBooking(booking);
-                  paymentRepository.save(payment);
-                  //todo sendRequestChangeBookingStatus => BookingStatus.PAID for customer
-                  webSocketService.notifyBookingStatusToCustomer(user.getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
-                  //todo sendRequestDriverLocation for all driver free
-                
-                  List<LocationDriver> locationDrivers = managerLocation.getByStatus(WebSocketBookingTitle.FREE.toString());
-                  for(LocationDriver locaDriver : locationDrivers) {
-                  	webSocketService.notifytoDriver(locaDriver.getIddriver(), "HAVEBOOKING");
-                  }
-                  driverService.scheduleFindDriverTask(booking.getId(),booking.getPickupLocation());      //todo	
-//        	}else {
-//        		throw new BadRequestException("Thanh toán không thành công !");
-//        	}
-        	 
-//        }else {
-//        	throw new BadRequestException("Chử ký không hợp lệ!");
-//        }
+        String vnp_SecureHash = req.get("vnp_SecureHash");
+        if (req.containsKey("vnp_SecureHashType")) 
+        {
+        	req.remove("vnp_SecureHashType");
+        }
+        if (req.containsKey("vnp_SecureHash")) 
+        {
+        	req.remove("vnp_SecureHash");
+        } 	
+        String signValue = VNPayConfig.hashAllFields(req);
+        
+        if (signValue.equals(vnp_SecureHash)) 
+        {
+
+            boolean checkOrderId = true; // vnp_TxnRef exists in your database
+            boolean checkAmount = true; // vnp_Amount is valid (Check vnp_Amount VNPAY returns compared to the amount of the code (vnp_TxnRef) in the Your database).
+            boolean checkOrderStatus = true; // PaymnentStatus = 0 (pending)
+			
+			
+            if(checkOrderId)
+            {
+                if(checkAmount)
+                {
+                    if (checkOrderStatus)
+                    {
+                        if ("00".equals(req.get("vnp_ResponseCode")))
+                        {
+                      	  booking.setStatus(BookingStatus.PAID);
+                          bookingRepository.save(booking);
+                          Payment payment = new Payment();
+                          payment.setAmount(Double.valueOf(req.get("vnp_Amount")));
+                          payment.setTransactionId(req.get("vnp_TransactionNo"));
+//                          payment.setTimeStamp(Date.valueOf(req.get("")));
+                          payment.setCustomer(user.getCustomer());
+                          payment.setBooking(booking);
+                          paymentRepository.save(payment);
+                          //todo sendRequestChangeBookingStatus => BookingStatus.PAID for customer
+                          webSocketService.notifyBookingStatusToCustomer(user.getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
+                          //todo sendRequestDriverLocation for all driver free
+                        
+                          List<LocationDriver> locationDrivers = managerLocation.getByStatus(WebSocketBookingTitle.FREE.toString());
+                          for(LocationDriver locaDriver : locationDrivers) {
+                          	webSocketService.notifytoDriver(locaDriver.getIddriver(), "HAVEBOOKING");
+                          }
+                          driverService.scheduleFindDriverTask(booking.getId(),booking.getPickupLocation()); 
+                        }
+                        else
+                        {
+                        	throw new BadRequestException("Thanh toán không thành công !");
+                        }
+                        System.out.print ("{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}");
+                    }
+                    else
+                    {
+                        
+                    	System.out.print("{\"RspCode\":\"02\",\"Message\":\"Order already confirmed\"}");
+                    }
+                }
+                else
+                {
+                	System.out.print("{\"RspCode\":\"04\",\"Message\":\"Invalid Amount\"}"); 
+                }
+            }
+            else
+            {
+            	System.out.print("{\"RspCode\":\"01\",\"Message\":\"Order not Found\"}");
+            }
+        } 
+        else 
+        {
+        	System.out.print("{\"RspCode\":\"97\",\"Message\":\"Invalid Checksum\"}");
+        }
      
     }
     

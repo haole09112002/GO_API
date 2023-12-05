@@ -71,7 +71,7 @@
 			var id_receiver = document.getElementById('id_receiver').value;
 			var id_sender = document.getElementById('id_sender').value;
 			stompClient.send("/app/message_send", {},
-				JSON.stringify({'content': text, 'id_receiver': id_receiver, 'id_conservation': id_conservation, 'id_sender': id_sender}));
+				JSON.stringify({'content': text, 'id_receiver': id_receiver, 'id_conversation': id_conservation, 'id_sender': id_sender}));
 		}
 
 		function show(message) {

@@ -77,7 +77,7 @@ public class Driver implements Serializable {
 
 	@OneToMany(mappedBy = "driver")
 	@JsonIgnore
-	private List<Conservation> conservations = new ArrayList<>();
+	private List<Conversation> conservations = new ArrayList<>();
 
 	@Column
 	private String imgUrl;

@@ -54,5 +54,5 @@ public class Customer implements Serializable{
 	
 	@OneToMany(mappedBy = "customer")
 	@JsonIgnore
-	private List<Conservation> convervations = new ArrayList<>();
+	private List<Conversation> convervations = new ArrayList<>();
 }

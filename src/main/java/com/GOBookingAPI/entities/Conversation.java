@@ -25,7 +25,7 @@ import lombok.Setter;
 @Setter
 @Entity @NoArgsConstructor @AllArgsConstructor
 @Table(name = "Convervation")
-public class Conservation implements Serializable{
+public class Conversation implements Serializable{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

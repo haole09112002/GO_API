@@ -72,7 +72,7 @@ public class WebSocketServiceImpl implements IWebSocketService {
 				 JSONObject json = new JSONObject();
 				 json.put("driverId", loca.getIddriver());
 				 json.put("location", loca.getLocation());
-				 System.out.println("Vị trí" + loca.getLocation());
+				 System.out.println("Vị trí " + loca.getLocation());
 				 messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_location", json);
 				 messagingTemplate.convertAndSendToUser(String.valueOf(loca.getIddriver()), "/customer_driver_location", json);
 			 }
@@ -83,7 +83,7 @@ public class WebSocketServiceImpl implements IWebSocketService {
 	@Override
 	public void sendMessagePrivate(CreateMessageRequest message) {
 		messagingTemplate.convertAndSendToUser(String.valueOf(message.getId_receiver()), "/message_receive", message);
-		System.out.println("Tin nhắn" + message.getContent());
+		System.out.println("Tin nhan " + message.getContent());
 		messagingTemplate.convertAndSendToUser(String.valueOf(message.getId_sender()), "/message_receive", message);
 	}
 

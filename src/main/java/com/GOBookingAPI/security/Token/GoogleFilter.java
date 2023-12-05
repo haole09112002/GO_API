@@ -34,7 +34,7 @@ public class GoogleFilter extends OncePerRequestFilter  {
 				System.out.println("this is Filter  ");
 				SecurityContextHolder.getContext().setAuthentication(new TokenSecurity(token));
 			}else {
-				System.out.println("Error ");
+				System.out.println("Can't get Token");
 			}
 		}catch(Exception e) {
 			log.info("Fail in do filter" , e.getMessage());

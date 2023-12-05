@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import com.GOBookingAPI.entities.Conservation;
+import com.GOBookingAPI.entities.Conversation;
 import com.GOBookingAPI.entities.Message;
 import com.GOBookingAPI.utils.ManagerLocation;
 
