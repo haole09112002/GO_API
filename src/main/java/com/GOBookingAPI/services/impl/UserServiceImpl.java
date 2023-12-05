@@ -28,7 +28,6 @@ import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.entities.VehicleType;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.CustomerRequest;
-import com.GOBookingAPI.payload.request.DriverRequest;
 import com.GOBookingAPI.repositories.CustomerRepository;
 import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.repositories.RoleRepository;

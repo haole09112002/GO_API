@@ -40,8 +40,8 @@ public class Message implements Serializable {
 	
 	
 	@ManyToOne
-	@JoinColumn(name = "conservation_id")
-	private Conservation conservation;
+	@JoinColumn(name = "conversation_id")
+	private Conversation conversation;
 	
 	
 }

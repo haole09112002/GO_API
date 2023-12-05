@@ -8,9 +8,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.GOBookingAPI.entities.Driver;
+import com.GOBookingAPI.enums.BookingStatus;
+import com.GOBookingAPI.utils.DriverStatus;
 
 @Repository
 public interface DriverRepository extends JpaRepository<Driver, Integer> {
-//	@Query("SELECT d FROM DRIVER d WHERE d.status = :status")
-//	List<Driver> findDriverStatus(@Param("status") String status );
+	@Query("SELECT d FROM Driver d WHERE status = :status")
+	List<Driver> findDriverStatus(@Param("status") DriverStatus status );
 }

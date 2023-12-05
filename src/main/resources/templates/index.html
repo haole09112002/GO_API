@@ -27,27 +27,29 @@
 
 		stompClient.connect({}, function (frame) {
 			console.log(frame);
-			stompClient.subscribe('/user/driver-notify', function (result) {
+			// driver nhận thông báo có booking
+			stompClient.subscribe('/user/driver_notify', function (result) {
 				console.log(result.body)
 				showLocation(JSON.parse(result.body));
 			});
-			stompClient.subscribe('/user/specific', function (result) {
+			stompClient.subscribe('/user/message_receive', function (result) {
 				console.log(result.body)
 				show(JSON.parse(result.body));
 			});
-			stompClient.subscribe('/user/customer-status', function (result) {
+			stompClient.subscribe('/user/booking_status', function (result) {
 				console.log(result.body)
 				showStatusCustomer(JSON.parse(result.body));
 			});
-			stompClient.subscribe('/user/customer-info', function (result) {
+			// customer nhận driverId
+			stompClient.subscribe('/user/customer_driver_info', function (result) {
 				console.log(result.body)
 				showInfoDriver(JSON.parse(result.body));
 			});
-			stompClient.subscribe('/user/driver', function (result) {
+			stompClient.subscribe('/user/driver_booking', function (result) {
 				console.log(result.body)
 				showBooking(JSON.parse(result.body));
 			});
-			stompClient.subscribe('/user/customer-locaDri', function (result) {
+			stompClient.subscribe('/user/customer_driver_location', function (result) {
 				console.log(result.body)
 				showLocationToCustomer(JSON.parse(result.body));
 			});
@@ -58,10 +60,8 @@
 		function sendLocation() {
 			var id_driver = document.getElementById('id_driver').value;
 			var location = document.getElementById('id_location').value;
-			var id_status = document.getElementById('id_status').value;
-			var id_customer = document.getElementById('id_customer').value;
 			stompClient.send("/app/location", {},
-				JSON.stringify({'driverId': id_driver , 'location' : location , "status" : id_status ,"customerId" : id_customer}));
+				JSON.stringify({'driverId': id_driver , 'location' : location }));
 
 		}
 
@@ -70,8 +70,8 @@
 			var id_conservation = document.getElementById('id_conservation').value;
 			var id_receiver = document.getElementById('id_receiver').value;
 			var id_sender = document.getElementById('id_sender').value;
-			stompClient.send("/app/private", {},
-				JSON.stringify({'content': text, 'id_receiver': id_receiver, 'id_conservation': id_conservation, 'id_sender': id_sender}));
+			stompClient.send("/app/message_send", {},
+				JSON.stringify({'content': text, 'id_receiver': id_receiver, 'id_conversation': id_conservation, 'id_sender': id_sender}));
 		}
 
 		function show(message) {
@@ -95,14 +95,14 @@
 			function showInfoDriver(Driver) {
 			var response = document.getElementById('driver');
 			var p = document.createElement('p');
-			p.innerHTML = "InfoDriver: " + Driver.fullName;
+			p.innerHTML = "driverId: " + Driver.driverId;
 			response.appendChild(p);
 		}
 		
-			function showBooking(BookingWebSocketResponse) {
+			function showBooking(Booking) {
 			var response = document.getElementById('booking');
 			var p = document.createElement('p');
-			p.innerHTML = "InfoBooking: " + BookingWebSocketResponse.customerId;
+			p.innerHTML = "BookingId: " + Booking.bookingId;
 			response.appendChild(p);
 		}
 		function showLocationToCustomer(LocationDriver) {
@@ -120,8 +120,6 @@
 			<button id="sendMessage" onclick="sendLocation();">Send</button>
 			<input type="text" id="id_driver" placeholder="iddriver" />
 			<input type="text" id="id_location" placeholder="location" />
-			<input type="text" id="id_status" placeholder="status" />
-			<input type="text" id="id_customer" placeholder="id_customer" />
 		</div>
 		<br />
 		<div>

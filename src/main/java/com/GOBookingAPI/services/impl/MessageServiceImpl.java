@@ -1,12 +1,13 @@
 package com.GOBookingAPI.services.impl;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.GOBookingAPI.entities.Conservation;
+import com.GOBookingAPI.entities.Conversation;
 import com.GOBookingAPI.entities.Message;
 import com.GOBookingAPI.payload.request.CreateMessageRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
@@ -35,8 +36,8 @@ public class MessageServiceImpl implements IMessageService {
 			message.setContent(messageRequest.getContent());
 			message.setCreateAt(curent);
 			
-			Optional<Conservation> conOptional= conservationRepository.findById(messageRequest.getId_conservation());
-			message.setConservation(conOptional.get());
+			Optional<Conversation> conOptional= conservationRepository.findById(messageRequest.getId_conversation());
+			message.setConversation(conOptional.get());
 			messageRepository.save(message);
 			
 			return new BaseResponse<Message>(null,"Success");
@@ -44,6 +45,15 @@ public class MessageServiceImpl implements IMessageService {
 			log.info("Error in Service {}" , e.getMessage());
 			return new BaseResponse<Message>(null,"Fail");
 		}
+	}
+	@Override
+	public List<Message> getAllMessageByConservationId(int ConservationId) {
+//		List<Message> messages = messageRepository.getAllByConservationId(ConservationId);
+//		isf(messages.isEmpty()) {
+			return null;
+//		}else {
+//			return messages;
+//		}
 	}
 
 }

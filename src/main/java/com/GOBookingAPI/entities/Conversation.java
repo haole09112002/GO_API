@@ -24,8 +24,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity @NoArgsConstructor @AllArgsConstructor
-@Table(name = "Convervation")
-public class Conservation implements Serializable{
+@Table(name = "Conversation")
+public class Conversation implements Serializable{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +45,7 @@ public class Conservation implements Serializable{
 	
 	
 	
-	@OneToMany(mappedBy = "conservation")
+	@OneToMany(mappedBy = "conversation")
 	private List<Message> messages = new ArrayList<>();
 	
 	@OneToOne

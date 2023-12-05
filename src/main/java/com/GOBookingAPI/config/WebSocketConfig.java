@@ -29,7 +29,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
 	
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
-		registry.enableSimpleBroker("/all" , "/specific" , "/driver-notify" ,"/customer-status" , "/customer-info" ,"/customer-locaDri", "/driver");
+		registry.enableSimpleBroker("/all" , "/message_receive" , "/driver_notify" ,"/booking_status" , "/customer_driver_info" ,"/customer_driver_location", "/driver_booking");
 		registry.setApplicationDestinationPrefixes("/app", "/user");
 	}
 
@@ -40,5 +40,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
 		.setHandshakeHandler(new UserHandshakeHandler(userService))
 		.withSockJS();
 //		registry.addEndpoint("/ws");
+//		registry.addEndpoint("/ws")
+//		.setAllowedOrigins("http://127.0.0.1:5500" ,"http://localhost:5500" ,"http://localhost:3000","https://goapi-production-9e3a.up.railway.app")
+//		.setHandshakeHandler(new UserHandshakeHandler(userService));
 	}
 }

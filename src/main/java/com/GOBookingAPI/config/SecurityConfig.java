@@ -34,7 +34,7 @@ public class SecurityConfig implements WebMvcConfigurer{
 		
 		http.cors();		// Kích hoạt CORS 
         http.csrf().disable();
-		http.authorizeRequests().requestMatchers("/home/**", "/api/**").permitAll();
+		http.authorizeRequests().requestMatchers("/home/**", "/api/**" ,"/payment/**").permitAll();
 		http.authorizeRequests().requestMatchers("/bookings/**").permitAll();
 		http.authorizeRequests().requestMatchers("/**","/ws/**").authenticated().anyRequest().authenticated();
 		http.exceptionHandling().authenticationEntryPoint(entryPoint);

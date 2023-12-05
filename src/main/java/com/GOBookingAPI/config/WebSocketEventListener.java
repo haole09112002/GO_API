@@ -1,7 +1,9 @@
 package com.GOBookingAPI.config;
 
+import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -12,8 +14,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import com.GOBookingAPI.entities.Conservation;
+import com.GOBookingAPI.entities.Conversation;
 import com.GOBookingAPI.entities.Message;
+import com.GOBookingAPI.utils.ManagerLocation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,16 +28,14 @@ public class WebSocketEventListener {
 	
 	private final SimpMessageSendingOperations messageTemplate;
 	
+	@Autowired
+	private ManagerLocation managerLocation;
+	
 	@EventListener
 	public void handleWebSocketDisconnectLister(SessionDisconnectEvent event) {
-		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-		String senderId = (String) headerAccessor.getSessionAttributes().get("senderId");
-		if(senderId != null) {
-			log.info("User disconnected:{}" , senderId);
-			Message message = new Message();
-			message.setSenderId(Integer.parseInt(senderId));
-			messageTemplate.convertAndSend("/topic/public",message);
-		}
+		String userId =  event.getUser().getName(); 
+		log.info("User disconnected: {}" , userId  );
+		managerLocation.DeteleData(Integer.parseInt(userId));
 	}
 	
 
