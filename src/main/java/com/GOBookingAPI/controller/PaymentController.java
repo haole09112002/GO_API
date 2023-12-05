@@ -13,11 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.GOBookingAPI.enums.PaymentMethod;
 import com.GOBookingAPI.payload.response.IPNResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.GOBookingAPI.config.VNPayConfig;
@@ -28,6 +30,8 @@ import org.thymeleaf.model.IComment;
 @RestController
 @RequestMapping("/payment")
 public class PaymentController {
+
+
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
@@ -49,19 +53,10 @@ public class PaymentController {
 
     @GetMapping("/create")
     public ResponseEntity<?> create() throws UnsupportedEncodingException {
-//		  String vnp_Version = "2.1.0";
-//        String vnp_Command = "pay";
         String orderType = "other";
-//        long amount = Integer.parseInt(req.getParameter("amount"))*100;
-//        String bankCode = req.getParameter("bankCode");
-//        
         String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
-//        String vnp_IpAddr = VNPayConfig.getIpAddress(req);
-
         String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
-
         long amount = 1000000L;
-
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", VNPayConfig.vnp_Version);
         vnp_Params.put("vnp_Command", VNPayConfig.vnp_Command);
@@ -75,6 +70,7 @@ public class PaymentController {
         vnp_Params.put("vnp_ReturnUrl", VNPayConfig.vnp_ReturnUrl);
         vnp_Params.put("vnp_IpAddr", "localhost:8080");
         vnp_Params.put("vnp_OrderType", orderType);
+
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());
@@ -116,15 +112,14 @@ public class PaymentController {
         DTO.setStatus("Ok");
         DTO.setMessage("Successfully");
         DTO.setURL(paymentUrl);
-//        com.google.gson.JsonObject job = new JsonObject();
-//        job.addProperty("code", "00");
-//        job.addProperty("message", "success");
-//        job.addProperty("data", paymentUrl);
-//        Gson gson = new Gson();
-//        resp.getWriter().write(gson.toJson(job));
         return ResponseEntity.ok(DTO);
     }
 
+    @GetMapping("/link")
+    public ResponseEntity<?> getPaymentLink(int bookingId, PaymentMethod paymentMethod){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(paymentService.createPaymentLink(email, bookingId, paymentMethod));
+    }
 
     /*
         @author: HaoLV

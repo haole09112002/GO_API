@@ -47,30 +47,24 @@ public class BookingServiceImpl implements IBookingService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private DriverRepository driverRepository;
-
-    @Autowired
-    private VehicleRepository vehicleRepository;
-
-    @Autowired
     private MyUserRepository myUserRepository;
 
     @Autowired
     private MapServiceImpl mapService;
-
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
 
     @Override
     public BookingResponse createBooking(String username, BookingRequest req) {
         User user = myUserRepository.findByEmail(username).orElseThrow(() -> new NotFoundException("Không tìm thấy khách hàng"));
         Customer customer = customerRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy Customer"));
         System.out.print(user.toString());
+
         VietMapResponse vietMapResponse = mapService.getRoute(req.getPickUpLocation(), req.getDropOffLocation(), req.getVehicleType().name());
         if (vietMapResponse.getCode().equals("ERROR")) {
             throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
         }
-        double amount = this.calculatePrice(vietMapResponse.getFirstPath().getDistance(), req.getVehicleType());
+
+        long amount = this.calculatePrice(vietMapResponse.getFirstPath().getDistance(), req.getVehicleType());
+
         Booking booking = new Booking();
         booking.setCustomer(customer);
         booking.setDriver(null);
@@ -81,6 +75,7 @@ public class BookingServiceImpl implements IBookingService {
         booking.setVehicleType(req.getVehicleType());
         booking.setCreateAt(new Date());
         bookingRepository.save(booking);
+
         BookingResponse resp = new BookingResponse();
         resp.setId(booking.getId());
         resp.setDriver(null);
@@ -142,14 +137,14 @@ public class BookingServiceImpl implements IBookingService {
 
     @Override
     public TravelInfoResponse getTravelInfo(String pickUpLocation, String dropOffLocation) {
-        Map<Integer, Double> amounts = new HashMap<>();
+        Map<Integer, Long> amounts = new HashMap<>();
         for (VehicleType type : VehicleType.values()) {                    //todo save database vehicle type
             VietMapResponse travel = mapService.getRoute(pickUpLocation, dropOffLocation, type.name());
             if (travel.getCode().equals("ERROR")) {
                 throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
             }
             Path path = travel.getPaths().get(0);
-            double total = this.calculatePrice(path.getDistance(), type);
+            long total = this.calculatePrice(path.getDistance(), type);
             amounts.put(type.getValue(), total);
         }
         return new TravelInfoResponse(pickUpLocation, dropOffLocation, amounts);
@@ -367,9 +362,9 @@ public class BookingServiceImpl implements IBookingService {
         }
     }
 
-    public double calculatePrice(double distance, VehicleType vehicleType) {
-        double total = distance * vehicleType.getPrice();
-        return Math.floor(total + 0.5);
+    public long calculatePrice(double distance, VehicleType vehicleType) {
+        double total = (distance / 1000.0) * vehicleType.getPrice();
+        return Math.round(total);
     }
 
 
