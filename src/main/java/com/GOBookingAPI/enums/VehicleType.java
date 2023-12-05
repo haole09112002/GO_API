@@ -19,8 +19,8 @@ public enum VehicleType {
         return value;
     }
 
-    public int getPrice() {
-        return value;
+    public double getPrice() {
+        return price;
     }
 
     public static VehicleType getTypeByValue(int value) {
