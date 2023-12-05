@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import com.GOBookingAPI.payload.response.IPNResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,24 +28,27 @@ import org.thymeleaf.model.IComment;
 @RestController
 @RequestMapping("/payment")
 public class PaymentController {
-	
-	@Autowired
-	private IPaymentService paymentService;
-	
-	@GetMapping("/check")
-	public ResponseEntity<?> createPayment(@RequestParam Map<String, String> req) {
-		System.out.println(req);
+
+    private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
+
+    @Autowired
+    private IPaymentService paymentService;
+
+
+    @GetMapping("/check")
+    public ResponseEntity<?> createPayment(@RequestParam Map<String, String> req) {
+        System.out.println(req);
 //		paymentService.handlePaymentTransaction(req);
         return ResponseEntity.ok("payment");
-	}
-	
-	@GetMapping("/returnUrl")
-	public ResponseEntity<?> test(@RequestParam Map<String, String> req) {
+    }
+
+    @GetMapping("/returnUrl")
+    public ResponseEntity<?> test(@RequestParam Map<String, String> req) {
         return ResponseEntity.ok("payment");
-	}
-	
-	@GetMapping("/create")
-	public ResponseEntity<?> create() throws UnsupportedEncodingException{
+    }
+
+    @GetMapping("/create")
+    public ResponseEntity<?> create() throws UnsupportedEncodingException {
 //		  String vnp_Version = "2.1.0";
 //        String vnp_Command = "pay";
         String orderType = "other";
@@ -54,9 +59,9 @@ public class PaymentController {
 //        String vnp_IpAddr = VNPayConfig.getIpAddress(req);
 
         String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
-        
-        long amount = 1000000L ;
-        
+
+        long amount = 1000000L;
+
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", VNPayConfig.vnp_Version);
         vnp_Params.put("vnp_Command", VNPayConfig.vnp_Command);
@@ -74,11 +79,11 @@ public class PaymentController {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
-        	
+
         cld.add(Calendar.MINUTE, 15);
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
-        
+
         List fieldNames = new ArrayList(vnp_Params.keySet());
         Collections.sort(fieldNames);
         StringBuilder hashData = new StringBuilder();
@@ -106,7 +111,7 @@ public class PaymentController {
         String vnp_SecureHash = VNPayConfig.hmacSHA512(VNPayConfig.secretKey, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VNPayConfig.vnp_PayUrl + "?" + queryUrl;
-        
+
         PaymentResponse DTO = new PaymentResponse();
         DTO.setStatus("Ok");
         DTO.setMessage("Successfully");
@@ -117,17 +122,38 @@ public class PaymentController {
 //        job.addProperty("data", paymentUrl);
 //        Gson gson = new Gson();
 //        resp.getWriter().write(gson.toJson(job));
-		return ResponseEntity.ok(DTO);
-	}
+        return ResponseEntity.ok(DTO);
+    }
 
 
     /*
         @author: HaoLV
         @description: call back from VNPay
     */
-    @PostMapping("/IPN")
-    public void IPNHandle(@RequestBody IPNResponse ipnResponse){
-        System.out.println(ipnResponse.toString());
+    @GetMapping("/IPN")
+    public void IPNHandle(@RequestParam String vnp_Amount,
+                          @RequestParam String vnp_BankCode,
+                          @RequestParam String vnp_CardType,
+                          @RequestParam String vnp_OrderInfo,
+                          @RequestParam String vnp_PayDate,
+                          @RequestParam String vnp_ResponseCode,
+                          @RequestParam String vnp_TmnCode,
+                          @RequestParam String vnp_TransactionNo,
+                          @RequestParam String vnp_TransactionStatus,
+                          @RequestParam String vnp_TxnRef,
+                          @RequestParam String vnp_SecureHash) {
+        logger.info("vnp_Amount: {}", vnp_Amount);
+        logger.info("vnp_BankCode: {}", vnp_BankCode);
+        logger.info("vnp_CardType: {}", vnp_CardType);
+        logger.info("vnp_OrderInfo: {}", vnp_OrderInfo);
+        logger.info("vnp_PayDate: {}", vnp_PayDate);
+        logger.info("vnp_ResponseCode: {}", vnp_ResponseCode);
+        logger.info("vnp_TmnCode: {}", vnp_TmnCode);
+        logger.info("vnp_TransactionNo: {}", vnp_TransactionNo);
+        logger.info("vnp_TransactionStatus: {}", vnp_TransactionStatus);
+        logger.info("vnp_TxnRef: {}", vnp_TxnRef);
+        logger.info("vnp_SecureHash: {}", vnp_SecureHash);
+
     }
-	
+
 }
