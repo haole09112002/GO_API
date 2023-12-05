@@ -13,17 +13,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.GOBookingAPI.payload.response.IPNResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.GOBookingAPI.config.VNPayConfig;
 import com.GOBookingAPI.payload.response.PaymentResponse;
 import com.GOBookingAPI.services.IPaymentService;
+import org.thymeleaf.model.IComment;
 
 @RestController
 @RequestMapping("/payment")
@@ -121,7 +119,15 @@ public class PaymentController {
 //        resp.getWriter().write(gson.toJson(job));
 		return ResponseEntity.ok(DTO);
 	}
-//	@ModelAttribute PaymentRequest req
-	
+
+
+    /*
+        @author: HaoLV
+        @description: call back from VNPay
+    */
+    @PostMapping("/IPN")
+    public void IPNHandle(@RequestBody IPNResponse ipnResponse){
+        System.out.println(ipnResponse.toString());
+    }
 	
 }
