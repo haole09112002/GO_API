@@ -131,17 +131,20 @@ public class PaymentController {
         @description: call back from VNPay
     */
     @GetMapping("/IPN")
-    public void IPNHandle(@RequestParam String vnp_Amount,
-                          @RequestParam String vnp_BankCode,
-                          @RequestParam String vnp_CardType,
-                          @RequestParam String vnp_OrderInfo,
-                          @RequestParam String vnp_PayDate,
-                          @RequestParam String vnp_ResponseCode,
-                          @RequestParam String vnp_TmnCode,
-                          @RequestParam String vnp_TransactionNo,
-                          @RequestParam String vnp_TransactionStatus,
-                          @RequestParam String vnp_TxnRef,
-                          @RequestParam String vnp_SecureHash) {
+    public void IPNHandle(
+            @RequestParam String vnp_TmnCode,
+            @RequestParam String vnp_Amount,
+            @RequestParam String vnp_BankCode,
+            @RequestParam (required = false) String vnp_BankTranNo,
+            @RequestParam (required = false) String vnp_CardType,
+            @RequestParam (required = false) String vnp_PayDate,
+            @RequestParam String vnp_OrderInfo,
+            @RequestParam String vnp_TransactionNo,
+            @RequestParam String vnp_ResponseCode,
+            @RequestParam String vnp_TransactionStatus,
+            @RequestParam String vnp_TxnRef,
+            @RequestParam (required = false) String vnp_SecureHashType,
+            @RequestParam String vnp_SecureHash) {
         logger.info("vnp_Amount: {}", vnp_Amount);
         logger.info("vnp_BankCode: {}", vnp_BankCode);
         logger.info("vnp_CardType: {}", vnp_CardType);
