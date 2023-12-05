@@ -24,7 +24,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity @NoArgsConstructor @AllArgsConstructor
-@Table(name = "Convervation")
+@Table(name = "Conversation")
 public class Conversation implements Serializable{
 	
 	@Id
@@ -45,7 +45,7 @@ public class Conversation implements Serializable{
 	
 	
 	
-	@OneToMany(mappedBy = "conservation")
+	@OneToMany(mappedBy = "conversation")
 	private List<Message> messages = new ArrayList<>();
 	
 	@OneToOne

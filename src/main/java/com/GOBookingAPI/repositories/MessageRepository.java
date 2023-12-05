@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 import com.GOBookingAPI.entities.Message;
 @Repository
 public interface MessageRepository  extends JpaRepository<Message, Integer>{
-	@Query(value = "SELECT m FROM Message m  WHERE m.conservation = :conservation")
-	List<Message> getAllByConservationId(@Param("conservation") int conservation);
+	@Query(value = "SELECT m FROM Message m  WHERE m.conversation = :conversation")
+	List<Message> getAllByConversationId(@Param("conversation") int conversation);
 }
