@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import com.GOBookingAPI.enums.DriverInfoImg;
 import com.GOBookingAPI.enums.RoleEnum;
+import com.GOBookingAPI.exceptions.BadCredentialsException;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
 import com.GOBookingAPI.payload.response.*;
@@ -203,6 +204,40 @@ public class UserServiceImpl implements IUserService {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public DriverInfoResponse getDriverInfo(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+
+        DriverInfoResponse resp =  new DriverInfoResponse();
+        Role role = roleRepository.findByName(RoleEnum.DRIVER).orElseThrow(() -> new NotFoundException("Khong tim thay role"));
+
+        if(user.getRoles().contains(role)){
+            Driver driver = driverRepository.findById(user.getId()).orElseThrow(() ->  new NotFoundException("Không tìm thấy driver , email: " + email));
+            resp.setDriverInfoUrl(driver.getImgUrl());
+            resp.setId(driver.getId());
+            resp.setEmail(user.getEmail());
+            resp.setFullName(driver.getFullName());
+            resp.setMale(driver.isGender());
+            resp.setDateOfBirth(driver.getDateOfBirth());
+            resp.setPhoneNumber(user.getPhoneNumber());
+            resp.setStatus(driver.getStatus());
+            resp.setRating(driver.getRating());
+            resp.setNonBlock(user.getIsNonBlock());
+            resp.setAvtUrl(user.getAvatarUrl());
+            resp.setLicensePlate(driver.getLicensePlate());
+            resp.setDrivingLicense(driver.getDrivingLicense());
+            resp.setIdCard(driver.getIdCard());
+            resp.setVehicleType(driver.getFirstVehicleType().getName());
+            return resp;
+        }
+        throw  new BadCredentialsException("You don't have permition to access this resource");
+    }
+
+    @Override
+    public RegisterCustomerResponse getCustomerInfo(String email) {
+        return null;
     }
 
     @Transactional

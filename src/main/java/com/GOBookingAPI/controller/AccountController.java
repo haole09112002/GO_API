@@ -30,7 +30,7 @@ public class AccountController {
     @PostMapping("/customer")
     public ResponseEntity<?> registerCustomer(
             @RequestParam("phoneNumber") String phoneNumber,
-            @RequestParam(name = "isMale",  defaultValue = "false") boolean isMale,
+            @RequestParam(name = "isMale", defaultValue = "false") boolean isMale,
             @RequestParam(name = "dateOfBirth", required = false) String dateOfBirth,
             @RequestParam(name = "avatar", required = false) MultipartFile avatar,
             @RequestParam(name = "fullName") String fullName) {
@@ -49,4 +49,9 @@ public class AccountController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/driver")
+    public ResponseEntity<?> getDriverInfo() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(userService.getDriverInfo(email));
+    }
 }

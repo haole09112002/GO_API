@@ -93,8 +93,7 @@ public class DriverServiceImpl implements IDriverService {
 		// gui thong tin booking ve tai xe
 		webSocketService.notifyBookingToDriver(driverChosen.getId(), booking.getId());
 		
-		// tao cuoc tro chuyen 
-		
+		// tao cuoc tro chuyen
 		conservationService.createConservation(booking.getCustomer().getId(), driverChosen.getId(), bookingId);
 	}
 

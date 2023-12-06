@@ -230,25 +230,31 @@ public class PaymentServiceImpl implements IPaymentService {
 
         int bookingId = VNPayConfig.getBookingIdByTxnRef(vnp_TxnRef);
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + Integer.parseInt(vnp_TxnRef)));
-        if (vnp_TransactionStatus.equals("00")) {                       // payment success
-            Payment payment = new Payment();
-            payment.setTransactionId(vnp_TransactionNo);
-            payment.setAmount(Long.parseLong(vnp_Amount) / 100);
-            payment.setCustomer(booking.getCustomer());
-            payment.setBooking(booking);
-            payment.setTimeStamp(AppUtils.convertTimeStringVNPayToDate(vnp_PayDate));
-            paymentRepository.save(payment);
-            booking.setStatus(BookingStatus.PAID);
-            bookingRepository.save(booking);
-            //todo sendRequestDriverLocation for all driver free
-            List<LocationDriver> locationDrivers = managerLocation.getByStatus(WebSocketBookingTitle.FREE.toString());
-            for (LocationDriver localDriver : locationDrivers) {
-                webSocketService.notifytoDriver(localDriver.getIddriver(), "HAVEBOOKING");
+        if (vnp_TransactionStatus.equals("00")) {
+            long vnpAmount = Long.parseLong(vnp_Amount) / 100;
+            if(vnpAmount == booking.getAmount()){
+                Payment payment = new Payment();
+                payment.setTransactionId(vnp_TransactionNo);
+                payment.setAmount(vnpAmount);
+                payment.setCustomer(booking.getCustomer());
+                payment.setBooking(booking);
+                payment.setTimeStamp(AppUtils.convertTimeStringVNPayToDate(vnp_PayDate));
+                paymentRepository.save(payment);
+                booking.setStatus(BookingStatus.PAID);
+                bookingRepository.save(booking);
+                //todo sendRequestDriverLocation for all driver free
+                List<LocationDriver> locationDrivers = managerLocation.getByStatus(WebSocketBookingTitle.FREE.toString());
+                for (LocationDriver localDriver : locationDrivers) {
+                    webSocketService.notifytoDriver(localDriver.getIddriver(), "HAVEBOOKING");
+                }
+                driverService.scheduleFindDriverTask(booking.getId(), booking.getPickupLocation());
             }
-            driverService.scheduleFindDriverTask(booking.getId(), booking.getPickupLocation());
+            else
+                log.info("Fail payment, booking amount not equals vnpAmount: " + booking.getAmount() + ", " + vnpAmount);
         } else {
             log.info("Fail payment, bookingId: " + booking.getId());
         }
+        log.info("Payment success and send to customer, bookingId: " + booking.getId());
         webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
 //        webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
     }
