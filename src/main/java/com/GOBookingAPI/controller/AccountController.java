@@ -30,7 +30,7 @@ public class AccountController {
     @PostMapping("/customer")
     public ResponseEntity<?> registerCustomer(
             @RequestParam("phoneNumber") String phoneNumber,
-            @RequestParam(name = "isMale", required = false) boolean isMale,
+            @RequestParam(name = "isMale",  defaultValue = "false") boolean isMale,
             @RequestParam(name = "dateOfBirth", required = false) String dateOfBirth,
             @RequestParam(name = "avatar", required = false) MultipartFile avatar,
             @RequestParam(name = "fullName") String fullName) {

@@ -126,7 +126,6 @@ public class UserServiceImpl implements IUserService {
         newCustomer.setId(user.getId());
         newCustomer.setFullName(fullName);
         newCustomer.setGender(isMale);
-
         customerRepository.save(newCustomer);
         return new RegisterCustomerResponse(newCustomer.getId(), newCustomer.getFullName(), email, user.getIsNonBlock(), user.getPhoneNumber(), newCustomer.getDateOfBirth(), newCustomer.getGender(), user.getAvatarUrl());
     }
