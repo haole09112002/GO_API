@@ -8,8 +8,6 @@ import java.util.Map;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
-import com.GOBookingAPI.enums.WebSocketBookingTitle;
-
 @Service
 @Getter
 public class ManagerLocation {

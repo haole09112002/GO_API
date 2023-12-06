@@ -16,9 +16,6 @@ import com.GOBookingAPI.services.IWebSocketService;
 @RequestMapping("/driver")
 public class DriverController {
 	
-	@Autowired
-	private IWebSocketService webSocketService;
-	
 	@PostMapping("/status-booking")
 	@PreAuthorize("hasRole('DRIVER')")
 	public ResponseEntity<?> start(@RequestBody BookingStatusRequest req){

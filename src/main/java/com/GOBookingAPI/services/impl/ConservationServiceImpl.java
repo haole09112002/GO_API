@@ -28,15 +28,6 @@ public class ConservationServiceImpl implements IConservationService {
     @Autowired
     private ConservationRepository conservationRepository;
 
-    @Autowired
-    private DriverRepository driverRepository;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private BookingRepository bookingRepository;
-
     @Override
     @Transactional
     public void createConservation(Booking booking) {
