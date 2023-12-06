@@ -45,7 +45,8 @@ public class DriverServiceImpl implements IDriverService {
     @Autowired
     private ManagerBooking managerBooking;
 
-//    private final IWebSocketService webSocketService;
+    @Autowired
+    private IWebSocketService webSocketService;
 //
 //    @Autowired
 //    public DriverServiceImpl(IWebSocketService webSocketService) {
@@ -85,7 +86,8 @@ public class DriverServiceImpl implements IDriverService {
         executorService.schedule(() -> findAndNotifyDriver(booking, locationCustomer), WAITING_TIME_SECONDS, TimeUnit.SECONDS);
     }
 
-    private void findAndNotifyDriver(Booking booking, String locationCustomer) {
+    @Override
+    public void findAndNotifyDriver(Booking booking, String locationCustomer) {
         Driver driverChosen = findDriverBooking(locationCustomer, booking.getVehicleType());
         driverChosen.setStatus(DriverStatus.ON_RIDE);
         driverRepository.save(driverChosen);
@@ -99,10 +101,10 @@ public class DriverServiceImpl implements IDriverService {
         managerBooking.AddData(driverChosen.getId(), booking.getCustomer().getId());
         managerLocation.updateDriverStatus(driverChosen.getId(), driverChosen.getStatus());
 
-        // gui thong tin tai xe ve khach
-//        webSocketService.notifyDriverToCustomer(booking.getCustomer().getId(), driverChosen.getId());
-        // gui thong tin booking ve tai xe
-//        webSocketService.notifyBookingToDriver(driverChosen.getId(), booking.getId());
+//         gui thong tin tai xe ve khach
+        webSocketService.notifyDriverToCustomer(booking.getCustomer().getId(), driverChosen.getId());
+//         gui thong tin booking ve tai xe
+        webSocketService.notifyBookingToDriver(driverChosen.getId(), booking.getId());
     }
 
     @Override

@@ -15,5 +15,7 @@ public interface IDriverService {
 
 	void scheduleFindDriverTask(Booking booking, String locationCustomer);
 	
-	List<Driver> getDriverByStatus(DriverStatus status); 
+	List<Driver> getDriverByStatus(DriverStatus status);
+
+	void findAndNotifyDriver(Booking booking, String locationCustomer);
 }
