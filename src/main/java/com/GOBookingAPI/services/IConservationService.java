@@ -1,9 +1,12 @@
 package com.GOBookingAPI.services;
 
 
+import com.GOBookingAPI.entities.Booking;
+import com.GOBookingAPI.entities.Customer;
+import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.payload.request.CreateConservationRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 
 public interface IConservationService {
-	BaseResponse<?> createConservation(int id_customer , int id_driver ,int id_booking);
+	void createConservation(Booking booking);
 }

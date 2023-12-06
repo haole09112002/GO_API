@@ -27,7 +27,7 @@ public class DriverInfoResponse extends RegisterResponse{
 
     private String drivingLicense;
 
-    private String vehicleType;
+    private VehicleType vehicleType;
 
     private String drivingLicenseImg1;
 

@@ -19,52 +19,33 @@ import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.services.IConservationService;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
 public class ConservationServiceImpl implements IConservationService {
 
-	@Autowired
-	private ConservationRepository conservationRepository;
-	
-	@Autowired
-	private DriverRepository driverRepository;
-	
-	@Autowired
-	private CustomerRepository customerRepository;
-	
-	@Autowired
-	private BookingRepository bookingRepository;
-	
-	@Override
-	public BaseResponse<?> createConservation(int id_customer , int id_driver ,int id_booking) {
-		try {
-			Optional<Driver> driverOptional = driverRepository.findById(id_driver);
-			if(!driverOptional.isPresent()) {
-				return null;
-			}
-			Optional<Customer> customerOptional = customerRepository.findById(id_customer);
-			if(!customerOptional.isPresent()) {
-				return null;
-			}
-			Optional<Booking> bookOptional = bookingRepository.findById(id_booking);
-			if(!customerOptional.isPresent()) {
-				return null;
-			}
-			Date curent = new Date();
-			
-			Conversation conservation = new Conversation();
-			conservation.setDriver(driverOptional.get());
-			conservation.setCustomer(customerOptional.get());
-			conservation.setBooking(bookOptional.get());
-			conservation.setCreateAt(curent);
-			
-			conservationRepository.save(conservation);
-			return new BaseResponse<Conversation>(null,"Success");
-		}catch(Exception e) {
-			log.info("Error in Service {}" , e.getMessage());
-			return new BaseResponse<Conversation>(null,"Fail");
-		}
-	}
+    @Autowired
+    private ConservationRepository conservationRepository;
+
+    @Autowired
+    private DriverRepository driverRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Override
+    @Transactional
+    public void createConservation(Booking booking) {
+        Conversation conservation = new Conversation();
+        conservation.setDriver(booking.getDriver());
+        conservation.setCustomer(booking.getCustomer());
+        conservation.setBooking(booking);
+        conservation.setCreateAt(new Date());
+        conservationRepository.save(conservation);
+    }
 
 }

@@ -65,11 +65,6 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getTravelInfo(pickUpLocation, dropOffLocation));
     }
 
-//    @PutMapping("/confirm/{bookingId}")
-//    @PreAuthorize("hasRole('CUSTOMER')")
-//    public ResponseEntity<?> confirmBooking(@PathVariable String bookingId) {
-//        return ResponseEntity.ok(bookingService.Confirm(Integer.parseInt(bookingId)));
-//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getBookingByBookingId(@PathVariable int id) {

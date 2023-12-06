@@ -1,7 +1,10 @@
 package com.GOBookingAPI.controller;
 
 
+import com.GOBookingAPI.entities.User;
+import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
+import com.GOBookingAPI.payload.response.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.GOBookingAPI.payload.response.BaseResponse;
-import com.GOBookingAPI.payload.response.LoginResponse;
 import com.GOBookingAPI.services.IUserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -43,14 +44,14 @@ public class AccountController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<?> Test() {
+    public ResponseEntity<?> login() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        BaseResponse<LoginResponse> user = userService.loadUserbyEmail(email);
+        UserResponse user = userService.getUserInfo(email);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("/driver")
-    public ResponseEntity<?> getDriverInfo(@RequestParam (required = false, defaultValue = "null" ) Integer driverId) {
+    public ResponseEntity<?> getDriverInfo(@RequestParam (required = false, defaultValue = "-1" ) Integer driverId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(userService.getDriverInfo(email, driverId));
     }

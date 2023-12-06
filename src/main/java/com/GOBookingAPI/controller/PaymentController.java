@@ -125,45 +125,8 @@ public class PaymentController {
         @description: call back from VNPay
     */
     @GetMapping("/IPN")
-    public void IPNHandle(
-            @RequestParam String vnp_TmnCode,
-            @RequestParam String vnp_Amount,
-            @RequestParam String vnp_BankCode,
-            @RequestParam(required = false) String vnp_BankTranNo,
-            @RequestParam(required = false) String vnp_CardType,
-            @RequestParam(required = false) String vnp_PayDate,
-            @RequestParam String vnp_OrderInfo,
-            @RequestParam String vnp_TransactionNo,
-            @RequestParam String vnp_ResponseCode,
-            @RequestParam String vnp_TransactionStatus,
-            @RequestParam String vnp_TxnRef,
-            @RequestParam(required = false) String vnp_SecureHashType,
-            @RequestParam String vnp_SecureHash) {
-        logger.info("vnp_Amount: {}", vnp_Amount);
-        logger.info("vnp_BankCode: {}", vnp_BankCode);
-        logger.info("vnp_CardType: {}", vnp_CardType);
-        logger.info("vnp_OrderInfo: {}", vnp_OrderInfo);
-        logger.info("vnp_PayDate: {}", vnp_PayDate);
-        logger.info("vnp_ResponseCode: {}", vnp_ResponseCode);
-        logger.info("vnp_TmnCode: {}", vnp_TmnCode);
-        logger.info("vnp_TransactionNo: {}", vnp_TransactionNo);
-        logger.info("vnp_TransactionStatus: {}", vnp_TransactionStatus);
-        logger.info("vnp_TxnRef: {}", vnp_TxnRef);
-        logger.info("vnp_SecureHash: {}", vnp_SecureHash);
-        paymentService.handlePaymentIPN(vnp_TmnCode,
-                vnp_Amount,
-                vnp_BankCode,
-                vnp_BankTranNo,
-                vnp_CardType,
-                vnp_PayDate,
-                vnp_OrderInfo,
-                vnp_TransactionNo,
-                vnp_ResponseCode,
-                vnp_TransactionStatus,
-                vnp_TxnRef,
-                vnp_SecureHashType,
-                vnp_SecureHash);
-
+    public void IPNHandle(@RequestParam Map<String, String> req) {
+        paymentService.handlePaymentTransaction(req);
     }
 
 }

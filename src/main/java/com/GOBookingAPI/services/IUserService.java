@@ -20,7 +20,9 @@ public interface IUserService {
 
 	RegisterResponse registerDriver(DriverRegisterRequest request);
 
-	Optional<User> findByEmail(String email);
+	User findByEmail(String email);
+
+	UserResponse getUserInfo(String email);
 
 	DriverInfoResponse getDriverInfo(String email, Integer driverId);
 

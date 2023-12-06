@@ -29,7 +29,7 @@ public class UserHandshakeHandler extends DefaultHandshakeHandler {
   
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		System.out.print("Email handshake" + email);
-		User user  = userService.findByEmail(email).get();
+		User user  = userService.findByEmail(email);
 	    log.info("User with ID '{}' opened the page", user.getId());
         return new UserPrincipal(String.valueOf(user.getId()));
 //		final String randomId = UUID.randomUUID().toString();

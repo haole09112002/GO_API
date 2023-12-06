@@ -9,15 +9,17 @@ import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.exceptions.AppException;
 import com.GOBookingAPI.exceptions.BadRequestException;
-import com.GOBookingAPI.payload.request.BookingStatusRequest;
 import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.payload.vietmap.Path;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
+import com.GOBookingAPI.services.IWebSocketService;
 import com.GOBookingAPI.utils.AppUtils;
+import com.GOBookingAPI.utils.DriverStatus;
+import com.GOBookingAPI.utils.ManagerBooking;
+import com.GOBookingAPI.utils.ManagerLocation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.enums.BookingStatus;
@@ -26,9 +28,7 @@ import com.GOBookingAPI.payload.request.BookingCancelRequest;
 import com.GOBookingAPI.payload.request.BookingRequest;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.CustomerRepository;
-import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.repositories.MyUserRepository;
-import com.GOBookingAPI.repositories.VehicleRepository;
 import com.GOBookingAPI.services.IBookingService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,21 +49,32 @@ public class BookingServiceImpl implements IBookingService {
     @Autowired
     private MapServiceImpl mapService;
 
+    @Autowired
+    private IWebSocketService webSocketService;
+
+    @Autowired
+    private ManagerLocation managerLocation;
+
+    @Autowired
+    private ManagerBooking managerBooking;
+
     @Override
     public BookingResponse createBooking(String username, BookingRequest req) {
         User user = myUserRepository.findByEmail(username).orElseThrow(() -> new NotFoundException("Không tìm thấy khách hàng"));
         Customer customer = customerRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy Customer"));
-        System.out.print(user.toString());
+        System.out.println(user.toString());
 
         VietMapResponse vietMapResponse = mapService.getRoute(req.getPickUpLocation(), req.getDropOffLocation(), req.getVehicleType().name());
         if (vietMapResponse.getCode().equals("ERROR")) {
             throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
         }
 
+        System.out.println("vietMapResponse.getFirstPath().getDistance(): " + vietMapResponse.getFirstPath().getDistance());
+
         if(vietMapResponse.getFirstPath().getDistance() <= 200)  //     quảng đường bé hơn 200m
             throw new BadRequestException("Quảng đường quá gần, chúng tôi chưa hổ trợ");
 
-        if(vietMapResponse.getFirstPath().getDistance() >= 100000)  //     quảng đường lớn hơn 200m
+        if(vietMapResponse.getFirstPath().getDistance() >= 150000)  //     quảng đường lớn hơn 150km
             throw new BadRequestException("Quảng đường quá xa, chúng tôi chưa hổ trợ");
 
         long amount = this.calculatePrice(vietMapResponse.getFirstPath().getDistance(), req.getVehicleType());
@@ -376,4 +387,57 @@ public class BookingServiceImpl implements IBookingService {
        return  bookingList.size() > 0;
     }
 
+    public void changeBookingStatusAndNotify(String email, int bookingId, BookingStatus bookingStatus){
+        User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
+
+        if(user.getFirstRole().getName().equals(RoleEnum.CUSTOMER) && bookingStatus.equals(BookingStatus.CANCELLED)){
+
+            if(booking.getStatus() != BookingStatus.WAITING || booking.getStatus() != BookingStatus.PAID || booking.getStatus() != BookingStatus.FOUND){
+                System.out.println("==> booking.getStatus() != BookingStatus.WAITING || booking.getStatus() != BookingStatus.PAID");
+                return;
+            }
+
+            if(booking.getStatus().equals(BookingStatus.PAID))
+            {
+                booking.setStatus(BookingStatus.WAITING_REFUND);
+            }else {
+                booking.setStatus(BookingStatus.CANCELLED);
+            }
+
+        }
+
+        if(user.getFirstRole().getName().equals(RoleEnum.DRIVER)){
+            if(!bookingStatus.equals(BookingStatus.ON_RIDE) && bookingStatus.equals(BookingStatus.COMPLETE)){
+                System.out.println("==> !bookingStatus.equals(BookingStatus.ON_RIDE) && bookingStatus.equals(BookingStatus.COMPLETE)");
+                return; //todo exception socket handler
+            }
+
+            if(!booking.getStatus().equals(BookingStatus.FOUND) && bookingStatus.equals(BookingStatus.ON_RIDE))
+            {
+                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + bookingStatus);
+                return;
+            }
+
+            if(!booking.getStatus().equals(BookingStatus.ON_RIDE) && bookingStatus.equals(BookingStatus.COMPLETE))
+            {
+                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + bookingStatus);
+                return;
+            }
+            booking.setStatus(bookingStatus);
+        }
+
+        if(user.getFirstRole().getName().equals(RoleEnum.ADMIN)){
+            //todo check
+            booking.setStatus(bookingStatus);
+        }
+
+        bookingRepository.save( booking);
+        webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
+        if (booking.getDriver() != null){
+            webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
+            managerBooking.deleteData(booking.getDriver().getId());
+            managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
+        }
+    }
 }

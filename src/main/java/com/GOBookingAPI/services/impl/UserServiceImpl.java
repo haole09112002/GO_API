@@ -71,7 +71,7 @@ public class UserServiceImpl implements IUserService {
                 User user = userOptional.get();
                 String roleName = "";
                 for (Role role : user.getRoles()) {
-                    roleName = String.valueOf( role.getName());
+                    roleName = String.valueOf(role.getName());
                     break;
                 }
                 if (user.getIsNonBlock()) {
@@ -132,6 +132,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public DriverInfoResponse registerDriver(DriverRegisterRequest req) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -144,16 +145,18 @@ public class UserServiceImpl implements IUserService {
         Driver driver = new Driver();
         Date date = null;
         driver.setUser(user);
+        
         if (req.getDateOfBirth() != null) {
             try {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 date = dateFormat.parse(req.getDateOfBirth());
                 driver.setDateOfBirth(date);
             } catch (Exception e) {
-                throw  new BadRequestException("Ngay sinh khong hop le");
+                throw new BadRequestException("Ngay sinh khong hop le");
             }
         } else
-            throw  new BadRequestException("Ngay sinh khong duong rong ");
+            throw new BadRequestException("Ngay sinh khong duong rong ");
+
         driver.setId(user.getId());
         driver.setFullName(req.getFullName());
         driver.setGender(req.isMale());
@@ -162,8 +165,9 @@ public class UserServiceImpl implements IUserService {
         driver.setStatus(DriverStatus.NOT_ACTIVATED);
         driver.setLicensePlate(req.getLicensePlate());
         driver.setDrivingLicense(req.getDrivingLicense());
+
         String fileName = "";
-        for (int i = 0; i < req.getDrivingLicenseImg().length ; i++) {
+        for (int i = 0; i < req.getDrivingLicenseImg().length; i++) {
             fileName = fileStorageService.createRootImgUrl(req.getDrivingLicenseImg()[i], DriverInfoImg.DrivingLicense, req.getPhoneNumber(), i);
         }
         for (int i = 0; i < req.getIdCardImg().length; i++) {
@@ -177,7 +181,7 @@ public class UserServiceImpl implements IUserService {
         driver.setVehicles(vehicleTypes);
         driver.setUser(user);
         driverRepository.save(driver);
-        DriverInfoResponse resp =  new DriverInfoResponse();
+        DriverInfoResponse resp = new DriverInfoResponse();
         resp.setDriverInfoUrl(fileName);
         resp.setId(driver.getId());
         resp.setEmail(user.getEmail());
@@ -197,58 +201,55 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {           //todo xoa
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            return userOptional;
-        } else {
-            return null;
-        }
+    public User findByEmail(String email) {           //todo xoa
+        return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+    }
+
+    @Override
+    public UserResponse getUserInfo(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+        return new UserResponse(user.getId(), user.getEmail(), user.getPhoneNumber(), user.getCreateDate(), user.getIsNonBlock(), user.getAvatarUrl(), user.getFirstRole().getName());
     }
 
     @Override
     public DriverInfoResponse getDriverInfo(String email, Integer driverId) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
         boolean isAllow = false;
-        switch (user.getFirstRole().getName()){
-            case CUSTOMER:
-                if(driverId == null)
+        switch (user.getFirstRole().getName()) {
+            case CUSTOMER -> {
+                if (driverId == -1)
                     throw new BadRequestException("Thieu driverId");
                 if (bookingService.isDriverBelongsToCustomerBooking(user, driverId))
-                   isAllow = true;
+                    isAllow = true;
                 else
                     throw new BadCredentialsException("You don't have permission to access this resource");
-                break;
-            case DRIVER:
-                if(user.getId() == driverId)
-                    isAllow = true;
-                break;
-        }
-        if(isAllow){
-            DriverInfoResponse resp =  new DriverInfoResponse();
-            Role role = roleRepository.findByName(RoleEnum.DRIVER).orElseThrow(() -> new NotFoundException("Khong tim thay role"));
-
-            if(user.getRoles().contains(role)) {
-                Driver driver = driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Không tìm thấy driver , email: " + email));
-                resp.setDriverInfoUrl(driver.getImgUrl());
-                resp.setId(driver.getId());
-                resp.setEmail(user.getEmail());
-                resp.setFullName(driver.getFullName());
-                resp.setMale(driver.isGender());
-                resp.setDateOfBirth(driver.getDateOfBirth());
-                resp.setPhoneNumber(user.getPhoneNumber());
-                resp.setStatus(driver.getStatus());
-                resp.setRating(driver.getRating());
-                resp.setNonBlock(user.getIsNonBlock());
-                resp.setAvtUrl(user.getAvatarUrl());
-                resp.setLicensePlate(driver.getLicensePlate());
-                resp.setDrivingLicense(driver.getDrivingLicense());
-                resp.setIdCard(driver.getIdCard());
-                resp.setVehicleType(driver.getFirstVehicleType().getName());
-                return resp;
             }
-            throw new BadRequestException("Role error");
-        }else {
+            case DRIVER -> {
+                driverId = user.getId();
+                isAllow = true;
+            }
+        }
+
+        if (isAllow) {
+            DriverInfoResponse resp = new DriverInfoResponse();
+            Driver driver = driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Không tìm thấy driver , email: " + email));
+            resp.setDriverInfoUrl(driver.getImgUrl());
+            resp.setId(driver.getId());
+            resp.setEmail(user.getEmail());
+            resp.setFullName(driver.getFullName());
+            resp.setMale(driver.isGender());
+            resp.setDateOfBirth(driver.getDateOfBirth());
+            resp.setPhoneNumber(driver.getUser().getPhoneNumber());
+            resp.setStatus(driver.getStatus());
+            resp.setRating(driver.getRating());
+            resp.setNonBlock(driver.getUser().getIsNonBlock());
+            resp.setAvtUrl(driver.getUser().getAvatarUrl());
+            resp.setLicensePlate(driver.getLicensePlate());
+            resp.setDrivingLicense(driver.getDrivingLicense());
+            resp.setIdCard(driver.getIdCard());
+            resp.setVehicleType(driver.getFirstVehicleType().getName());
+            return resp;
+        } else {
             throw new BadCredentialsException("You don't have permission to access this resource");
         }
     }
@@ -271,14 +272,12 @@ public class UserServiceImpl implements IUserService {
         Role role = roleRepository.findByName(roleEnum).orElseThrow(() -> new NotFoundException("Khong tim thay role"));
         roles.add(role);
         user.setRoles(roles);
-        if(avatar == null && roleEnum.equals(RoleEnum.DRIVER))
+        if (avatar == null && roleEnum.equals(RoleEnum.DRIVER))
             throw new BadRequestException("Avatar khong duoc null");
-        if(avatar != null){
+        if (avatar != null) {
             String url = fileStorageService.createImgUrl(avatar);
             user.setAvatarUrl(url);
         }
-//        userRepository.save(user);
         return user;
     }
-
 }
