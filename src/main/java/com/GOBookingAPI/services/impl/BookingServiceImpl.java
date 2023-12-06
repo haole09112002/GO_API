@@ -3,7 +3,7 @@ package com.GOBookingAPI.services.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.GOBookingAPI.entities.Role;
+import com.GOBookingAPI.entities.*;
 import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
@@ -20,9 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.GOBookingAPI.entities.Booking;
-import com.GOBookingAPI.entities.Customer;
-import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.BookingCancelRequest;
@@ -367,5 +364,10 @@ public class BookingServiceImpl implements IBookingService {
         return Math.round(total);
     }
 
+    @Override
+    public boolean isDriverBelongsToCustomerBooking(User cus, int driverId){
+       List<Booking> bookingList = bookingRepository.findByCustomerId(cus.getId(), driverId);
+       return  bookingList.size() > 0;
+    }
 
 }

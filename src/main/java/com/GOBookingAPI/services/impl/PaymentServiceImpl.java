@@ -214,6 +214,7 @@ public class PaymentServiceImpl implements IPaymentService {
         }
     }
 
+    @Transactional
     public void handlePaymentIPN(String vnp_TmnCode,
                                  String vnp_Amount,
                                  String vnp_BankCode,
@@ -233,6 +234,9 @@ public class PaymentServiceImpl implements IPaymentService {
         if (vnp_TransactionStatus.equals("00")) {
             long vnpAmount = Long.parseLong(vnp_Amount) / 100;
             if(vnpAmount == booking.getAmount()){
+                booking.setStatus(BookingStatus.PAID);
+                bookingRepository.save(booking);
+
                 Payment payment = new Payment();
                 payment.setTransactionId(vnp_TransactionNo);
                 payment.setAmount(vnpAmount);
@@ -240,8 +244,7 @@ public class PaymentServiceImpl implements IPaymentService {
                 payment.setBooking(booking);
                 payment.setTimeStamp(AppUtils.convertTimeStringVNPayToDate(vnp_PayDate));
                 paymentRepository.save(payment);
-                booking.setStatus(BookingStatus.PAID);
-                bookingRepository.save(booking);
+
                 //todo sendRequestDriverLocation for all driver free
                 List<LocationDriver> locationDrivers = managerLocation.getByStatus(WebSocketBookingTitle.FREE.toString());
                 for (LocationDriver localDriver : locationDrivers) {

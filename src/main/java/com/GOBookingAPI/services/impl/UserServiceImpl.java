@@ -15,6 +15,8 @@ import com.GOBookingAPI.exceptions.BadCredentialsException;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
 import com.GOBookingAPI.payload.response.*;
+import com.GOBookingAPI.repositories.*;
+import com.GOBookingAPI.services.IBookingService;
 import com.GOBookingAPI.utils.DriverStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,11 +31,6 @@ import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.entities.VehicleType;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.CustomerRequest;
-import com.GOBookingAPI.repositories.CustomerRepository;
-import com.GOBookingAPI.repositories.DriverRepository;
-import com.GOBookingAPI.repositories.RoleRepository;
-import com.GOBookingAPI.repositories.UserRepository;
-import com.GOBookingAPI.repositories.VehicleRepository;
 import com.GOBookingAPI.services.IUserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +56,9 @@ public class UserServiceImpl implements IUserService {
 
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Autowired
+    private IBookingService bookingService;
 
     @Override
     public BaseResponse<LoginResponse> loadUserbyEmail(String email) {
@@ -207,32 +207,48 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public DriverInfoResponse getDriverInfo(String email) {
+    public DriverInfoResponse getDriverInfo(String email, Integer driverId) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
-
-        DriverInfoResponse resp =  new DriverInfoResponse();
-        Role role = roleRepository.findByName(RoleEnum.DRIVER).orElseThrow(() -> new NotFoundException("Khong tim thay role"));
-
-        if(user.getRoles().contains(role)){
-            Driver driver = driverRepository.findById(user.getId()).orElseThrow(() ->  new NotFoundException("Không tìm thấy driver , email: " + email));
-            resp.setDriverInfoUrl(driver.getImgUrl());
-            resp.setId(driver.getId());
-            resp.setEmail(user.getEmail());
-            resp.setFullName(driver.getFullName());
-            resp.setMale(driver.isGender());
-            resp.setDateOfBirth(driver.getDateOfBirth());
-            resp.setPhoneNumber(user.getPhoneNumber());
-            resp.setStatus(driver.getStatus());
-            resp.setRating(driver.getRating());
-            resp.setNonBlock(user.getIsNonBlock());
-            resp.setAvtUrl(user.getAvatarUrl());
-            resp.setLicensePlate(driver.getLicensePlate());
-            resp.setDrivingLicense(driver.getDrivingLicense());
-            resp.setIdCard(driver.getIdCard());
-            resp.setVehicleType(driver.getFirstVehicleType().getName());
-            return resp;
+        boolean isAllow = false;
+        switch (user.getFirstRole().getName()){
+            case CUSTOMER:
+                if (bookingService.isDriverBelongsToCustomerBooking(user, driverId))
+                   isAllow = true;
+                else
+                    throw new BadCredentialsException("You don't have permission to access this resource");
+                break;
+            case DRIVER:
+                if(user.getId() == driverId)
+                    isAllow = true;
+                break;
         }
-        throw  new BadCredentialsException("You don't have permition to access this resource");
+        if(isAllow){
+            DriverInfoResponse resp =  new DriverInfoResponse();
+            Role role = roleRepository.findByName(RoleEnum.DRIVER).orElseThrow(() -> new NotFoundException("Khong tim thay role"));
+
+            if(user.getRoles().contains(role)) {
+                Driver driver = driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Không tìm thấy driver , email: " + email));
+                resp.setDriverInfoUrl(driver.getImgUrl());
+                resp.setId(driver.getId());
+                resp.setEmail(user.getEmail());
+                resp.setFullName(driver.getFullName());
+                resp.setMale(driver.isGender());
+                resp.setDateOfBirth(driver.getDateOfBirth());
+                resp.setPhoneNumber(user.getPhoneNumber());
+                resp.setStatus(driver.getStatus());
+                resp.setRating(driver.getRating());
+                resp.setNonBlock(user.getIsNonBlock());
+                resp.setAvtUrl(user.getAvatarUrl());
+                resp.setLicensePlate(driver.getLicensePlate());
+                resp.setDrivingLicense(driver.getDrivingLicense());
+                resp.setIdCard(driver.getIdCard());
+                resp.setVehicleType(driver.getFirstVehicleType().getName());
+                return resp;
+            }
+            throw new BadRequestException("Role error");
+        }else {
+            throw new BadCredentialsException("You don't have permission to access this resource");
+        }
     }
 
     @Override

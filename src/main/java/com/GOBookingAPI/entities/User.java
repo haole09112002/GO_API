@@ -2,8 +2,10 @@ package com.GOBookingAPI.entities;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Set;
 
+import com.GOBookingAPI.exceptions.NotFoundException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -55,6 +57,15 @@ public class User implements Serializable{
 	
 	@OneToOne(mappedBy = "user")
 	private Driver driver;
-	
+
+
+	public Role getFirstRole(){
+		Iterator<Role> roleIterator = this.roles.iterator();
+		if (roleIterator.hasNext()) {
+			return roleIterator.next();
+		} else {
+			throw new NotFoundException("Không có role");
+		}
+	}
 	
 }

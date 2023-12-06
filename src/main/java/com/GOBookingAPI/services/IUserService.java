@@ -22,7 +22,7 @@ public interface IUserService {
 
 	Optional<User> findByEmail(String email);
 
-	DriverInfoResponse getDriverInfo(String email);
+	DriverInfoResponse getDriverInfo(String email, Integer driverId);
 
 	RegisterCustomerResponse getCustomerInfo(String email);
 	

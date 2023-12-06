@@ -1,6 +1,7 @@
 package com.GOBookingAPI.repositories;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -40,5 +41,8 @@ public interface BookingRepository extends JpaRepository<Booking, Integer>{
 			@Param("to") Date to,
 			Pageable pageable
 	);
+
+	@Query("SELECT b FROM Booking b WHERE b.customer.id = :cusId AND b.driver.id = : driverId")
+	List<Booking> findByCustomerId(@Param("cusId") int cusId, @Param("driverId") int driverId);
 	
 }
