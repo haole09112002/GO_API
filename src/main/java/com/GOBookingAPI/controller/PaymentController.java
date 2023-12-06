@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import com.GOBookingAPI.enums.PaymentMethod;
-import com.GOBookingAPI.payload.response.IPNResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import com.GOBookingAPI.config.VNPayConfig;
 import com.GOBookingAPI.payload.response.PaymentResponse;
 import com.GOBookingAPI.services.IPaymentService;
-import org.thymeleaf.model.IComment;
 
 @RestController
 @RequestMapping("/payment")

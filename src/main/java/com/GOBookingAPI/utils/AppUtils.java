@@ -1,7 +1,9 @@
 package com.GOBookingAPI.utils;
 
+import com.GOBookingAPI.exceptions.AppException;
 import com.GOBookingAPI.exceptions.BadRequestException;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -26,6 +28,20 @@ public class AppUtils {
             return dateFormat.parse(dateString);
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid date format. Please use 'yyyy-MM-dd'.");
+        }
+    }
+
+    /*
+        @author: HaoLV
+        @description:  yyyyMMddHHmmss => Date()
+    */
+    public static  Date convertTimeStringVNPayToDate(String dateString){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        try {
+            return dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            throw new AppException("Invalid date format");
         }
     }
 }

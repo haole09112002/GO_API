@@ -17,6 +17,7 @@ import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.IDriverService;
 import com.GOBookingAPI.services.IPaymentService;
 import com.GOBookingAPI.services.IWebSocketService;
+import com.GOBookingAPI.utils.AppUtils;
 import com.GOBookingAPI.utils.BookingUtils;
 import com.GOBookingAPI.utils.LocationDriver;
 import com.GOBookingAPI.utils.ManagerLocation;
@@ -91,7 +92,7 @@ public class PaymentServiceImpl implements IPaymentService {
                             booking.setStatus(BookingStatus.PAID);
                             bookingRepository.save(booking);
                             Payment payment = new Payment();
-                            payment.setAmount(Double.valueOf(req.get("vnp_Amount")));
+//                            payment.setAmount(Double.valueOf(req.get("vnp_Amount")));
                             payment.setTransactionId(req.get("vnp_TransactionNo"));
 //                          payment.setTimeStamp(Date.valueOf(req.get("")));
                             payment.setCustomer(user.getCustomer());
@@ -225,7 +226,20 @@ public class PaymentServiceImpl implements IPaymentService {
                                  String vnp_SecureHash) {
         Booking booking = bookingRepository.findById(Integer.parseInt(vnp_TxnRef)).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + Integer.parseInt(vnp_TxnRef)));
         //todo
-        booking.setStatus(BookingStatus.PAID);
+        if (vnp_TransactionStatus.equals("00")) {                       // payment success
+            Payment payment = new Payment();
+            payment.setTransactionId(vnp_TransactionNo);
+            payment.setAmount(Long.parseLong(vnp_Amount) / 100);
+            payment.setCustomer(booking.getCustomer());
+            payment.setBooking(booking);
+            payment.setTimeStamp(AppUtils.convertTimeStringVNPayToDate(vnp_PayDate));
+            paymentRepository.save(payment);
+
+            booking.setStatus(BookingStatus.PAID);
+        } else {
+
+
+        }
         webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
     }
 
