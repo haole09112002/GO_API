@@ -22,6 +22,7 @@ import com.GOBookingAPI.utils.BookingUtils;
 import com.GOBookingAPI.utils.LocationDriver;
 import com.GOBookingAPI.utils.ManagerLocation;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
+@Slf4j
 public class PaymentServiceImpl implements IPaymentService {
 
     @Autowired
@@ -124,7 +126,6 @@ public class PaymentServiceImpl implements IPaymentService {
         } else {
             System.out.print("{\"RspCode\":\"97\",\"Message\":\"Invalid Checksum\"}");
         }
-
     }
 
     @Override
@@ -169,9 +170,11 @@ public class PaymentServiceImpl implements IPaymentService {
             Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
             String vnp_CreateDate = formatter.format(cld.getTime());
+
             vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
             cld.add(Calendar.MINUTE, 15);
+
             String vnp_ExpireDate = formatter.format(cld.getTime());
             vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
@@ -224,8 +227,9 @@ public class PaymentServiceImpl implements IPaymentService {
                                  String vnp_TxnRef,
                                  String vnp_SecureHashType,
                                  String vnp_SecureHash) {
-        Booking booking = bookingRepository.findById(Integer.parseInt(vnp_TxnRef)).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + Integer.parseInt(vnp_TxnRef)));
-        //todo
+
+        int bookingId = VNPayConfig.getBookingIdByTxnRef(vnp_TxnRef);
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + Integer.parseInt(vnp_TxnRef)));
         if (vnp_TransactionStatus.equals("00")) {                       // payment success
             Payment payment = new Payment();
             payment.setTransactionId(vnp_TransactionNo);
@@ -234,13 +238,19 @@ public class PaymentServiceImpl implements IPaymentService {
             payment.setBooking(booking);
             payment.setTimeStamp(AppUtils.convertTimeStringVNPayToDate(vnp_PayDate));
             paymentRepository.save(payment);
-
             booking.setStatus(BookingStatus.PAID);
+            bookingRepository.save(booking);
+            //todo sendRequestDriverLocation for all driver free
+            List<LocationDriver> locationDrivers = managerLocation.getByStatus(WebSocketBookingTitle.FREE.toString());
+            for (LocationDriver localDriver : locationDrivers) {
+                webSocketService.notifytoDriver(localDriver.getIddriver(), "HAVEBOOKING");
+            }
+            driverService.scheduleFindDriverTask(booking.getId(), booking.getPickupLocation());
         } else {
-
-
+            log.info("Fail payment, bookingId: " + booking.getId());
         }
         webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
+//        webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
     }
 
 

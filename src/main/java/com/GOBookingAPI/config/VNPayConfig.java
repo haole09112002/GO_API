@@ -78,7 +78,7 @@ public class VNPayConfig {
                 sb.append("&");
             }
         }
-        return hmacSHA512(secretKey,sb.toString());
+        return hmacSHA512(secretKey, sb.toString());
     }
     
     public static String hmacSHA512(final String key, final String data) {
@@ -125,5 +125,13 @@ public class VNPayConfig {
             sb.append(chars.charAt(rnd.nextInt(chars.length())));
         }
         return sb.toString();
+    }
+
+    /*
+        @author: HaoLV
+        @description: vnp_TxnRef = createDate(yyyyMMddHHmmss) + bookingId
+    */
+    public static int getBookingIdByTxnRef(String vnp_TxnRef){
+        return Integer.parseInt(vnp_TxnRef.substring(14));
     }
 }
