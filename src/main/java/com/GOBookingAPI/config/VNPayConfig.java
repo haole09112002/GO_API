@@ -132,6 +132,8 @@ public class VNPayConfig {
         @description: vnp_TxnRef = createDate(yyyyMMddHHmmss) + bookingId
     */
     public static int getBookingIdByTxnRef(String vnp_TxnRef){
+        if(vnp_TxnRef.length() <= 14)
+            return -1;
         return Integer.parseInt(vnp_TxnRef.substring(14));
     }
 }

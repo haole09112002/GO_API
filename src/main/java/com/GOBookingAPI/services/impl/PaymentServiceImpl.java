@@ -150,7 +150,6 @@ public class PaymentServiceImpl implements IPaymentService {
     private String createVNPayPaymentUrl(final Booking booking) {
         try {
             String orderType = "other";
-            String vnp_TxnRef = String.valueOf(booking.getId());
             String amount = String.valueOf(booking.getAmount() * 100);
 
             Map<String, String> vnp_Params = new HashMap<>();
@@ -160,8 +159,7 @@ public class PaymentServiceImpl implements IPaymentService {
             vnp_Params.put("vnp_Amount", amount);
             vnp_Params.put("vnp_CurrCode", "VND");
             vnp_Params.put("vnp_BankCode", "NCB");
-            vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-            vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
+
             vnp_Params.put("vnp_Locale", "vn");
             vnp_Params.put("vnp_ReturnUrl", VNPayConfig.vnp_ReturnUrl);
             vnp_Params.put("vnp_IpAddr", "localhost:8080");
@@ -176,7 +174,10 @@ public class PaymentServiceImpl implements IPaymentService {
             cld.add(Calendar.MINUTE, 15);
 
             String vnp_ExpireDate = formatter.format(cld.getTime());
+            String vnp_TxnRef = vnp_CreateDate + booking.getId();
             vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+            vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+            vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
 
             List fieldNames = new ArrayList(vnp_Params.keySet());
             Collections.sort(fieldNames);
@@ -230,7 +231,20 @@ public class PaymentServiceImpl implements IPaymentService {
                                  String vnp_SecureHash) {
 
         int bookingId = VNPayConfig.getBookingIdByTxnRef(vnp_TxnRef);
+        boolean isSuccess = true;
+        if(bookingId == -1){
+            System.out.println("=> invalid vnp_TxnRef, " + vnp_TxnRef);
+            return;
+        }
+
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + Integer.parseInt(vnp_TxnRef)));
+
+        if(!booking.getStatus().equals(BookingStatus.WAITING)){
+            System.out.println("=> Booking status is not valid, bookingStatus" + booking.getStatus().name());
+            isSuccess = false;
+            return;
+        }
+
         if (vnp_TransactionStatus.equals("00")) {
             long vnpAmount = Long.parseLong(vnp_Amount) / 100;
             if(vnpAmount == booking.getAmount()){
@@ -257,9 +271,8 @@ public class PaymentServiceImpl implements IPaymentService {
         } else {
             log.info("Fail payment, bookingId: " + booking.getId());
         }
-        log.info("Payment success and send to customer, bookingId: " + booking.getId());
+        log.info("Payment process success and send to customer, bookingId: " + booking.getId());
         webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
-//        webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
     }
 
 

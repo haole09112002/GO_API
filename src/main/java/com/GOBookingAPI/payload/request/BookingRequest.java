@@ -24,7 +24,6 @@ public class BookingRequest {
 	private String dropOffLocation;
 
 	@NotNull(message = "VehicleType cannot be null")
-//	@EnumValidator(enumClass = VehicleType.class, message = "Invalid VehicleType value")
 	private VehicleType vehicleType;
 
 	public void setVehicleType(VehicleType vehicleType) {

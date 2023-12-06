@@ -60,6 +60,12 @@ public class BookingServiceImpl implements IBookingService {
             throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
         }
 
+        if(vietMapResponse.getFirstPath().getDistance() <= 200)  //     quảng đường bé hơn 200m
+            throw new BadRequestException("Quảng đường quá gần, chúng tôi chưa hổ trợ");
+
+        if(vietMapResponse.getFirstPath().getDistance() >= 100000)  //     quảng đường lớn hơn 200m
+            throw new BadRequestException("Quảng đường quá xa, chúng tôi chưa hổ trợ");
+
         long amount = this.calculatePrice(vietMapResponse.getFirstPath().getDistance(), req.getVehicleType());
 
         Booking booking = new Booking();
