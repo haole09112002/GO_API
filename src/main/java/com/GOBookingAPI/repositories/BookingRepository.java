@@ -42,7 +42,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer>{
 			Pageable pageable
 	);
 
-	@Query("SELECT b FROM Booking b WHERE b.customer.id = :cusId AND b.driver.id = : driverId")
+	@Query("SELECT b FROM Booking b WHERE b.customer.id = :cusId AND b.driver.id = :driverId")
 	List<Booking> findByCustomerId(@Param("cusId") int cusId, @Param("driverId") int driverId);
 	
 }

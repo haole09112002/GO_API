@@ -212,6 +212,8 @@ public class UserServiceImpl implements IUserService {
         boolean isAllow = false;
         switch (user.getFirstRole().getName()){
             case CUSTOMER:
+                if(driverId == null)
+                    throw new BadRequestException("Thieu driverId");
                 if (bookingService.isDriverBelongsToCustomerBooking(user, driverId))
                    isAllow = true;
                 else
