@@ -39,10 +39,9 @@ public class WebSocketServiceImpl implements IWebSocketService {
     private final SimpMessagingTemplate messagingTemplate;
     @Autowired
     private DriverRepository driverRepository;
+
     @Autowired
     public ManagerLocation managerLocation;
-    @Autowired
-    private BookingRepository bookingRepository;
 
     @Autowired
     private ManagerBooking managerBooking;

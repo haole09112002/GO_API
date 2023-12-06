@@ -1,7 +1,5 @@
 package com.GOBookingAPI.services.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -19,8 +17,6 @@ import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.enums.WebSocketBookingTitle;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.exceptions.NotFoundException;
-import com.GOBookingAPI.payload.response.BookingStatusResponse;
-import com.GOBookingAPI.payload.response.LocationCustomerResponse;
 import com.GOBookingAPI.payload.vietmap.Path;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
@@ -41,14 +37,20 @@ public class DriverServiceImpl implements IDriverService {
     private ManagerLocation managerLocation;
     @Autowired
     private DriverRepository driverRepository;
-    @Autowired
-    private IWebSocketService webSocketService;
+
     @Autowired
     private BookingRepository bookingRepository;
     @Autowired
     private IConservationService conservationService;
     @Autowired
     private ManagerBooking managerBooking;
+
+    private final IWebSocketService webSocketService;
+
+    @Autowired
+    public DriverServiceImpl(IWebSocketService webSocketService) {
+        this.webSocketService = webSocketService;
+    }
 
     @Override
     public Driver findDriverBooking(String locationCustomer, VehicleType vehicleType) {
