@@ -32,7 +32,6 @@ import org.thymeleaf.model.IComment;
 public class PaymentController {
 
 
-
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     @Autowired
@@ -76,7 +75,7 @@ public class PaymentController {
         cld.add(Calendar.HOUR, 7);
         String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
-        	
+
         cld.add(Calendar.MINUTE, 15);
 
         String vnp_ExpireDate = formatter.format(cld.getTime());
@@ -118,7 +117,7 @@ public class PaymentController {
     }
 
     @GetMapping("/link")
-    public ResponseEntity<?> getPaymentLink(int bookingId, PaymentMethod paymentMethod){
+    public ResponseEntity<?> getPaymentLink(int bookingId, PaymentMethod paymentMethod) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(paymentService.createPaymentLink(email, bookingId, paymentMethod));
     }
@@ -132,15 +131,15 @@ public class PaymentController {
             @RequestParam String vnp_TmnCode,
             @RequestParam String vnp_Amount,
             @RequestParam String vnp_BankCode,
-            @RequestParam (required = false) String vnp_BankTranNo,
-            @RequestParam (required = false) String vnp_CardType,
-            @RequestParam (required = false) String vnp_PayDate,
+            @RequestParam(required = false) String vnp_BankTranNo,
+            @RequestParam(required = false) String vnp_CardType,
+            @RequestParam(required = false) String vnp_PayDate,
             @RequestParam String vnp_OrderInfo,
             @RequestParam String vnp_TransactionNo,
             @RequestParam String vnp_ResponseCode,
             @RequestParam String vnp_TransactionStatus,
             @RequestParam String vnp_TxnRef,
-            @RequestParam (required = false) String vnp_SecureHashType,
+            @RequestParam(required = false) String vnp_SecureHashType,
             @RequestParam String vnp_SecureHash) {
         logger.info("vnp_Amount: {}", vnp_Amount);
         logger.info("vnp_BankCode: {}", vnp_BankCode);
@@ -153,6 +152,19 @@ public class PaymentController {
         logger.info("vnp_TransactionStatus: {}", vnp_TransactionStatus);
         logger.info("vnp_TxnRef: {}", vnp_TxnRef);
         logger.info("vnp_SecureHash: {}", vnp_SecureHash);
+        paymentService.handlePaymentIPN(vnp_TmnCode,
+                vnp_Amount,
+                vnp_BankCode,
+                vnp_BankTranNo,
+                vnp_CardType,
+                vnp_PayDate,
+                vnp_OrderInfo,
+                vnp_TransactionNo,
+                vnp_ResponseCode,
+                vnp_TransactionStatus,
+                vnp_TxnRef,
+                vnp_SecureHashType,
+                vnp_SecureHash);
 
     }
 

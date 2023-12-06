@@ -24,6 +24,7 @@ import com.GOBookingAPI.utils.ManagerLocation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -207,6 +208,25 @@ public class PaymentServiceImpl implements IPaymentService {
             System.out.println(Arrays.toString(e.getStackTrace()));
             return null;
         }
+    }
+
+    public void handlePaymentIPN(String vnp_TmnCode,
+                                 String vnp_Amount,
+                                 String vnp_BankCode,
+                                 String vnp_BankTranNo,
+                                 String vnp_CardType,
+                                 String vnp_PayDate,
+                                 String vnp_OrderInfo,
+                                 String vnp_TransactionNo,
+                                 String vnp_ResponseCode,
+                                 String vnp_TransactionStatus,
+                                 String vnp_TxnRef,
+                                 String vnp_SecureHashType,
+                                 String vnp_SecureHash) {
+        Booking booking = bookingRepository.findById(Integer.parseInt(vnp_TxnRef)).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + Integer.parseInt(vnp_TxnRef)));
+        //todo
+        booking.setStatus(BookingStatus.PAID);
+        webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
     }
 
 
