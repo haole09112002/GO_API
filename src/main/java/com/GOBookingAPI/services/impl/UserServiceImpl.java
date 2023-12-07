@@ -74,18 +74,17 @@ public class UserServiceImpl implements IUserService {
                     roleName = String.valueOf(role.getName());
                     break;
                 }
-                if (user.getIsNonBlock()) {
+                if (!user.getIsNonBlock()) {
                     return new BaseResponse<LoginResponse>(new LoginResponse("blocked", roleName), "User is blocked");
                 } else {
-                    if (roleName.equals("DRIVER")) {
+                    if (roleName.equals(RoleEnum.DRIVER)) {
                         Optional<Driver> driverOptional = driverRepository.findById(user.getId());
                         Driver driver = driverOptional.get();
-                        if (driver.getStatus().equals("NOACTIVE")) {
+                        if (driver.getStatus().equals(DriverStatus.NOT_ACTIVATED.name())) {
                             return new BaseResponse<LoginResponse>(new LoginResponse("uncheck", roleName), "Driver uncheck");
                         }
                     }
                     return new BaseResponse<LoginResponse>(new LoginResponse("registered", roleName), "User registered");
-
                 }
             }
 

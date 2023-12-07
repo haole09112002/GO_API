@@ -46,8 +46,7 @@ public class AccountController {
     @GetMapping("/login")
     public ResponseEntity<?> login() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserResponse user = userService.getUserInfo(email);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userService.loadUserbyEmail(email));
     }
 
     @GetMapping("/driver")
