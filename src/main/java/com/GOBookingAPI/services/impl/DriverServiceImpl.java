@@ -45,8 +45,8 @@ public class DriverServiceImpl implements IDriverService {
     @Autowired
     private ManagerBooking managerBooking;
 
-    @Autowired
-    private IWebSocketService webSocketService;
+//    @Autowired
+//    private IWebSocketService webSocketService;
 
 //    @Autowired
 //    public DriverServiceImpl(IWebSocketService webSocketService) {
@@ -102,9 +102,9 @@ public class DriverServiceImpl implements IDriverService {
         managerLocation.updateDriverStatus(driverChosen.getId(), driverChosen.getStatus());
 
 //         gui thong tin tai xe ve khach
-        this.webSocketService.notifyDriverToCustomer(booking.getCustomer().getId(), driverChosen.getId());
+//        this.webSocketService.notifyDriverToCustomer(booking.getCustomer().getId(), driverChosen.getId());
 //         gui thong tin booking ve tai xe
-        this.webSocketService.notifyBookingToDriver(driverChosen.getId(), booking.getId());
+//        this.webSocketService.notifyBookingToDriver(driverChosen.getId(), booking.getId());
     }
 
     @Override
