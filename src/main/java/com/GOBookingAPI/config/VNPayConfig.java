@@ -78,6 +78,7 @@ public class VNPayConfig {
                 sb.append("&");
             }
         }
+        System.out.println(sb.toString());
         return hmacSHA512(secretKey, sb.toString());
     }
     
