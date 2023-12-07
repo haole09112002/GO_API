@@ -2,6 +2,7 @@ package com.GOBookingAPI.services.impl;
 
 import com.GOBookingAPI.config.VNPayConfig;
 import com.GOBookingAPI.entities.Booking;
+import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.entities.Payment;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
@@ -12,15 +13,13 @@ import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
+import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.repositories.PaymentRepository;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.IDriverService;
 import com.GOBookingAPI.services.IPaymentService;
 import com.GOBookingAPI.services.IWebSocketService;
-import com.GOBookingAPI.utils.AppUtils;
-import com.GOBookingAPI.utils.BookingUtils;
-import com.GOBookingAPI.utils.LocationDriver;
-import com.GOBookingAPI.utils.ManagerLocation;
+import com.GOBookingAPI.utils.*;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +54,9 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Autowired
     private ManagerLocation managerLocation;
+
+    @Autowired
+    private DriverRepository driverRepository;
 
     @Override
     @Transactional
@@ -117,9 +119,15 @@ public class PaymentServiceImpl implements IPaymentService {
                 paymentRepository.save(payment);
 
                 //todo sendRequestDriverLocation for all driver free
-                List<LocationDriver> locationDrivers = (List<LocationDriver>) managerLocation.getLocationMapFree().values();
-                for (LocationDriver localDriver : locationDrivers) {
-                    webSocketService.notifytoDriver(localDriver.getDriverId(), "HAVEBOOKING");
+
+                List<Driver> drivers = driverRepository.findDriverStatus(DriverStatus.FREE);
+
+//                List<LocationDriver> locationDrivers =  managerLocation.getLocationMapFree().values().stream().toList();
+                if(drivers.isEmpty())
+                    System.out.println("drivers.isEmpty()");
+
+                for (Driver d : drivers) {
+                    webSocketService.notifytoDriver(d.getId(), "HAVEBOOKING");
                 }
                 driverService.scheduleFindDriverTask(booking, booking.getPickupLocation());
             }

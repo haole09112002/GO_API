@@ -26,6 +26,7 @@ import com.GOBookingAPI.utils.DriverStatus;
 import com.GOBookingAPI.utils.LocationDriver;
 import com.GOBookingAPI.utils.ManagerBooking;
 import com.GOBookingAPI.utils.ManagerLocation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DriverServiceImpl implements IDriverService {
@@ -72,6 +73,7 @@ public class DriverServiceImpl implements IDriverService {
                 id_driver = driver.getDriverId();
             }
         }
+        System.out.println("==> founded driver " + id_driver);
         Driver driverChosen = driverRepository.findById(id_driver).orElseThrow(() -> new NotFoundException("Khong tim thay Driver"));
         return driverChosen;
     }
@@ -85,6 +87,7 @@ public class DriverServiceImpl implements IDriverService {
     }
 
     @Override
+    @Transactional
     public void findAndNotifyDriver(Booking booking, String locationCustomer) {
         Driver driverChosen = findDriverBooking(locationCustomer, booking.getVehicleType());
         driverChosen.setStatus(DriverStatus.ON_RIDE);
@@ -100,6 +103,7 @@ public class DriverServiceImpl implements IDriverService {
         managerLocation.updateDriverStatus(driverChosen.getId(), driverChosen.getStatus());
 
 //         gui thong tin tai xe ve khach
+
         webSocketService.notifyDriverToCustomer(booking.getCustomer().getId(), driverChosen.getId());
 //         gui thong tin booking ve tai xe
         webSocketService.notifyBookingToDriver(driverChosen.getId(), booking.getId());

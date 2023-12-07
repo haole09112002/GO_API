@@ -66,7 +66,7 @@ public class UserServiceImpl implements IUserService {
             Optional<User> userOptional = userRepository.findByEmail(email);
 
             if (!userOptional.isPresent()) {
-                return new BaseResponse<LoginResponse>(new LoginResponse("unregistered", null), "User not found");
+                return new BaseResponse<LoginResponse>(new LoginResponse("unregistered", null, -1), "User not found");
             } else {
                 User user = userOptional.get();
                 String roleName = "";
@@ -75,16 +75,16 @@ public class UserServiceImpl implements IUserService {
                     break;
                 }
                 if (!user.getIsNonBlock()) {
-                    return new BaseResponse<LoginResponse>(new LoginResponse("blocked", roleName), "User is blocked");
+                    return new BaseResponse<LoginResponse>(new LoginResponse("blocked", roleName, user.getId()), "User is blocked");
                 } else {
                     if (roleName.equals(RoleEnum.DRIVER)) {
                         Optional<Driver> driverOptional = driverRepository.findById(user.getId());
                         Driver driver = driverOptional.get();
                         if (driver.getStatus().equals(DriverStatus.NOT_ACTIVATED.name())) {
-                            return new BaseResponse<LoginResponse>(new LoginResponse("uncheck", roleName), "Driver uncheck");
+                            return new BaseResponse<LoginResponse>(new LoginResponse("uncheck", roleName, user.getId()), "Driver uncheck");
                         }
                     }
-                    return new BaseResponse<LoginResponse>(new LoginResponse("registered", roleName), "User registered");
+                    return new BaseResponse<LoginResponse>(new LoginResponse("registered", roleName, user.getId()), "User registered");
                 }
             }
 

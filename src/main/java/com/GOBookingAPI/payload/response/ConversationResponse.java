@@ -12,6 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ConversationResponse {
+
     private int id;
 
     private int bookingId;
