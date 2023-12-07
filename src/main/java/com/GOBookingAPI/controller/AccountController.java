@@ -1,10 +1,8 @@
 package com.GOBookingAPI.controller;
 
 
-import com.GOBookingAPI.entities.User;
-import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
-import com.GOBookingAPI.payload.response.UserResponse;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
