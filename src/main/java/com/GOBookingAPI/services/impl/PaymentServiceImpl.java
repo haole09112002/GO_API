@@ -26,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -93,9 +92,7 @@ public class PaymentServiceImpl implements IPaymentService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + bookingId));
 
         String signValue = VNPayConfig.hashAllFields(req);
-        System.out.println("signValue: " + signValue);
-//        if (signValue.equals(vnp_SecureHash)) {
-        if(true){
+        if (true) {
             if (!booking.getStatus().equals(BookingStatus.WAITING)) {
                 System.out.println("==>Verify FAIL, Booking not status: WAITING");
                 return;
