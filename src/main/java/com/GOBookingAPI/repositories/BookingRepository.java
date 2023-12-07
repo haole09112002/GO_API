@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.GOBookingAPI.enums.RoleEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,5 +45,10 @@ public interface BookingRepository extends JpaRepository<Booking, Integer>{
 
 	@Query("SELECT b FROM Booking b WHERE b.customer.id = :cusId AND b.driver.id = :driverId")
 	List<Booking> findByCustomerId(@Param("cusId") int cusId, @Param("driverId") int driverId);
+
+//	@Query("SELECT b FROM Booking b WHERE b.customer.id = :id OR b.driver.id = :driverId")
+//	Optional<Booking> getCurrentActiveBooking(@Param("id") int id, @Param("role") RoleEnum roleEnum);
+
+
 	
 }

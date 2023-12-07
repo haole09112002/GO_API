@@ -1,25 +1,17 @@
 package com.GOBookingAPI.controller;
 
 
-import com.GOBookingAPI.entities.Booking;
-import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.entities.User;
-import com.GOBookingAPI.enums.WebSocketBookingTitle;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
-import com.GOBookingAPI.exceptions.BadCredentialsException;
 import com.GOBookingAPI.payload.request.BookingStatusRequest;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.services.IUserService;
 import com.GOBookingAPI.utils.AppUtils;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,14 +20,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.GOBookingAPI.payload.request.BookingCancelRequest;
 import com.GOBookingAPI.payload.request.BookingRequest;
-import com.GOBookingAPI.payload.request.BookingWebSocketRequest;
 
 import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.services.IBookingService;
-import com.GOBookingAPI.services.IConservationService;
-import com.GOBookingAPI.services.IDriverService;
-
-import java.util.Date;
 
 @RestController
 @RequestMapping("/bookings")

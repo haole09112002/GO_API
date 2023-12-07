@@ -1,7 +1,6 @@
 package com.GOBookingAPI.services.impl;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -14,14 +13,13 @@ import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.enums.BookingStatus;
 
-import com.GOBookingAPI.enums.WebSocketBookingTitle;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.vietmap.Path;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.DriverRepository;
-import com.GOBookingAPI.services.IConservationService;
+import com.GOBookingAPI.services.ConversationService;
 import com.GOBookingAPI.services.IDriverService;
 import com.GOBookingAPI.services.IWebSocketService;
 import com.GOBookingAPI.utils.DriverStatus;
@@ -41,7 +39,7 @@ public class DriverServiceImpl implements IDriverService {
     @Autowired
     private BookingRepository bookingRepository;
     @Autowired
-    private IConservationService conservationService;
+    private ConversationService conservationService;
     @Autowired
     private ManagerBooking managerBooking;
 

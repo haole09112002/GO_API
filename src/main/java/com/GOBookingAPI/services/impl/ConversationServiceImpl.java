@@ -1,32 +1,36 @@
 package com.GOBookingAPI.services.impl;
 
 import java.util.Date;
-import java.util.Optional;
 
+import com.GOBookingAPI.entities.User;
+import com.GOBookingAPI.exceptions.NotFoundException;
+import com.GOBookingAPI.payload.response.ConversationResponse;
+import com.GOBookingAPI.repositories.BookingRepository;
+import com.GOBookingAPI.repositories.UserRepository;
+import com.GOBookingAPI.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.Conversation;
-import com.GOBookingAPI.entities.Customer;
-import com.GOBookingAPI.entities.Driver;
-import com.GOBookingAPI.payload.request.CreateConservationRequest;
-import com.GOBookingAPI.payload.response.BaseResponse;
-import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.ConservationRepository;
-import com.GOBookingAPI.repositories.CustomerRepository;
-import com.GOBookingAPI.repositories.DriverRepository;
-import com.GOBookingAPI.services.IConservationService;
+import com.GOBookingAPI.services.ConversationService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
-public class ConservationServiceImpl implements IConservationService {
+public class ConversationServiceImpl implements ConversationService {
 
     @Autowired
     private ConservationRepository conservationRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     @Transactional
@@ -38,5 +42,12 @@ public class ConservationServiceImpl implements IConservationService {
         conservation.setCreateAt(new Date());
         conservationRepository.save(conservation);
     }
+
+    @Override
+    public ConversationResponse getCurrentConversation(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy khách hàng"));
+        return null;
+    }
+
 
 }
