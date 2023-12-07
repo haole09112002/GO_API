@@ -105,11 +105,13 @@ public class ManagerLocation {
 	*/
 	public void addOrUpdateLocation(LocationDriver locationDriver, DriverStatus driverStatus){
 		if(driverStatus.equals(DriverStatus.FREE)){
+			System.out.println("==> addOrUpdateLocation, DriverStatus.FREE");
 			this.locationMapBusy.remove(locationDriver.getDriverId());
 			this.locationMapFree.put(locationDriver.getDriverId(), locationDriver);
 		}
 
 		if(driverStatus.equals(DriverStatus.ON_RIDE)){
+			System.out.println("==> addOrUpdateLocation, DriverStatus.ON_RIDE");
 			this.locationMapFree.remove(locationDriver.getDriverId());
 			this.locationMapBusy.put(locationDriver.getDriverId(), locationDriver);
 		}
@@ -117,12 +119,14 @@ public class ManagerLocation {
 
 	public void updateDriverStatus(int driverId, DriverStatus driverStatus){
 		if(locationMapFree.containsKey(driverId) && driverStatus.equals(DriverStatus.ON_RIDE)) {
+			System.out.println("==> updateDriverStatus, DriverStatus.ON_RIDE");
 			LocationDriver location = locationMapFree.get(driverId);
 			locationMapBusy.put(location.getDriverId(), location);
 			locationMapFree.remove(driverId);
 		}
 
 		if(locationMapBusy.containsKey(driverId) && driverStatus.equals(DriverStatus.FREE)){
+			System.out.println("==> updateDriverStatus, DriverStatus.FREE");
 			LocationDriver location = locationMapBusy.get(driverId);
 			locationMapFree.put(location.getDriverId(), location);
 			locationMapBusy.remove(driverId);

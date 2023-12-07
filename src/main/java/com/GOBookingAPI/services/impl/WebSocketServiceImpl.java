@@ -43,6 +43,7 @@ public class WebSocketServiceImpl implements IWebSocketService {
     */
     @Override
     public void ListenLocationDriver(LocationWebSocketRequest websocket) {
+        System.out.println("==> Receive packet location driver: " + websocket.toString());
         // mo app ban socket location va status len server
         Driver driver = driverRepository.findById(websocket.getDriverId()).orElseThrow(() -> new NotFoundException("Khong tim thay Driver"));
 
