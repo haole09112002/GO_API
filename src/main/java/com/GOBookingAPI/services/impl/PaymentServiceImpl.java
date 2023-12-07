@@ -74,6 +74,11 @@ public class PaymentServiceImpl implements IPaymentService {
 
         String vnp_SecureHashType = req.get("vnp_SecureHashType");
         String vnp_SecureHash = req.get("vnp_SecureHash");
+
+        for(String s : req.values())
+            System.out.print(s + " ");
+
+
         if (req.containsKey("vnp_SecureHashType")) {
             req.remove("vnp_SecureHashType");
         }
@@ -88,6 +93,7 @@ public class PaymentServiceImpl implements IPaymentService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + bookingId));
 
         String signValue = VNPayConfig.hashAllFields(req);
+        System.out.println("signValue: " + signValue);
         if (signValue.equals(vnp_SecureHash)) {
             if (!booking.getStatus().equals(BookingStatus.WAITING)) {
                 System.out.println("==>Verify FAIL, Booking not status: WAITING");
