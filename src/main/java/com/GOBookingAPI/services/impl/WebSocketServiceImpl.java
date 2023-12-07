@@ -94,11 +94,13 @@ public class WebSocketServiceImpl implements IWebSocketService {
 
     @Override
     public void notifyBookingStatusToCustomer(int userId, BookingStatusResponse resp) {
+        System.out.println("==> notifyBookingStatusToCustomer: " + resp.getBookingStatus() +", " + userId);
         messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/booking_status", resp);
     }
 
     @Override
     public void notifyBookingToDriver(int driverId, int bookingId) {
+        System.out.println("==> notifyBookingToDriver: " + bookingId +", " + driverId);
         JSONObject json = new JSONObject();
         json.put("bookingId", bookingId);
         messagingTemplate.convertAndSendToUser(String.valueOf(driverId), "/driver_booking", json);
@@ -106,6 +108,7 @@ public class WebSocketServiceImpl implements IWebSocketService {
 
     @Override
     public void notifyDriverToCustomer(int customerId, int driverId) {
+        System.out.println("==> notifyDriverToCustomer: " + customerId +", " + driverId);
         JSONObject json = new JSONObject();
         json.put("driverId", driverId);
         messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_info", json);
@@ -127,6 +130,7 @@ public class WebSocketServiceImpl implements IWebSocketService {
     public void notifytoDriver(int driverId, String title) {
         JSONObject json = new JSONObject();
         json.put("title", title);
+        System.out.println("==> send request location to driver " + driverId);
         messagingTemplate.convertAndSendToUser(String.valueOf(driverId), "/driver_notify", json);
     }
 
