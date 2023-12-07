@@ -1,13 +1,17 @@
 package com.GOBookingAPI.services.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import com.GOBookingAPI.entities.Message;
 import com.GOBookingAPI.entities.User;
+import com.GOBookingAPI.exceptions.AppException;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.response.ConversationResponse;
+import com.GOBookingAPI.payload.response.MessageResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.UserRepository;
-import com.GOBookingAPI.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,8 +50,19 @@ public class ConversationServiceImpl implements ConversationService {
     @Override
     public ConversationResponse getCurrentConversation(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy khách hàng"));
-        return null;
+        Booking currentBooking = bookingRepository.getCurrentActiveBooking(user.getId(), user.getFirstRole().getName().name()).orElseThrow(() -> new NotFoundException("User không có booking nào hiện tại"));
+        if (currentBooking.getConservation() != null) {
+            Conversation conversation = currentBooking.getConservation();
+            ConversationResponse resp = new ConversationResponse();
+            List<MessageResponse> messageResponses = new ArrayList<>();
+            for (Message message : conversation.getMessages()) {
+                messageResponses.add(new MessageResponse(message.getId(), message.getSenderId(), message.getReceiverId(), message.getContent(), message.getCreateAt()));
+            }
+            resp.setId(conversation.getId());
+            resp.setMessageResponses(messageResponses);
+            resp.setBookingId(currentBooking.getId());
+            return resp;
+        }
+        throw new AppException("Conversation is null");
     }
-
-
 }

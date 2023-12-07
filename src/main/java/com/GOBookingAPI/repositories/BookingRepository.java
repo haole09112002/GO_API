@@ -16,39 +16,37 @@ import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.enums.BookingStatus;
 
 @Repository
-public interface BookingRepository extends JpaRepository<Booking, Integer>{
+public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
-	Optional<Booking> findById(int id);
+    Optional<Booking> findById(int id);
 
-	@Query("SELECT b FROM Booking b WHERE b.createAt BETWEEN :from AND :to AND b.customer.id = :customerId")
-	Page<Booking> findBookingBetweenAndCustomer(
-			@Param("from") Date from,
-			@Param("to") Date to,
-			@Param("customerId") int customerId,
-			Pageable pageable
-	);
+    @Query("SELECT b FROM Booking b WHERE b.createAt BETWEEN :from AND :to AND b.customer.id = :customerId")
+    Page<Booking> findBookingBetweenAndCustomer(
+            @Param("from") Date from,
+            @Param("to") Date to,
+            @Param("customerId") int customerId,
+            Pageable pageable
+    );
 
-	@Query("SELECT b FROM Booking b WHERE b.createAt BETWEEN :from AND :to AND b.driver.id = :driverId")
-	Page<Booking> findBookingBetweenAndDriver(
-			@Param("from") Date from,
-			@Param("to") Date to,
-			@Param("driverId") int customerId,
-			Pageable pageable
-	);
+    @Query("SELECT b FROM Booking b WHERE b.createAt BETWEEN :from AND :to AND b.driver.id = :driverId")
+    Page<Booking> findBookingBetweenAndDriver(
+            @Param("from") Date from,
+            @Param("to") Date to,
+            @Param("driverId") int customerId,
+            Pageable pageable
+    );
 
-	@Query("SELECT b FROM Booking b WHERE b.createAt BETWEEN :from AND :to")
-	Page<Booking> findBookingBetween(
-			@Param("from") Date from,
-			@Param("to") Date to,
-			Pageable pageable
-	);
+    @Query("SELECT b FROM Booking b WHERE b.createAt BETWEEN :from AND :to")
+    Page<Booking> findBookingBetween(
+            @Param("from") Date from,
+            @Param("to") Date to,
+            Pageable pageable
+    );
 
-	@Query("SELECT b FROM Booking b WHERE b.customer.id = :cusId AND b.driver.id = :driverId")
-	List<Booking> findByCustomerId(@Param("cusId") int cusId, @Param("driverId") int driverId);
+    @Query("SELECT b FROM Booking b WHERE b.customer.id = :cusId AND b.driver.id = :driverId")
+    List<Booking> findByCustomerId(@Param("cusId") int cusId, @Param("driverId") int driverId);
 
-//	@Query("SELECT b FROM Booking b WHERE b.customer.id = :id OR b.driver.id = :driverId")
-//	Optional<Booking> getCurrentActiveBooking(@Param("id") int id, @Param("role") RoleEnum roleEnum);
-
-
-	
+    @Query("SELECT b FROM Booking b WHERE (:role = 'DRIVER' AND b.driver.id = :id  AND (b.status = 'PAID' OR b.status = 'FOUND' OR b.status = 'ON_RIDE')) OR " +
+            "      (:role = 'CUSTOMER' AND b.customer.id = :id AND (b.status = 'PAID' OR b.status = 'FOUND' OR b.status = 'ON_RIDE'))")
+    Optional<Booking> getCurrentActiveBooking(@Param("id") int id, @Param("role") String role);
 }

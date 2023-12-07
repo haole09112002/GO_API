@@ -9,7 +9,7 @@ import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.payload.response.ConversationResponse;
 
 public interface ConversationService {
-	void createConservation(Booking booking);
+    void createConservation(Booking booking);
 
-	ConversationResponse getCurrentConversation(String email);
+    ConversationResponse getCurrentConversation(String email);
 }
