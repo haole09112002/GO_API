@@ -24,7 +24,7 @@ public interface IUserService {
 
 	UserResponse getUserInfo(String email);
 
-	DriverInfoResponse getDriverInfo(String email, Integer driverId);
+//	DriverInfoResponse getDriverInfo(String email, Integer driverId);
 
 	RegisterCustomerResponse getCustomerInfo(String email);
 	

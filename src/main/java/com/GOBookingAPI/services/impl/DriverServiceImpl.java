@@ -5,8 +5,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.VehicleType;
+import com.GOBookingAPI.exceptions.BadCredentialsException;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
+import com.GOBookingAPI.payload.response.DriverInfoResponse;
+import com.GOBookingAPI.repositories.UserRepository;
+import com.GOBookingAPI.services.IBookingService;
 import com.GOBookingAPI.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,6 +53,12 @@ public class DriverServiceImpl implements IDriverService {
 
     @Autowired
     private IWebSocketService webSocketService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private IBookingService bookingService;
 
     @Override
     public Driver findDriverBooking(String locationCustomer, VehicleType vehicleType) {
@@ -129,5 +140,48 @@ public class DriverServiceImpl implements IDriverService {
     public List<Driver> getDriverByStatus(DriverStatus status) {
         // TODO Auto-generated method stub
         return driverRepository.findDriverStatus(status);
+    }
+
+    @Override
+    public DriverInfoResponse getDriverInfo(String email, Integer driverId) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+        boolean isAllow = false;
+        switch (user.getFirstRole().getName()) {
+            case CUSTOMER -> {
+                if (driverId == -1)
+                    throw new BadRequestException("Thieu driverId");
+                if (bookingService.isDriverBelongsToCustomerBooking(user, driverId))
+                    isAllow = true;
+                else
+                    throw new BadCredentialsException("You don't have permission to access this resource");
+            }
+            case DRIVER -> {
+                driverId = user.getId();
+                isAllow = true;
+            }
+        }
+
+        if (isAllow) {
+            DriverInfoResponse resp = new DriverInfoResponse();
+            Driver driver = driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Không tìm thấy driver , email: " + email));
+            resp.setDriverInfoUrl(driver.getImgUrl());
+            resp.setId(driver.getId());
+            resp.setEmail(user.getEmail());
+            resp.setFullName(driver.getFullName());
+            resp.setMale(driver.isGender());
+            resp.setDateOfBirth(driver.getDateOfBirth());
+            resp.setPhoneNumber(driver.getUser().getPhoneNumber());
+            resp.setStatus(driver.getStatus());
+            resp.setRating(driver.getRating());
+            resp.setNonBlock(driver.getUser().getIsNonBlock());
+            resp.setAvtUrl(driver.getUser().getAvatarUrl());
+            resp.setLicensePlate(driver.getLicensePlate());
+            resp.setDrivingLicense(driver.getDrivingLicense());
+            resp.setIdCard(driver.getIdCard());
+            resp.setVehicleType(driver.getFirstVehicleType().getName());
+            return resp;
+        } else {
+            throw new BadCredentialsException("You don't have permission to access this resource");
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.GOBookingAPI.controller;
 
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
 
+import com.GOBookingAPI.services.IDriverService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,9 @@ public class AccountController {
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private IDriverService driverService;
 
     @PostMapping("/customer")
     public ResponseEntity<?> registerCustomer(
@@ -50,6 +54,6 @@ public class AccountController {
     @GetMapping("/driver")
     public ResponseEntity<?> getDriverInfo(@RequestParam (required = false, defaultValue = "-1" ) Integer driverId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(userService.getDriverInfo(email, driverId));
+        return ResponseEntity.ok(driverService.getDriverInfo(email, driverId));
     }
 }
