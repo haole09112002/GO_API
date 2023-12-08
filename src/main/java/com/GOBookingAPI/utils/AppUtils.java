@@ -44,4 +44,8 @@ public class AppUtils {
             throw new AppException("Invalid date format");
         }
     }
+
+    public static long currentTimeInSecond() {
+        return System.currentTimeMillis() / 1000;
+    }
 }

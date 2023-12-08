@@ -92,9 +92,10 @@ public class BookingServiceImpl implements IBookingService {
 
         BookingResponse resp = new BookingResponse();
         resp.setId(booking.getId());
-        resp.setDriver(null);
+        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
         resp.setCreateAt(booking.getCreateAt());
-        resp.setPayment(null);
+        resp.setPaymentId(booking.getPayment() != null ? booking.getPayment().getId() : null);
+        resp.setCustomerId(booking.getCustomer().getId());
         resp.setAmount(booking.getAmount());
         resp.setDropOffLocation(booking.getDropoffLocation());
         resp.setPickupLocation(booking.getPickupLocation());
@@ -182,9 +183,10 @@ public class BookingServiceImpl implements IBookingService {
         }
         BookingResponse resp = new BookingResponse();
         resp.setId(booking.getId());
-        resp.setDriver(booking.getDriver());
+        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
         resp.setCreateAt(booking.getCreateAt());
-        resp.setPayment(booking.getPayment());
+        resp.setPaymentId(booking.getPayment() != null ? booking.getPayment().getId() : null);
+        resp.setCustomerId(booking.getCustomer().getId());
         resp.setAmount(booking.getAmount());
         resp.setDropOffLocation(booking.getDropoffLocation());
         resp.setPickupLocation(booking.getPickupLocation());
@@ -219,9 +221,10 @@ public class BookingServiceImpl implements IBookingService {
         bookingResponses = bookingPage.getContent().stream().map(booking -> {
             BookingResponse resp = new BookingResponse();
             resp.setId(booking.getId());
-            resp.setDriver(booking.getDriver());
+            resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
             resp.setCreateAt(booking.getCreateAt());
-            resp.setPayment(booking.getPayment());
+            resp.setPaymentId(booking.getPayment() != null ? booking.getPayment().getId() : null);
+            resp.setCustomerId(booking.getCustomer().getId());
             resp.setAmount(booking.getAmount());
             resp.setDropOffLocation(booking.getDropoffLocation());
             resp.setPickupLocation(booking.getPickupLocation());
@@ -238,9 +241,10 @@ public class BookingServiceImpl implements IBookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
         BookingResponse resp = new BookingResponse();
         resp.setId(booking.getId());
-        resp.setDriver(booking.getDriver());
+        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
         resp.setCreateAt(booking.getCreateAt());
-        resp.setPayment(booking.getPayment());
+        resp.setPaymentId(booking.getPayment() != null ? booking.getPayment().getId() : null);
+        resp.setCustomerId(booking.getCustomer().getId());
         resp.setAmount(booking.getAmount());
         resp.setDropOffLocation(booking.getDropoffLocation());
         resp.setPickupLocation(booking.getPickupLocation());
@@ -440,4 +444,6 @@ public class BookingServiceImpl implements IBookingService {
             managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
         }
     }
+
+
 }

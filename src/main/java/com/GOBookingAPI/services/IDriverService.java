@@ -17,5 +17,5 @@ public interface IDriverService {
 	
 	List<Driver> getDriverByStatus(DriverStatus status);
 
-	void findAndNotifyDriver(Booking booking, String locationCustomer);
+	boolean findAndNotifyDriver(Booking booking, String locationCustomer);
 }

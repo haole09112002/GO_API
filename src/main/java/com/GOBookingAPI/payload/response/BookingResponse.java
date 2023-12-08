@@ -30,9 +30,11 @@ public class BookingResponse {
 
     private long predictTime;
 
-    private Driver driver;
+    private Integer driverId;
 
-    private Payment payment;
+    private Integer paymentId;
+
+    private Integer customerId;
 
     private double distance;
 
