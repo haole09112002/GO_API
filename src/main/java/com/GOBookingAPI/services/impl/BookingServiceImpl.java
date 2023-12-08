@@ -94,7 +94,7 @@ public class BookingServiceImpl implements IBookingService {
         resp.setId(booking.getId());
         resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
         resp.setCreateAt(booking.getCreateAt());
-        resp.setPaymentId(booking.getPayment() != null ? booking.getPayment().getId() : null);
+        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
         resp.setCustomerId(booking.getCustomer().getId());
         resp.setAmount(booking.getAmount());
         resp.setDropOffLocation(booking.getDropoffLocation());
@@ -185,7 +185,7 @@ public class BookingServiceImpl implements IBookingService {
         resp.setId(booking.getId());
         resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
         resp.setCreateAt(booking.getCreateAt());
-        resp.setPaymentId(booking.getPayment() != null ? booking.getPayment().getId() : null);
+        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
         resp.setCustomerId(booking.getCustomer().getId());
         resp.setAmount(booking.getAmount());
         resp.setDropOffLocation(booking.getDropoffLocation());
@@ -223,7 +223,7 @@ public class BookingServiceImpl implements IBookingService {
             resp.setId(booking.getId());
             resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
             resp.setCreateAt(booking.getCreateAt());
-            resp.setPaymentId(booking.getPayment() != null ? booking.getPayment().getId() : null);
+            resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
             resp.setCustomerId(booking.getCustomer().getId());
             resp.setAmount(booking.getAmount());
             resp.setDropOffLocation(booking.getDropoffLocation());
@@ -243,7 +243,7 @@ public class BookingServiceImpl implements IBookingService {
         resp.setId(booking.getId());
         resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
         resp.setCreateAt(booking.getCreateAt());
-        resp.setPaymentId(booking.getPayment() != null ? booking.getPayment().getId() : null);
+        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
         resp.setCustomerId(booking.getCustomer().getId());
         resp.setAmount(booking.getAmount());
         resp.setDropOffLocation(booking.getDropoffLocation());
@@ -408,7 +408,6 @@ public class BookingServiceImpl implements IBookingService {
             }else {
                 booking.setStatus(BookingStatus.CANCELLED);
             }
-
         }
 
         if(user.getFirstRole().getName().equals(RoleEnum.DRIVER)){
@@ -444,6 +443,4 @@ public class BookingServiceImpl implements IBookingService {
             managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
         }
     }
-
-
 }

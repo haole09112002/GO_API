@@ -1,6 +1,8 @@
 package com.GOBookingAPI.controller;
 
 
+import com.GOBookingAPI.entities.Message;
+import com.GOBookingAPI.payload.response.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -31,17 +33,7 @@ public class WebSocketController {
     
     @MessageMapping("/message_send")
     public void sendToSpecificUser(@Payload CreateMessageRequest message) {
-    	messageService.createMessage(message);
-    	webSocketService.sendMessagePrivate(message);
+    	Message mess =  messageService.createMessage(message);
+    	webSocketService.sendMessagePrivate(mess);
     }
-
-	@MessageMapping("/hello")
-	public void greeting() throws Exception {
-		// Gửi tin nhắn chào đến tất cả các subscriber đang lắng nghe "/topic/greetings"
-		simpMessagingTemplate.convertAndSend("/topic/greetings", "Chào mừng từ server: ");
-
-		// Gửi tin nhắn chào đến user cụ thể (ở đây là user "john")
-//		simpMessagingTemplate.convertAndSendToUser("john", "/queue/greetings", "Chào mừng từ server: " + message);
-	}
-    
 }

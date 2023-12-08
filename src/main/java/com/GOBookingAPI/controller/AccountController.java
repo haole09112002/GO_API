@@ -50,10 +50,4 @@ public class AccountController {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(userService.loadUserbyEmail(email));
     }
-
-    @GetMapping("/driver")
-    public ResponseEntity<?> getDriverInfo(@RequestParam (required = false, defaultValue = "-1" ) Integer driverId) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(driverService.getDriverInfo(email, driverId));
-    }
 }

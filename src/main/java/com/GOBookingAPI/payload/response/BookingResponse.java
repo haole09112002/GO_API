@@ -2,6 +2,8 @@ package com.GOBookingAPI.payload.response;
 
 import com.GOBookingAPI.entities.*;
 import com.GOBookingAPI.enums.BookingStatus;
+import com.GOBookingAPI.enums.PaymentMethod;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,7 +34,8 @@ public class BookingResponse {
 
     private Integer driverId;
 
-    private Integer paymentId;
+//    @JsonProperty("payment")
+    private PaymentMethod paymentMethod;
 
     private Integer customerId;
 

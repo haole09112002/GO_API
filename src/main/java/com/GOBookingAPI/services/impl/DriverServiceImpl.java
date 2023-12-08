@@ -7,8 +7,10 @@ import java.util.concurrent.TimeUnit;
 
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.VehicleType;
+import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.exceptions.BadCredentialsException;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
+import com.GOBookingAPI.payload.response.DriverBaseInfoResponse;
 import com.GOBookingAPI.payload.response.DriverInfoResponse;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.IBookingService;
@@ -153,7 +155,7 @@ public class DriverServiceImpl implements IDriverService {
                 if (bookingService.isDriverBelongsToCustomerBooking(user, driverId))
                     isAllow = true;
                 else
-                    throw new BadCredentialsException("You don't have permission to access this resource");
+                    throw new AccessDeniedException("Bạn chưa từng có chuyến đi với tài xế này");
             }
             case DRIVER -> {
                 driverId = user.getId();
@@ -180,8 +182,31 @@ public class DriverServiceImpl implements IDriverService {
             resp.setIdCard(driver.getIdCard());
             resp.setVehicleType(driver.getFirstVehicleType().getName());
             return resp;
-        } else {
-            throw new BadCredentialsException("You don't have permission to access this resource");
         }
+        throw new AccessDeniedException("You don't have permission to access this resource");
+
+    }
+
+    @Override
+    public DriverBaseInfoResponse getDriverBaseInfo(String email, Integer driverId) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+        if (bookingService.isDriverBelongsToCustomerBooking(user, driverId)){
+            Driver driver = driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Không tìm thấy driver , email: " + email));
+
+            DriverBaseInfoResponse resp = new DriverBaseInfoResponse();
+            resp.setId(driver.getId());
+            resp.setEmail(user.getEmail());
+            resp.setFullName(driver.getFullName());
+            resp.setMale(driver.isGender());
+            resp.setDateOfBirth(driver.getDateOfBirth());
+            resp.setPhoneNumber(driver.getUser().getPhoneNumber());
+            resp.setRating(driver.getRating());
+            resp.setNonBlock(driver.getUser().getIsNonBlock());
+            resp.setAvtUrl(driver.getUser().getAvatarUrl());
+            resp.setLicensePlate(driver.getLicensePlate());
+            resp.setVehicleType(driver.getFirstVehicleType().getName());
+            return resp;
+        }
+        throw new AccessDeniedException("Bạn chưa từng có chuyến đi với tài xế này");
     }
 }

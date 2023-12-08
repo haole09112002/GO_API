@@ -19,12 +19,14 @@ import lombok.Setter;
 public class Payment implements Serializable{
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+
 	@Column(nullable = false , columnDefinition = "varchar(30)")
 	private String transactionId;
+
 	@Column
 	private long amount;
+
 	@Column
 	private Date timeStamp;
 
