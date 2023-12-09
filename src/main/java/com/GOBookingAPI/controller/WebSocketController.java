@@ -5,6 +5,7 @@ import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.entities.Message;
 import com.GOBookingAPI.entities.User;
+import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.payload.request.BookingStatusPacketRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
@@ -71,8 +72,11 @@ public class WebSocketController {
 			webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
 			if (booking.getDriver() != null){
 				webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
-				managerBooking.deleteData(booking.getDriver().getId());
-				managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
+				System.out.println("===> notify to driver: " + booking.toString());
+				if(booking.getStatus().equals(BookingStatus.WAITING_REFUND)){
+					managerBooking.deleteData(booking.getDriver().getId());
+					managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
+				}
 			}
 		}
 	}
