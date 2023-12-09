@@ -7,15 +7,15 @@ import com.GOBookingAPI.entities.Message;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.enums.RoleEnum;
+import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.BookingStatusPacketRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.payload.response.UserResponse;
 import com.GOBookingAPI.security.Model.UserSecurity;
 import com.GOBookingAPI.services.*;
-import com.GOBookingAPI.utils.DriverStatus;
-import com.GOBookingAPI.utils.ManagerBooking;
-import com.GOBookingAPI.utils.ManagerLocation;
+import com.GOBookingAPI.services.impl.BookingServiceImpl;
+import com.GOBookingAPI.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -25,6 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.GOBookingAPI.payload.request.CreateMessageRequest;
 import com.GOBookingAPI.payload.request.LocationWebSocketRequest;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 public class WebSocketController {
@@ -76,6 +80,7 @@ public class WebSocketController {
 				if(booking.getStatus().equals(BookingStatus.WAITING_REFUND)){
 					managerBooking.deleteData(booking.getDriver().getId());
 					managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
+					bookingService.changeBookingStatusForAdmin(booking.getId(), BookingStatus.REFUNDED); //todo debug
 				}
 			}
 		}
