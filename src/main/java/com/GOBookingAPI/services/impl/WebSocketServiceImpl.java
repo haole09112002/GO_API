@@ -11,7 +11,7 @@ import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.CreateMessageRequest;
 import com.GOBookingAPI.payload.request.LocationWebSocketRequest;
-import com.GOBookingAPI.repositories.DriverRepository;;
+import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.services.IWebSocketService;
 import com.GOBookingAPI.utils.LocationDriver;
 import com.GOBookingAPI.utils.ManagerBooking;
