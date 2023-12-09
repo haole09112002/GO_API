@@ -1,5 +1,6 @@
 package com.GOBookingAPI.services;
 
+import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.payload.request.BookingCancelRequest;
@@ -29,4 +30,6 @@ public interface IBookingService {
     BookingStatusResponse cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req);
 
     boolean isDriverBelongsToCustomerBooking(User cus, int driverId);
+
+    Booking changeBookingStatusAndNotify(String email, int bookingId, BookingStatus newStatus);
 }

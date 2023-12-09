@@ -358,15 +358,20 @@ public class BookingServiceImpl implements IBookingService {
        return  bookingList.size() > 0;
     }
 
-    public void changeBookingStatusAndNotify(String email, int bookingId, BookingStatus bookingStatus){
+    @Override
+    public Booking changeBookingStatusAndNotify(String email, int bookingId, BookingStatus newStatus){
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
 
-        if(user.getFirstRole().getName().equals(RoleEnum.CUSTOMER) && bookingStatus.equals(BookingStatus.CANCELLED)){
+        if(user.getFirstRole().getName().equals(RoleEnum.CUSTOMER)){
+            if(!newStatus.equals(BookingStatus.CANCELLED)){
+                System.out.println("==>Fail, booking status not permit: " + newStatus);
+                return null;
+            }
 
-            if(booking.getStatus() != BookingStatus.WAITING || booking.getStatus() != BookingStatus.PAID || booking.getStatus() != BookingStatus.FOUND){
+            if(booking.getStatus() != BookingStatus.WAITING && booking.getStatus() != BookingStatus.PAID && booking.getStatus() != BookingStatus.FOUND){
                 System.out.println("==> booking.getStatus() != BookingStatus.WAITING || booking.getStatus() != BookingStatus.PAID");
-                return;
+                return null;
             }
 
             if(booking.getStatus().equals(BookingStatus.PAID))
@@ -378,37 +383,25 @@ public class BookingServiceImpl implements IBookingService {
         }
 
         if(user.getFirstRole().getName().equals(RoleEnum.DRIVER)){
-            if(!bookingStatus.equals(BookingStatus.ON_RIDE) && bookingStatus.equals(BookingStatus.COMPLETE)){
-                System.out.println("==> !bookingStatus.equals(BookingStatus.ON_RIDE) && bookingStatus.equals(BookingStatus.COMPLETE)");
-                return; //todo exception socket handler
+            if(!booking.getStatus().equals(BookingStatus.FOUND) && newStatus.equals(BookingStatus.ON_RIDE))
+            {
+                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + newStatus);
+                return null;
             }
 
-            if(!booking.getStatus().equals(BookingStatus.FOUND) && bookingStatus.equals(BookingStatus.ON_RIDE))
+            if(!booking.getStatus().equals(BookingStatus.ON_RIDE) && newStatus.equals(BookingStatus.COMPLETE))
             {
-                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + bookingStatus);
-                return;
+                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + newStatus);
+                return null;
             }
-
-            if(!booking.getStatus().equals(BookingStatus.ON_RIDE) && bookingStatus.equals(BookingStatus.COMPLETE))
-            {
-                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + bookingStatus);
-                return;
-            }
-            booking.setStatus(bookingStatus);
+            booking.setStatus(newStatus);
         }
 
         if(user.getFirstRole().getName().equals(RoleEnum.ADMIN)){
-            //todo check
-            booking.setStatus(bookingStatus);
+            booking.setStatus(newStatus);
         }
 
-        bookingRepository.save( booking);
-        webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
-        if (booking.getDriver() != null){
-            webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
-            managerBooking.deleteData(booking.getDriver().getId());
-            managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
-        }
+        return bookingRepository.save( booking);
     }
 
     private void processChangeBookingForDriver(User user, BookingStatus newStatus, int bookingId){

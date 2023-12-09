@@ -175,7 +175,7 @@ public class DriverServiceImpl implements IDriverService {
             Driver driver = driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Không tìm thấy driver , driver: " + email));
             resp.setDriverInfoUrl(driver.getImgUrl());
             resp.setId(driver.getId());
-            resp.setEmail(user.getEmail());
+            resp.setEmail(driver.getUser().getEmail());
             resp.setFullName(driver.getFullName());
             resp.setMale(driver.isGender());
             resp.setDateOfBirth(driver.getDateOfBirth());
