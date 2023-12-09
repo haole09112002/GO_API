@@ -55,6 +55,9 @@ public class WebSocketController {
 	private ManagerLocation managerLocation;
 
 	@Autowired
+	private IPaymentService paymentService;
+
+	@Autowired
 	private IUserService userService;
 	
     @MessageMapping("/location")
@@ -80,7 +83,8 @@ public class WebSocketController {
 				if(booking.getStatus().equals(BookingStatus.WAITING_REFUND)){
 					managerBooking.deleteData(booking.getDriver().getId());
 					managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
-					bookingService.changeBookingStatusForAdmin(booking.getId(), BookingStatus.REFUNDED); //todo debug
+					paymentService.refundPayment(booking); // todo bug
+//					bookingService.changeBookingStatusForAdmin(booking.getId(), BookingStatus.REFUNDED); //todo debug
 				}
 			}
 		}
