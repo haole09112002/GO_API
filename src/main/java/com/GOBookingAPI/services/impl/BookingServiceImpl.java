@@ -12,6 +12,7 @@ import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.payload.vietmap.Path;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
+import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.services.IWebSocketService;
 import com.GOBookingAPI.utils.AppUtils;
 import com.GOBookingAPI.utils.DriverStatus;
@@ -32,6 +33,7 @@ import com.GOBookingAPI.repositories.MyUserRepository;
 import com.GOBookingAPI.services.IBookingService;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -57,6 +59,9 @@ public class BookingServiceImpl implements IBookingService {
 
     @Autowired
     private ManagerBooking managerBooking;
+
+    @Autowired
+    private DriverRepository driverRepository;
 
     @Override
     public BookingResponse createBooking(String username, BookingRequest req) {
@@ -359,6 +364,7 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     @Override
+    @Transactional
     public Booking changeBookingStatusAndNotify(String email, int bookingId, BookingStatus newStatus){
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
@@ -409,6 +415,12 @@ public class BookingServiceImpl implements IBookingService {
 
         if(user.getFirstRole().getName().equals(RoleEnum.ADMIN)){
             booking.setStatus(newStatus);
+        }
+
+        if(booking.getDriver() != null){
+            managerBooking.deleteData(booking.getDriver().getId());
+            booking.getDriver().setStatus(DriverStatus.FREE);
+            driverRepository.save(booking.getDriver());
         }
 
         return bookingRepository.save( booking);

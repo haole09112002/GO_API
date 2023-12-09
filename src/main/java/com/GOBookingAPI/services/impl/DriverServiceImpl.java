@@ -118,7 +118,6 @@ public class DriverServiceImpl implements IDriverService {
     @Transactional
     public boolean findAndNotifyDriver(Booking booking, String locationCustomer) {
         Driver driverChosen = findDriverBooking(locationCustomer, booking.getVehicleType());
-
         if (driverChosen == null)
             return false;
 

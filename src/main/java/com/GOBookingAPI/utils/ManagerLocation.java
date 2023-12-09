@@ -121,15 +121,15 @@ public class ManagerLocation {
 		if(locationMapFree.containsKey(driverId) && driverStatus.equals(DriverStatus.ON_RIDE)) {
 			System.out.println("==> updateDriverStatus, DriverStatus.ON_RIDE");
 			LocationDriver location = locationMapFree.get(driverId);
-			locationMapBusy.put(location.getDriverId(), location);
 			locationMapFree.remove(driverId);
+			locationMapBusy.put(location.getDriverId(), location);
 		}
 
 		if(locationMapBusy.containsKey(driverId) && driverStatus.equals(DriverStatus.FREE)){
 			System.out.println("==> updateDriverStatus, DriverStatus.FREE");
 			LocationDriver location = locationMapBusy.get(driverId);
-			locationMapFree.put(location.getDriverId(), location);
 			locationMapBusy.remove(driverId);
+			locationMapFree.put(location.getDriverId(), location);
 		}
 	}
 }
