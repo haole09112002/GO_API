@@ -10,11 +10,11 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class CreateMessageRequest {
-	private int id_sender ;
+	protected int id_sender ;
 	
-	private int id_receiver;
+	protected int id_receiver;
 	
-	private String content;
+	protected String content;
 	
-	private int id_conversation ;
+	protected int id_conversation ;
 }
