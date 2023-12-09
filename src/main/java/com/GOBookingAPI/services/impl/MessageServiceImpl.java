@@ -26,25 +26,20 @@ public class MessageServiceImpl implements IMessageService {
 	@Autowired
 	private ConservationRepository conservationRepository;
 	@Override
-	public BaseResponse<Message> createMessage(CreateMessageRequest messageRequest) {
-		try {
-			Date curent = new Date();
-			
-			Message message = new Message();
-			message.setSenderId(messageRequest.getId_sender());
-			message.setReceiverId(messageRequest.getId_receiver());
-			message.setContent(messageRequest.getContent());
-			message.setCreateAt(curent);
-			
-			Optional<Conversation> conOptional= conservationRepository.findById(messageRequest.getId_conversation());
-			message.setConversation(conOptional.get());
-			messageRepository.save(message);
-			
-			return new BaseResponse<Message>(null,"Success");
-		}catch(Exception e) {
-			log.info("Error in Service {}" , e.getMessage());
-			return new BaseResponse<Message>(null,"Fail");
-		}
+	public Message createMessage(CreateMessageRequest messageRequest) {
+		Date current = new Date();
+		Message message = new Message();
+		message.setSenderId(messageRequest.getId_sender());
+		message.setReceiverId(messageRequest.getId_receiver());
+		message.setContent(messageRequest.getContent());
+		message.setCreateAt(current);
+
+		Optional<Conversation> conOptional= conservationRepository.findById(messageRequest.getId_conversation());
+		if(conOptional.isEmpty())
+			System.out.println("==> Invalid Conversation");
+		message.setConversation(conOptional.get());
+		messageRepository.save(message);
+		return message;
 	}
 	@Override
 	public List<Message> getAllMessageByConservationId(int ConservationId) {

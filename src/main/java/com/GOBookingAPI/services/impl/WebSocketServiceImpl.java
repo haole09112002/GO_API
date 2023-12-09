@@ -1,7 +1,10 @@
 package com.GOBookingAPI.services.impl;
 
+import com.GOBookingAPI.entities.Message;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 
+import com.GOBookingAPI.payload.response.MessagePacketResponse;
+import com.GOBookingAPI.payload.response.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -88,10 +91,17 @@ public class WebSocketServiceImpl implements IWebSocketService {
     }
 
     @Override
-    public void sendMessagePrivate(CreateMessageRequest message) {
-        messagingTemplate.convertAndSendToUser(String.valueOf(message.getId_receiver()), "/message_receive", message);
-        System.out.println("Tin nhan " + message.getContent());
-        messagingTemplate.convertAndSendToUser(String.valueOf(message.getId_sender()), "/message_receive", message);
+    public void sendMessagePrivate(Message message) {
+        MessagePacketResponse response = new MessagePacketResponse();
+        response.setTime(message.getCreateAt());
+        response.setId_sender(message.getSenderId());
+        response.setId_receiver(message.getReceiverId());
+        response.setContent(message.getContent());
+        response.setId_conversation(message.getConversation().getId());
+
+        System.out.println("==> sendMessagePrivate : "  + response.toString());
+        messagingTemplate.convertAndSendToUser(String.valueOf(response.getId_sender()), "/message_receive", response);
+        messagingTemplate.convertAndSendToUser(String.valueOf(response.getId_receiver()), "/message_receive", response);
     }
 
     @Override

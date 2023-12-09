@@ -4,6 +4,7 @@ package com.GOBookingAPI.controller;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
 
+import com.GOBookingAPI.services.IDriverService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,9 @@ public class AccountController {
     @Autowired
     private IUserService userService;
 
+    @Autowired
+    private IDriverService driverService;
+
     @PostMapping("/customer")
     public ResponseEntity<?> registerCustomer(
             @RequestParam("phoneNumber") String phoneNumber,
@@ -46,11 +50,5 @@ public class AccountController {
     public ResponseEntity<?> login() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(userService.loadUserbyEmail(email));
-    }
-
-    @GetMapping("/driver")
-    public ResponseEntity<?> getDriverInfo(@RequestParam (required = false, defaultValue = "-1" ) Integer driverId) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(userService.getDriverInfo(email, driverId));
     }
 }

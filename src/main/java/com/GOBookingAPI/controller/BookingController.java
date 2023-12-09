@@ -47,7 +47,6 @@ public class BookingController {
     }
 
     @GetMapping("/travel-info")
-//    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<?> getTravelInfo(@RequestParam @NotBlank String pickUpLocation, @RequestParam @NotBlank String dropOffLocation) {
         return ResponseEntity.ok(bookingService.getTravelInfo(pickUpLocation, dropOffLocation));
     }

@@ -96,13 +96,13 @@ public class PaymentServiceImpl implements IPaymentService {
         String signValue = VNPayConfig.hashAllFields(req);
         if (true) {
             if (!booking.getStatus().equals(BookingStatus.WAITING)) {
-                System.out.println("==>Verify FAIL, Booking not status: WAITING");
+                System.out.println("==>Verify FAIL, bookingId: " + bookingId +", Booking not status: WAITING, bookingId: " + bookingId);
                 return;
             }
 
             long vnpAmount = Long.parseLong(vnp_Amount) / 100;
             if (vnpAmount != booking.getAmount()) {
-                System.out.println("Verify FAIL, booking amount not equals vnpAmount: " + booking.getAmount() + ", " + vnpAmount);
+                System.out.println("==>Verify FAIL, bookingId: " + bookingId +", booking amount not equals vnpAmount: " + booking.getAmount() + ", " + vnpAmount);
                 return;
             }
 
@@ -111,6 +111,7 @@ public class PaymentServiceImpl implements IPaymentService {
                 bookingRepository.save(booking);
 
                 Payment payment = new Payment();
+                payment.setId(bookingId);
                 payment.setTransactionId(vnp_TransactionNo);
                 payment.setAmount(vnpAmount);
                 payment.setCustomer(booking.getCustomer());
@@ -132,10 +133,10 @@ public class PaymentServiceImpl implements IPaymentService {
                 driverService.scheduleFindDriverTask(booking, booking.getPickupLocation());
             }
         } else {
-            System.out.println("Verify FAIL, invalid checksum ");
+            System.out.println("==>Verify FAIL, bookingId: " + bookingId +", invalid checksum ");
         }
 
-        log.info("Payment process success and send to customer, bookingId: " + booking.getId() + ", " + booking.getStatus().name());
+        System.out.println("Payment process success and send to customer, bookingId: " + booking.getId() + ", " + booking.getStatus().name());
         webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
     }
 

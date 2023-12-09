@@ -92,9 +92,10 @@ public class BookingServiceImpl implements IBookingService {
 
         BookingResponse resp = new BookingResponse();
         resp.setId(booking.getId());
-        resp.setDriver(null);
+        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
         resp.setCreateAt(booking.getCreateAt());
-        resp.setPayment(null);
+        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
+        resp.setCustomerId(booking.getCustomer().getId());
         resp.setAmount(booking.getAmount());
         resp.setDropOffLocation(booking.getDropoffLocation());
         resp.setPickupLocation(booking.getPickupLocation());
@@ -114,39 +115,6 @@ public class BookingServiceImpl implements IBookingService {
         }
         booking.setStatus(targetStatus);
         bookingRepository.save(booking);
-//		boolean isSuccess = false;
-//		switch (targetStatus){
-//			case CANCELLED:
-//				if(booking.getStatus() == BookingStatus.WAITING || booking.getStatus() == BookingStatus.PAID)
-//					isSuccess = true;
-//				break;
-//			case PAID:
-//				if(booking.getStatus() == BookingStatus.WAITING){
-//					isSuccess = true;
-//				}
-//				break;
-//			case WAITING:
-//				if(booking.getStatus() == null){
-//					booking.setStatus(targetStatus);
-//					isSuccess = true;
-//				}
-//				break;
-//
-//			case REFUNDED:
-//				if(booking.getStatus() == BookingStatus.CANCELLED){
-//					isSuccess = true;
-//				}
-//				break;
-//			case COMPLETE:
-//				if(booking.getStatus() == BookingStatus.CANCELLED){
-//					isSuccess = true;
-//				}
-//				break;
-//			case ON_RIDE:
-//				break;
-//			default:
-//				throw new BadRequestException("Booking status không tồn tại");
-//		}
     }
 
     @Override
@@ -182,9 +150,10 @@ public class BookingServiceImpl implements IBookingService {
         }
         BookingResponse resp = new BookingResponse();
         resp.setId(booking.getId());
-        resp.setDriver(booking.getDriver());
+        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
         resp.setCreateAt(booking.getCreateAt());
-        resp.setPayment(booking.getPayment());
+        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
+        resp.setCustomerId(booking.getCustomer().getId());
         resp.setAmount(booking.getAmount());
         resp.setDropOffLocation(booking.getDropoffLocation());
         resp.setPickupLocation(booking.getPickupLocation());
@@ -219,9 +188,10 @@ public class BookingServiceImpl implements IBookingService {
         bookingResponses = bookingPage.getContent().stream().map(booking -> {
             BookingResponse resp = new BookingResponse();
             resp.setId(booking.getId());
-            resp.setDriver(booking.getDriver());
+            resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
             resp.setCreateAt(booking.getCreateAt());
-            resp.setPayment(booking.getPayment());
+            resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
+            resp.setCustomerId(booking.getCustomer().getId());
             resp.setAmount(booking.getAmount());
             resp.setDropOffLocation(booking.getDropoffLocation());
             resp.setPickupLocation(booking.getPickupLocation());
@@ -238,9 +208,10 @@ public class BookingServiceImpl implements IBookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
         BookingResponse resp = new BookingResponse();
         resp.setId(booking.getId());
-        resp.setDriver(booking.getDriver());
+        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
         resp.setCreateAt(booking.getCreateAt());
-        resp.setPayment(booking.getPayment());
+        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
+        resp.setCustomerId(booking.getCustomer().getId());
         resp.setAmount(booking.getAmount());
         resp.setDropOffLocation(booking.getDropoffLocation());
         resp.setPickupLocation(booking.getPickupLocation());
@@ -387,15 +358,20 @@ public class BookingServiceImpl implements IBookingService {
        return  bookingList.size() > 0;
     }
 
-    public void changeBookingStatusAndNotify(String email, int bookingId, BookingStatus bookingStatus){
+    @Override
+    public Booking changeBookingStatusAndNotify(String email, int bookingId, BookingStatus newStatus){
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
 
-        if(user.getFirstRole().getName().equals(RoleEnum.CUSTOMER) && bookingStatus.equals(BookingStatus.CANCELLED)){
+        if(user.getFirstRole().getName().equals(RoleEnum.CUSTOMER)){
+            if(!newStatus.equals(BookingStatus.CANCELLED)){
+                System.out.println("==>Fail, booking status not permit: " + newStatus);
+                return null;
+            }
 
-            if(booking.getStatus() != BookingStatus.WAITING || booking.getStatus() != BookingStatus.PAID || booking.getStatus() != BookingStatus.FOUND){
+            if(booking.getStatus() != BookingStatus.WAITING && booking.getStatus() != BookingStatus.PAID && booking.getStatus() != BookingStatus.FOUND){
                 System.out.println("==> booking.getStatus() != BookingStatus.WAITING || booking.getStatus() != BookingStatus.PAID");
-                return;
+                return null;
             }
 
             if(booking.getStatus().equals(BookingStatus.PAID))
@@ -404,40 +380,41 @@ public class BookingServiceImpl implements IBookingService {
             }else {
                 booking.setStatus(BookingStatus.CANCELLED);
             }
-
         }
 
         if(user.getFirstRole().getName().equals(RoleEnum.DRIVER)){
-            if(!bookingStatus.equals(BookingStatus.ON_RIDE) && bookingStatus.equals(BookingStatus.COMPLETE)){
-                System.out.println("==> !bookingStatus.equals(BookingStatus.ON_RIDE) && bookingStatus.equals(BookingStatus.COMPLETE)");
-                return; //todo exception socket handler
+            if(!booking.getStatus().equals(BookingStatus.FOUND) && newStatus.equals(BookingStatus.ON_RIDE))
+            {
+                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + newStatus);
+                return null;
             }
 
-            if(!booking.getStatus().equals(BookingStatus.FOUND) && bookingStatus.equals(BookingStatus.ON_RIDE))
+            if(!booking.getStatus().equals(BookingStatus.ON_RIDE) && newStatus.equals(BookingStatus.COMPLETE))
             {
-                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + bookingStatus);
-                return;
+                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + newStatus);
+                return null;
             }
-
-            if(!booking.getStatus().equals(BookingStatus.ON_RIDE) && bookingStatus.equals(BookingStatus.COMPLETE))
-            {
-                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + bookingStatus);
-                return;
-            }
-            booking.setStatus(bookingStatus);
+            booking.setStatus(newStatus);
         }
 
         if(user.getFirstRole().getName().equals(RoleEnum.ADMIN)){
-            //todo check
-            booking.setStatus(bookingStatus);
+            booking.setStatus(newStatus);
         }
 
-        bookingRepository.save( booking);
-        webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
-        if (booking.getDriver() != null){
-            webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
-            managerBooking.deleteData(booking.getDriver().getId());
-            managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
+        return bookingRepository.save( booking);
+    }
+
+    private void processChangeBookingForDriver(User user, BookingStatus newStatus, int bookingId){
+        Driver driver = user.getDriver();
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()-> new NotFoundException("Không tìm thấy booking, id: " + bookingId));
+
+        if(!newStatus.equals(BookingStatus.ON_RIDE) && !newStatus.equals(BookingStatus.COMPLETE))
+        {
+            System.out.println("==> FAIL, booking status is not permit: " + newStatus);
+            return;
         }
+
+//        if()
+        //todo
     }
 }

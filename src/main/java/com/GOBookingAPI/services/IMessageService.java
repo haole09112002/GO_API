@@ -8,7 +8,7 @@ import com.GOBookingAPI.payload.request.CreateMessageRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
 
 public interface IMessageService {
-	BaseResponse<?> createMessage(CreateMessageRequest messageRequest);
+	Message createMessage(CreateMessageRequest messageRequest);
 	
 	List<Message> getAllMessageByConservationId(int ConservationId);
 }

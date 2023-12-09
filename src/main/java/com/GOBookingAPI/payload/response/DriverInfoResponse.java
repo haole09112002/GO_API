@@ -13,21 +13,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @NoArgsConstructor
 @Getter
 @Setter
-public class DriverInfoResponse extends RegisterResponse{
+public class DriverInfoResponse extends DriverBaseInfoResponse{
 
     private String idCard;
-
-    private String licensePlate;
 
     private DriverStatus status ;
 
     private String activityArea;
 
-    private Double rating ;
-
     private String drivingLicense;
-
-    private VehicleType vehicleType;
 
     private String drivingLicenseImg1;
 

@@ -1,6 +1,17 @@
 package com.GOBookingAPI.controller;
 
 
+import com.GOBookingAPI.entities.Booking;
+import com.GOBookingAPI.entities.Driver;
+import com.GOBookingAPI.entities.Message;
+import com.GOBookingAPI.payload.request.BookingStatusPacketRequest;
+import com.GOBookingAPI.payload.response.BaseResponse;
+import com.GOBookingAPI.payload.response.BookingStatusResponse;
+import com.GOBookingAPI.services.IBookingService;
+import com.GOBookingAPI.services.IDriverService;
+import com.GOBookingAPI.utils.DriverStatus;
+import com.GOBookingAPI.utils.ManagerBooking;
+import com.GOBookingAPI.utils.ManagerLocation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -23,6 +34,18 @@ public class WebSocketController {
 	
 	@Autowired
 	private IWebSocketService webSocketService;
+
+	@Autowired
+	private IBookingService bookingService;
+
+	@Autowired
+	private IDriverService driverService;
+
+	@Autowired
+	private ManagerBooking managerBooking;
+
+	@Autowired
+	private ManagerLocation managerLocation;
 	
     @MessageMapping("/location")
     public void sendLocation(final LocationWebSocketRequest location ) throws Exception {
@@ -31,17 +54,21 @@ public class WebSocketController {
     
     @MessageMapping("/message_send")
     public void sendToSpecificUser(@Payload CreateMessageRequest message) {
-    	messageService.createMessage(message);
-    	webSocketService.sendMessagePrivate(message);
+    	Message mess =  messageService.createMessage(message);
+    	webSocketService.sendMessagePrivate(mess);
     }
 
-	@MessageMapping("/hello")
-	public void greeting() throws Exception {
-		// Gửi tin nhắn chào đến tất cả các subscriber đang lắng nghe "/topic/greetings"
-		simpMessagingTemplate.convertAndSend("/topic/greetings", "Chào mừng từ server: ");
-
-		// Gửi tin nhắn chào đến user cụ thể (ở đây là user "john")
-//		simpMessagingTemplate.convertAndSendToUser("john", "/queue/greetings", "Chào mừng từ server: " + message);
+	@MessageMapping("/booking_status")
+	public void processChangeBookingStatus(@Payload BookingStatusPacketRequest req) {
+		Driver driver = driverService.getById(req.getDriverId());
+		Booking booking = bookingService.changeBookingStatusAndNotify(driver.getUser().getEmail(), req.getBookingId(), req.getBookingStatus());
+		if(booking != null){
+			webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
+			if (booking.getDriver() != null){
+				webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
+				managerBooking.deleteData(booking.getDriver().getId());
+				managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
+			}
+		}
 	}
-    
 }

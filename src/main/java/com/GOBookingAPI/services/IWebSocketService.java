@@ -1,5 +1,6 @@
 package com.GOBookingAPI.services;
 
+import com.GOBookingAPI.entities.Message;
 import com.GOBookingAPI.payload.request.CreateMessageRequest;
 import com.GOBookingAPI.payload.request.LocationWebSocketRequest;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
@@ -7,7 +8,7 @@ import com.GOBookingAPI.payload.response.BookingStatusResponse;
 public interface IWebSocketService {
     void ListenLocationDriver(LocationWebSocketRequest location);
 
-    void sendMessagePrivate(CreateMessageRequest message);
+    void sendMessagePrivate(Message message);
 
     void notifyBookingStatusToCustomer(int userId, BookingStatusResponse resp);
 
