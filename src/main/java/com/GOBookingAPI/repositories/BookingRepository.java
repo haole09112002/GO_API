@@ -11,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.GOBookingAPI.entities.Booking;
-import com.GOBookingAPI.enums.BookingStatus;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer>{

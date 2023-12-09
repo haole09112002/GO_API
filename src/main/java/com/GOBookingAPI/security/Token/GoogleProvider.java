@@ -14,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import com.GOBookingAPI.entities.User;
+import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.security.Model.TokenSecurity;
 import com.GOBookingAPI.security.Model.UserSecurity;
@@ -48,21 +49,24 @@ implements AuthenticationProvider
 						    .build();
 					GoogleIdToken idToken = verifier.verify(token.getToken());
 					if (idToken != null) {
-						  Payload payload = idToken.getPayload();
-
-						  String email = payload.getEmail();
-						  Optional<User> userOptional = userRepository.findByEmail(email);
-						if(!userOptional.isPresent()) {
-							User user = new User();
-							user.setEmail(email);
-							System.out.println("This is Provider and provider null");
-							return new UserSecurity(user, null);
-							
-						}else {
-							System.out.println("This is Provider");
-							 User user = userOptional.get();
-							return new UserSecurity(user, user.getRoles().stream().map(role-> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
-						}
+							  Payload payload = idToken.getPayload();
+	
+							  String email = payload.getEmail();
+							  Optional<User> userOptional = userRepository.findByEmail(email);
+							if(!userOptional.isPresent()) {
+								User user = new User();
+								user.setEmail(email);
+								System.out.println("This is Provider and provider null");
+								return new UserSecurity(user, null);
+								
+							}else {
+								System.out.println("This is Provider");
+								 User user = userOptional.get();
+//								 if(user.getIsNonBlock()) {
+//									 throw new AccessDeniedException("Bạn bị block");
+//								 }
+								return new UserSecurity(user, user.getRoles().stream().map(role-> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
+							}
 						} else {
 							  System.out.println("Invalid ID token.");
 							  return null;

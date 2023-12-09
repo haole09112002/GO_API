@@ -11,7 +11,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 import com.GOBookingAPI.security.Token.GoogleEntryPoint;
 import com.GOBookingAPI.security.Token.GoogleFilter;
 import com.GOBookingAPI.security.Token.GoogleProvider;
@@ -28,6 +30,10 @@ public class SecurityConfig implements WebMvcConfigurer{
 	@Autowired
 	GoogleProvider provider;
 	
+	@Autowired
+    private NonBlockInterceptor nonBlockInterceptor;
+
+	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http ) throws Exception{
 		
@@ -41,6 +47,11 @@ public class SecurityConfig implements WebMvcConfigurer{
 		http.addFilterBefore(new GoogleFilter(), BasicAuthenticationFilter.class);
 		http.authenticationProvider(provider);
 		return http.build();
+	}
+
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(nonBlockInterceptor);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.GOBookingAPI.controller;
 
 
+import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,7 @@ public class AccountController {
     public ResponseEntity<?> Test() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         BaseResponse<LoginResponse> user = userService.loadUserbyEmail(email);
+//        	throw new AccessDeniedException("Bạn bị block controller");
         return ResponseEntity.ok(user);
     }
 

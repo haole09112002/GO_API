@@ -2,29 +2,19 @@
 
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.Driver;
-import com.GOBookingAPI.entities.Message;
-import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.enums.WebSocketBookingTitle;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.request.CreateMessageRequest;
 import com.GOBookingAPI.payload.request.LocationWebSocketRequest;
-import com.GOBookingAPI.payload.request.BookingWebSocketRequest;
-import com.GOBookingAPI.payload.response.LocationCustomerResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.DriverRepository;
-import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.IWebSocketService;
 import com.GOBookingAPI.utils.LocationDriver;
 import com.GOBookingAPI.utils.ManagerBooking;
