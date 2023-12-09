@@ -1,7 +1,9 @@
 package com.GOBookingAPI.controller;
 
 
+import com.GOBookingAPI.payload.request.DriverStatusRequest;
 import com.GOBookingAPI.services.IDriverService;
+import com.GOBookingAPI.utils.DriverStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,5 +29,11 @@ public class DriverController {
 	public ResponseEntity<?> getDriverBaseInfo(@PathVariable Integer id) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		return ResponseEntity.ok(driverService.getDriverBaseInfo(email, id));
+	}
+
+	@PutMapping("/{id}/status")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> changeDriverStatus(@PathVariable Integer id, @RequestBody DriverStatusRequest status) {
+		return ResponseEntity.ok(driverService.changeDriverStatus(id, status.getStatus()));
 	}
 }

@@ -10,6 +10,7 @@ import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.payload.response.DriverBaseInfoResponse;
 import com.GOBookingAPI.payload.response.DriverInfoResponse;
+import com.GOBookingAPI.payload.response.DriverStatusResponse;
 import com.GOBookingAPI.utils.DriverStatus;
 import com.GOBookingAPI.utils.LocationDriver;
 public interface IDriverService {
@@ -24,4 +25,8 @@ public interface IDriverService {
 	DriverInfoResponse getDriverInfo(String email, Integer driverId);
 
 	DriverBaseInfoResponse getDriverBaseInfo(String email, Integer driverId);
+
+	DriverStatusResponse changeDriverStatus(int driverId, DriverStatus newStatus);
+
+	Driver getById(int id);
 }

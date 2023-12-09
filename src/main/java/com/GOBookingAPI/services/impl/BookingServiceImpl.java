@@ -115,39 +115,6 @@ public class BookingServiceImpl implements IBookingService {
         }
         booking.setStatus(targetStatus);
         bookingRepository.save(booking);
-//		boolean isSuccess = false;
-//		switch (targetStatus){
-//			case CANCELLED:
-//				if(booking.getStatus() == BookingStatus.WAITING || booking.getStatus() == BookingStatus.PAID)
-//					isSuccess = true;
-//				break;
-//			case PAID:
-//				if(booking.getStatus() == BookingStatus.WAITING){
-//					isSuccess = true;
-//				}
-//				break;
-//			case WAITING:
-//				if(booking.getStatus() == null){
-//					booking.setStatus(targetStatus);
-//					isSuccess = true;
-//				}
-//				break;
-//
-//			case REFUNDED:
-//				if(booking.getStatus() == BookingStatus.CANCELLED){
-//					isSuccess = true;
-//				}
-//				break;
-//			case COMPLETE:
-//				if(booking.getStatus() == BookingStatus.CANCELLED){
-//					isSuccess = true;
-//				}
-//				break;
-//			case ON_RIDE:
-//				break;
-//			default:
-//				throw new BadRequestException("Booking status không tồn tại");
-//		}
     }
 
     @Override
@@ -442,5 +409,19 @@ public class BookingServiceImpl implements IBookingService {
             managerBooking.deleteData(booking.getDriver().getId());
             managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
         }
+    }
+
+    private void processChangeBookingForDriver(User user, BookingStatus newStatus, int bookingId){
+        Driver driver = user.getDriver();
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()-> new NotFoundException("Không tìm thấy booking, id: " + bookingId));
+
+        if(!newStatus.equals(BookingStatus.ON_RIDE) && !newStatus.equals(BookingStatus.COMPLETE))
+        {
+            System.out.println("==> FAIL, booking status is not permit: " + newStatus);
+            return;
+        }
+
+//        if()
+        //todo
     }
 }

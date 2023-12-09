@@ -1,8 +1,12 @@
 package com.GOBookingAPI.controller;
 
 
+import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.entities.Message;
+import com.GOBookingAPI.payload.request.BookingStatusPacketRequest;
 import com.GOBookingAPI.payload.response.BaseResponse;
+import com.GOBookingAPI.services.IBookingService;
+import com.GOBookingAPI.services.IDriverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -25,6 +29,12 @@ public class WebSocketController {
 	
 	@Autowired
 	private IWebSocketService webSocketService;
+
+	@Autowired
+	private IBookingService bookingService;
+
+	@Autowired
+	private IDriverService driverService;
 	
     @MessageMapping("/location")
     public void sendLocation(final LocationWebSocketRequest location ) throws Exception {
@@ -36,4 +46,12 @@ public class WebSocketController {
     	Message mess =  messageService.createMessage(message);
     	webSocketService.sendMessagePrivate(mess);
     }
+
+	@MessageMapping("/booking_status")
+	public void processChangeBookingStatus(@Payload BookingStatusPacketRequest req) {
+		Driver driver = driverService.getById(req.getDriverId());
+//		Message mess =  bookingService.changeBookingStatus();
+//		webSocketService.sendMessagePrivate(mess);
+		//todo
+	}
 }

@@ -4,5 +4,6 @@ public enum DriverStatus {
 	NOT_ACTIVATED,
 	FREE,
 	ON_RIDE,
-	OFF
+	OFF,
+	BLOCK
 }

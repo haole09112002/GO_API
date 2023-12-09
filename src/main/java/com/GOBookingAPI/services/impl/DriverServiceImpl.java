@@ -12,6 +12,7 @@ import com.GOBookingAPI.exceptions.BadCredentialsException;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.payload.response.DriverBaseInfoResponse;
 import com.GOBookingAPI.payload.response.DriverInfoResponse;
+import com.GOBookingAPI.payload.response.DriverStatusResponse;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.IBookingService;
 import com.GOBookingAPI.utils.*;
@@ -161,11 +162,17 @@ public class DriverServiceImpl implements IDriverService {
                 driverId = user.getId();
                 isAllow = true;
             }
+            case ADMIN -> {
+                if (driverId == -1)
+                    throw new BadRequestException("Thieu driverId");
+                isAllow = true;
+            }
         }
-
+        System.out.println("====> driverId" + driverId);
         if (isAllow) {
             DriverInfoResponse resp = new DriverInfoResponse();
-            Driver driver = driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Không tìm thấy driver , email: " + email));
+
+            Driver driver = driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Không tìm thấy driver , driver: " + email));
             resp.setDriverInfoUrl(driver.getImgUrl());
             resp.setId(driver.getId());
             resp.setEmail(user.getEmail());
@@ -191,7 +198,7 @@ public class DriverServiceImpl implements IDriverService {
     public DriverBaseInfoResponse getDriverBaseInfo(String email, Integer driverId) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
         if (bookingService.isDriverBelongsToCustomerBooking(user, driverId)){
-            Driver driver = driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Không tìm thấy driver , email: " + email));
+            Driver driver = driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Không tìm thấy driver , driverId: " + driverId));
 
             DriverBaseInfoResponse resp = new DriverBaseInfoResponse();
             resp.setId(driver.getId());
@@ -208,5 +215,18 @@ public class DriverServiceImpl implements IDriverService {
             return resp;
         }
         throw new AccessDeniedException("Bạn chưa từng có chuyến đi với tài xế này");
+    }
+
+    @Override
+    public DriverStatusResponse changeDriverStatus(int driverId, DriverStatus newStatus) {
+        Driver driver = driverRepository.findById(driverId).orElseThrow(()-> new NotFoundException("Khong tim thay driver, driverId: " + driverId));
+        driver.setStatus(newStatus);
+        driverRepository.save(driver);
+        return new DriverStatusResponse(driverId, newStatus);
+    }
+
+    @Override
+    public Driver getById(int id) {
+        return driverRepository.findById(id).orElseThrow(()-> new NotFoundException("Khong tim thay driver, driverId: " + id));
     }
 }
