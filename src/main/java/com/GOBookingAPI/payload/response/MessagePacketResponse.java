@@ -9,8 +9,18 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 public class MessagePacketResponse extends CreateMessageRequest {
 
     private Date time;
+
+    @Override
+    public String toString() {
+        return "MessagePacketResponse{" +
+                "id_sender=" + id_sender +
+                ", id_receiver=" + id_receiver +
+                ", content='" + content + '\'' +
+                ", id_conversation=" + id_conversation +
+                ", time=" + time +
+                '}';
+    }
 }
