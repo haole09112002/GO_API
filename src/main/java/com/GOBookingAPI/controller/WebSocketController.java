@@ -67,6 +67,7 @@ public class WebSocketController {
     
     @MessageMapping("/message_send")
     public void sendToSpecificUser(@Payload CreateMessageRequest message) {
+    	System.out.println("====> receive message: " + message.toString());
 		Message mess =  messageService.createMessage(message);
     	webSocketService.sendMessagePrivate(mess);
     }
@@ -79,8 +80,9 @@ public class WebSocketController {
 			webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
 			if (booking.getDriver() != null){
 				webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
-				System.out.println("===> notify to driver: " + booking.toString());
+				System.out.println("===> notify to driver: " + (new BookingStatusResponse(booking.getId(), booking.getStatus())).toString());
 				if(booking.getStatus().equals(BookingStatus.WAITING_REFUND)){
+					System.out.println("Booking status : " + BookingStatus.WAITING_REFUND);
 					managerBooking.deleteData(booking.getDriver().getId());
 					managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
 					paymentService.refundPayment(booking); // todo bug
