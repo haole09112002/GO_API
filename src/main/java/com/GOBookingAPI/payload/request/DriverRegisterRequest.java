@@ -1,5 +1,6 @@
 package com.GOBookingAPI.payload.request;
 
+import com.GOBookingAPI.enums.VehicleType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -40,7 +41,7 @@ public class DriverRegisterRequest {
     @NotNull
     private MultipartFile[] drivingLicenseImg;
 
-    @NotBlank
-    private String vehicleType;
+    @NotNull
+    private VehicleType vehicleType;
 
 }

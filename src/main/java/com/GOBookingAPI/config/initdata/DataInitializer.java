@@ -39,8 +39,8 @@ public class DataInitializer {
     public void initVehicleType(){
         VehicleType moto = new VehicleType();
         VehicleType car = new VehicleType();
-        moto.setName(com.GOBookingAPI.enums.VehicleType.MOTORCYCLE.name());
-        car.setName(com.GOBookingAPI.enums.VehicleType.CAR.name());
+        moto.setName(com.GOBookingAPI.enums.VehicleType.MOTORCYCLE);
+        car.setName(com.GOBookingAPI.enums.VehicleType.CAR);
         vehicleRepository.save(moto);
         vehicleRepository.save(car);
     }

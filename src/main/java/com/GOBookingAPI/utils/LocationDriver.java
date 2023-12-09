@@ -1,5 +1,6 @@
 package com.GOBookingAPI.utils;
 
+import com.GOBookingAPI.enums.VehicleType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LocationDriver {
-	private int iddriver;
+	private int driverId;
 	private String location;
-	private String status;
+	private VehicleType vehicleType;
+//	private String status;
 }

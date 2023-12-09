@@ -3,17 +3,10 @@ package com.GOBookingAPI.entities;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.GOBookingAPI.enums.PaymentMethod;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,9 +24,12 @@ public class Payment implements Serializable{
 	@Column(nullable = false , columnDefinition = "varchar(30)")
 	private String transactionId;
 	@Column
-	private Double amount;
+	private long amount;
 	@Column
 	private Date timeStamp;
+
+	@Enumerated(EnumType.STRING)
+	private PaymentMethod paymentMethod;
 	
 	@ManyToOne
 	@JoinColumn(name = "customer_id")

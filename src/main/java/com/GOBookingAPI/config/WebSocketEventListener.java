@@ -35,7 +35,7 @@ public class WebSocketEventListener {
 	public void handleWebSocketDisconnectLister(SessionDisconnectEvent event) {
 		String userId =  event.getUser().getName(); 
 		log.info("User disconnected: {}" , userId  );
-		managerLocation.DeteleData(Integer.parseInt(userId));
+		managerLocation.deleteData(Integer.parseInt(userId));
 	}
 	
 

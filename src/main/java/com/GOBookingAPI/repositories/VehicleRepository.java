@@ -11,5 +11,5 @@ import java.util.Optional;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<VehicleType, Integer>{
-	Optional<VehicleType> findByName(String name);
+	Optional<VehicleType> findByName(com.GOBookingAPI.enums.VehicleType name);
 }

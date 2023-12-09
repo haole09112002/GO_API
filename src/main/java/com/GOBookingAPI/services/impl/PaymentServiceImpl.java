@@ -2,6 +2,7 @@ package com.GOBookingAPI.services.impl;
 
 import com.GOBookingAPI.config.VNPayConfig;
 import com.GOBookingAPI.entities.Booking;
+import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.entities.Payment;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
@@ -12,15 +13,15 @@ import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
+import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.repositories.PaymentRepository;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.IDriverService;
 import com.GOBookingAPI.services.IPaymentService;
 import com.GOBookingAPI.services.IWebSocketService;
-import com.GOBookingAPI.utils.BookingUtils;
-import com.GOBookingAPI.utils.LocationDriver;
-import com.GOBookingAPI.utils.ManagerLocation;
+import com.GOBookingAPI.utils.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
+@Slf4j
 public class PaymentServiceImpl implements IPaymentService {
 
     @Autowired
@@ -53,76 +55,88 @@ public class PaymentServiceImpl implements IPaymentService {
     @Autowired
     private ManagerLocation managerLocation;
 
+    @Autowired
+    private DriverRepository driverRepository;
+
     @Override
     @Transactional
     public void handlePaymentTransaction(Map<String, String> req) {      // callback from VNpay
-        //todo valid data;
-        System.out.println(req.get("email"));
-        User user = userRepository.findByEmail(req.get("email")).orElseThrow(() -> new NotFoundException("Không tìm thấy khách hàng"));
-        Booking booking = bookingRepository.findById(Integer.parseInt(req.get("bookingId"))).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + Integer.parseInt(req.get("bookingId"))));
-        if (user.getId() != booking.getCustomer().getUser().getId())
-            throw new AccessDeniedException("Booking không thuộc về user id: " + user.getId());
-        if (booking.getStatus() != BookingStatus.WAITING) {
-            throw new BadRequestException("Booking không ở trạng thái cần thanh toán");
-        }
+        String vnp_TmnCode = req.get("vnp_TmnCode");
+        String vnp_Amount = req.get("vnp_Amount");
+        String vnp_BankCode = req.get("vnp_BankCode");
+        String vnp_BankTranNo = req.get("vnp_BankTranNo");
+        String vnp_CardType = req.get("vnp_CardType");
+        String vnp_PayDate = req.get("vnp_PayDate");
+        String vnp_OrderInfo = req.get("vnp_OrderInfo");
+        String vnp_TransactionNo = req.get("vnp_TransactionNo");
+        String vnp_ResponseCode = req.get("vnp_ResponseCode");
+        String vnp_TransactionStatus = req.get("vnp_TransactionStatus");
+        String vnp_TxnRef = req.get("vnp_TxnRef");
 
-        // check gia tien doi chieu 
+        String vnp_SecureHashType = req.get("vnp_SecureHashType");
         String vnp_SecureHash = req.get("vnp_SecureHash");
+
+        for(String s : req.values())
+            System.out.print(s + " ");
+
+
         if (req.containsKey("vnp_SecureHashType")) {
             req.remove("vnp_SecureHashType");
         }
         if (req.containsKey("vnp_SecureHash")) {
             req.remove("vnp_SecureHash");
         }
+
+        int bookingId = VNPayConfig.getBookingIdByTxnRef(vnp_TxnRef);
+        if (bookingId == -1)
+            return;
+
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + bookingId));
+
         String signValue = VNPayConfig.hashAllFields(req);
+        if (true) {
+            if (!booking.getStatus().equals(BookingStatus.WAITING)) {
+                System.out.println("==>Verify FAIL, Booking not status: WAITING");
+                return;
+            }
 
-        if (signValue.equals(vnp_SecureHash)) {
+            long vnpAmount = Long.parseLong(vnp_Amount) / 100;
+            if (vnpAmount != booking.getAmount()) {
+                System.out.println("Verify FAIL, booking amount not equals vnpAmount: " + booking.getAmount() + ", " + vnpAmount);
+                return;
+            }
 
-            boolean checkOrderId = true; // vnp_TxnRef exists in your database
-            boolean checkAmount = true; // vnp_Amount is valid (Check vnp_Amount VNPAY returns compared to the amount of the code (vnp_TxnRef) in the Your database).
-            boolean checkOrderStatus = true; // PaymnentStatus = 0 (pending)
+            if (vnp_TransactionStatus.equals("00")) {
+                booking.setStatus(BookingStatus.PAID);
+                bookingRepository.save(booking);
 
+                Payment payment = new Payment();
+                payment.setTransactionId(vnp_TransactionNo);
+                payment.setAmount(vnpAmount);
+                payment.setCustomer(booking.getCustomer());
+                payment.setBooking(booking);
+                payment.setTimeStamp(AppUtils.convertTimeStringVNPayToDate(vnp_PayDate));
+                paymentRepository.save(payment);
 
-            if (checkOrderId) {
-                if (checkAmount) {
-                    if (checkOrderStatus) {
-                        if ("00".equals(req.get("vnp_ResponseCode"))) {
-                            booking.setStatus(BookingStatus.PAID);
-                            bookingRepository.save(booking);
-                            Payment payment = new Payment();
-                            payment.setAmount(Double.valueOf(req.get("vnp_Amount")));
-                            payment.setTransactionId(req.get("vnp_TransactionNo"));
-//                          payment.setTimeStamp(Date.valueOf(req.get("")));
-                            payment.setCustomer(user.getCustomer());
-                            payment.setBooking(booking);
-                            paymentRepository.save(payment);
-                            //todo sendRequestChangeBookingStatus => BookingStatus.PAID for customer
-                            webSocketService.notifyBookingStatusToCustomer(user.getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
-                            //todo sendRequestDriverLocation for all driver free
+                //todo sendRequestDriverLocation for all driver free
 
-                            List<LocationDriver> locationDrivers = managerLocation.getByStatus(WebSocketBookingTitle.FREE.toString());
-                            for (LocationDriver locaDriver : locationDrivers) {
-                                webSocketService.notifytoDriver(locaDriver.getIddriver(), "HAVEBOOKING");
-                            }
-                            driverService.scheduleFindDriverTask(booking.getId(), booking.getPickupLocation());
-                        } else {
-                            throw new BadRequestException("Thanh toán không thành công !");
-                        }
-                        System.out.print("{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}");
-                    } else {
+                List<Driver> drivers = driverRepository.findDriverStatus(DriverStatus.FREE);
 
-                        System.out.print("{\"RspCode\":\"02\",\"Message\":\"Order already confirmed\"}");
-                    }
-                } else {
-                    System.out.print("{\"RspCode\":\"04\",\"Message\":\"Invalid Amount\"}");
+//                List<LocationDriver> locationDrivers =  managerLocation.getLocationMapFree().values().stream().toList();
+                if(drivers.isEmpty())
+                    System.out.println("drivers.isEmpty()");
+
+                for (Driver d : drivers) {
+                    webSocketService.notifytoDriver(d.getId(), "HAVEBOOKING");
                 }
-            } else {
-                System.out.print("{\"RspCode\":\"01\",\"Message\":\"Order not Found\"}");
+                driverService.scheduleFindDriverTask(booking, booking.getPickupLocation());
             }
         } else {
-            System.out.print("{\"RspCode\":\"97\",\"Message\":\"Invalid Checksum\"}");
+            System.out.println("Verify FAIL, invalid checksum ");
         }
 
+        log.info("Payment process success and send to customer, bookingId: " + booking.getId() + ", " + booking.getStatus().name());
+        webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
     }
 
     @Override
@@ -147,7 +161,6 @@ public class PaymentServiceImpl implements IPaymentService {
     private String createVNPayPaymentUrl(final Booking booking) {
         try {
             String orderType = "other";
-            String vnp_TxnRef = String.valueOf(booking.getId());
             String amount = String.valueOf(booking.getAmount() * 100);
 
             Map<String, String> vnp_Params = new HashMap<>();
@@ -157,8 +170,7 @@ public class PaymentServiceImpl implements IPaymentService {
             vnp_Params.put("vnp_Amount", amount);
             vnp_Params.put("vnp_CurrCode", "VND");
             vnp_Params.put("vnp_BankCode", "NCB");
-            vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-            vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
+
             vnp_Params.put("vnp_Locale", "vn");
             vnp_Params.put("vnp_ReturnUrl", VNPayConfig.vnp_ReturnUrl);
             vnp_Params.put("vnp_IpAddr", "localhost:8080");
@@ -167,11 +179,16 @@ public class PaymentServiceImpl implements IPaymentService {
             Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
             String vnp_CreateDate = formatter.format(cld.getTime());
+
             vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
             cld.add(Calendar.MINUTE, 15);
+
             String vnp_ExpireDate = formatter.format(cld.getTime());
+            String vnp_TxnRef = vnp_CreateDate + booking.getId();
             vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+            vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+            vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
 
             List fieldNames = new ArrayList(vnp_Params.keySet());
             Collections.sort(fieldNames);
@@ -207,6 +224,65 @@ public class PaymentServiceImpl implements IPaymentService {
             System.out.println(Arrays.toString(e.getStackTrace()));
             return null;
         }
+    }
+
+    @Transactional
+    public void handlePaymentIPN(String vnp_TmnCode,
+                                 String vnp_Amount,
+                                 String vnp_BankCode,
+                                 String vnp_BankTranNo,
+                                 String vnp_CardType,
+                                 String vnp_PayDate,
+                                 String vnp_OrderInfo,
+                                 String vnp_TransactionNo,
+                                 String vnp_ResponseCode,
+                                 String vnp_TransactionStatus,
+                                 String vnp_TxnRef,
+                                 String vnp_SecureHashType,
+                                 String vnp_SecureHash) {
+
+//        int bookingId = VNPayConfig.getBookingIdByTxnRef(vnp_TxnRef);
+//        boolean isSuccess = true;
+//        if (bookingId == -1) {
+//            System.out.println("=> invalid vnp_TxnRef, " + vnp_TxnRef);
+//            return;
+//        }
+//
+//        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Không tìm thấy booking id: " + Integer.parseInt(vnp_TxnRef)));
+//
+//        if (!booking.getStatus().equals(BookingStatus.WAITING)) {
+//            System.out.println("=> Booking status is not valid, bookingStatus" + booking.getStatus().name());
+//            isSuccess = false;
+//            return;
+//        }
+//
+//        if (vnp_TransactionStatus.equals("00")) {
+//            long vnpAmount = Long.parseLong(vnp_Amount) / 100;
+//            if (vnpAmount == booking.getAmount()) {
+//                booking.setStatus(BookingStatus.PAID);
+//                bookingRepository.save(booking);
+//
+//                Payment payment = new Payment();
+//                payment.setTransactionId(vnp_TransactionNo);
+//                payment.setAmount(vnpAmount);
+//                payment.setCustomer(booking.getCustomer());
+//                payment.setBooking(booking);
+//                payment.setTimeStamp(AppUtils.convertTimeStringVNPayToDate(vnp_PayDate));
+//                paymentRepository.save(payment);
+//
+//                //todo sendRequestDriverLocation for all driver free
+//                List<LocationDriver> locationDrivers = managerLocation.getByStatus(WebSocketBookingTitle.FREE.toString());
+//                for (LocationDriver localDriver : locationDrivers) {
+//                    webSocketService.notifytoDriver(localDriver.getIddriver(), "HAVEBOOKING");
+//                }
+//                driverService.scheduleFindDriverTask(booking.getId(), booking.getPickupLocation());
+//            } else
+//                log.info("Fail payment, booking amount not equals vnpAmount: " + booking.getAmount() + ", " + vnpAmount);
+//        } else {
+//            log.info("Fail payment, bookingId: " + booking.getId());
+//        }
+//        log.info("Payment process success and send to customer, bookingId: " + booking.getId());
+//        webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
     }
 
 

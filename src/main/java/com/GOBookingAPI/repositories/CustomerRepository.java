@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import com.GOBookingAPI.entities.Customer;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer,Integer>{
+public interface CustomerRepository extends JpaRepository<Customer, Integer> {
+
+
+
 
 }

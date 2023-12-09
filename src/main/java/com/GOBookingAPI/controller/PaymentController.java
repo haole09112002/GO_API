@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import com.GOBookingAPI.enums.PaymentMethod;
-import com.GOBookingAPI.payload.response.IPNResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +24,10 @@ import org.springframework.web.bind.annotation.*;
 import com.GOBookingAPI.config.VNPayConfig;
 import com.GOBookingAPI.payload.response.PaymentResponse;
 import com.GOBookingAPI.services.IPaymentService;
-import org.thymeleaf.model.IComment;
 
 @RestController
 @RequestMapping("/payment")
 public class PaymentController {
-
 
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
@@ -76,7 +73,7 @@ public class PaymentController {
         cld.add(Calendar.HOUR, 7);
         String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
-        	
+
         cld.add(Calendar.MINUTE, 15);
 
         String vnp_ExpireDate = formatter.format(cld.getTime());
@@ -118,7 +115,7 @@ public class PaymentController {
     }
 
     @GetMapping("/link")
-    public ResponseEntity<?> getPaymentLink(int bookingId, PaymentMethod paymentMethod){
+    public ResponseEntity<?> getPaymentLink(int bookingId, PaymentMethod paymentMethod) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(paymentService.createPaymentLink(email, bookingId, paymentMethod));
     }
@@ -128,32 +125,8 @@ public class PaymentController {
         @description: call back from VNPay
     */
     @GetMapping("/IPN")
-    public void IPNHandle(
-            @RequestParam String vnp_TmnCode,
-            @RequestParam String vnp_Amount,
-            @RequestParam String vnp_BankCode,
-            @RequestParam (required = false) String vnp_BankTranNo,
-            @RequestParam (required = false) String vnp_CardType,
-            @RequestParam (required = false) String vnp_PayDate,
-            @RequestParam String vnp_OrderInfo,
-            @RequestParam String vnp_TransactionNo,
-            @RequestParam String vnp_ResponseCode,
-            @RequestParam String vnp_TransactionStatus,
-            @RequestParam String vnp_TxnRef,
-            @RequestParam (required = false) String vnp_SecureHashType,
-            @RequestParam String vnp_SecureHash) {
-        logger.info("vnp_Amount: {}", vnp_Amount);
-        logger.info("vnp_BankCode: {}", vnp_BankCode);
-        logger.info("vnp_CardType: {}", vnp_CardType);
-        logger.info("vnp_OrderInfo: {}", vnp_OrderInfo);
-        logger.info("vnp_PayDate: {}", vnp_PayDate);
-        logger.info("vnp_ResponseCode: {}", vnp_ResponseCode);
-        logger.info("vnp_TmnCode: {}", vnp_TmnCode);
-        logger.info("vnp_TransactionNo: {}", vnp_TransactionNo);
-        logger.info("vnp_TransactionStatus: {}", vnp_TransactionStatus);
-        logger.info("vnp_TxnRef: {}", vnp_TxnRef);
-        logger.info("vnp_SecureHash: {}", vnp_SecureHash);
-
+    public void IPNHandle(@RequestParam Map<String, String> req) {
+        paymentService.handlePaymentTransaction(req);
     }
 
 }

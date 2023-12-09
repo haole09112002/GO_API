@@ -5,13 +5,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.Driver;
+import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.utils.DriverStatus;
 import com.GOBookingAPI.utils.LocationDriver;
 public interface IDriverService {
-	Driver findDriverBooking(String locationCustomer);
+	Driver findDriverBooking(String locationCustomer, VehicleType vehicleType);
 
-	void scheduleFindDriverTask(int bookingId, String locationCustomer);
+	void scheduleFindDriverTask(Booking booking, String locationCustomer);
 	
-	List<Driver> getDriverByStatus(DriverStatus status); 
+	List<Driver> getDriverByStatus(DriverStatus status);
+
+	void findAndNotifyDriver(Booking booking, String locationCustomer);
 }

@@ -3,6 +3,7 @@ package com.GOBookingAPI.controller;
 
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.GOBookingAPI.payload.response.BaseResponse;
-import com.GOBookingAPI.payload.response.LoginResponse;
 import com.GOBookingAPI.services.IUserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,7 @@ public class AccountController {
     @PostMapping("/customer")
     public ResponseEntity<?> registerCustomer(
             @RequestParam("phoneNumber") String phoneNumber,
-            @RequestParam(name = "isMale", required = false) boolean isMale,
+            @RequestParam(name = "isMale", defaultValue = "false") boolean isMale,
             @RequestParam(name = "dateOfBirth", required = false) String dateOfBirth,
             @RequestParam(name = "avatar", required = false) MultipartFile avatar,
             @RequestParam(name = "fullName") String fullName) {
@@ -44,11 +43,14 @@ public class AccountController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<?> Test() {
+    public ResponseEntity<?> login() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        BaseResponse<LoginResponse> user = userService.loadUserbyEmail(email);
-//        	throw new AccessDeniedException("Bạn bị block controller");
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userService.loadUserbyEmail(email));
     }
 
+    @GetMapping("/driver")
+    public ResponseEntity<?> getDriverInfo(@RequestParam (required = false, defaultValue = "-1" ) Integer driverId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(userService.getDriverInfo(email, driverId));
+    }
 }

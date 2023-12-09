@@ -34,5 +34,14 @@ public class WebSocketController {
     	messageService.createMessage(message);
     	webSocketService.sendMessagePrivate(message);
     }
+
+	@MessageMapping("/hello")
+	public void greeting() throws Exception {
+		// Gửi tin nhắn chào đến tất cả các subscriber đang lắng nghe "/topic/greetings"
+		simpMessagingTemplate.convertAndSend("/topic/greetings", "Chào mừng từ server: ");
+
+		// Gửi tin nhắn chào đến user cụ thể (ở đây là user "john")
+//		simpMessagingTemplate.convertAndSendToUser("john", "/queue/greetings", "Chào mừng từ server: " + message);
+	}
     
 }
