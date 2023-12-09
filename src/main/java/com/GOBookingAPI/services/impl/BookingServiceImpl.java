@@ -364,6 +364,11 @@ public class BookingServiceImpl implements IBookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
 
         if(user.getFirstRole().getName().equals(RoleEnum.CUSTOMER)){
+            if(booking.getCustomer().getId() != user.getId()){
+                System.out.println("==>Fail, Booking khong thuoc ve ban: " + bookingId);
+                return null;
+            }
+
             if(!newStatus.equals(BookingStatus.CANCELLED)){
                 System.out.println("==>Fail, booking status not permit: " + newStatus);
                 return null;
@@ -383,6 +388,11 @@ public class BookingServiceImpl implements IBookingService {
         }
 
         if(user.getFirstRole().getName().equals(RoleEnum.DRIVER)){
+            if(booking.getDriver().getId() != user.getId()){
+                System.out.println("==>Fail, Booking khong thuoc ve ban: " + bookingId);
+                return null;
+            }
+
             if(!booking.getStatus().equals(BookingStatus.FOUND) && newStatus.equals(BookingStatus.ON_RIDE))
             {
                 System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + newStatus);
@@ -402,19 +412,5 @@ public class BookingServiceImpl implements IBookingService {
         }
 
         return bookingRepository.save( booking);
-    }
-
-    private void processChangeBookingForDriver(User user, BookingStatus newStatus, int bookingId){
-        Driver driver = user.getDriver();
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()-> new NotFoundException("Không tìm thấy booking, id: " + bookingId));
-
-        if(!newStatus.equals(BookingStatus.ON_RIDE) && !newStatus.equals(BookingStatus.COMPLETE))
-        {
-            System.out.println("==> FAIL, booking status is not permit: " + newStatus);
-            return;
-        }
-
-//        if()
-        //todo
     }
 }

@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 
 public class BookingStatusPacketRequest {
-    private int driverId;
+    private int uid;
 
     private int bookingId;
 

@@ -13,7 +13,9 @@ public interface IUserService {
 	BaseResponse<LoginResponse> loadUserbyEmail(String email);
 
 	User getByEmail(String email);
-	
+
+	User getById(int id);
+
 	User registerUser(String email , String phoneNumber, MultipartFile avatar , RoleEnum role);
 	
 	RegisterCustomerResponse registerCustomer(MultipartFile avatar, String phoneNumber, String fullName, boolean isMale, String dateOfBirth);

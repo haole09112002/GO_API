@@ -93,8 +93,12 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public User getByEmail(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
-        return user;
+        return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
+    }
+
+    @Override
+    public User getById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
     }
 
     @Override
