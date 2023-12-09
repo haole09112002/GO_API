@@ -29,7 +29,7 @@ public class NonBlockInterceptor implements HandlerInterceptor {
     	User user =  (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         boolean isNonBlock = user.getIsNonBlock();
 
-        if (isNonBlock) {
+        if (!isNonBlock) {
             sendAccessDeniedResponse(response, "Bạn bị block abcdef");
             return false;
         }
