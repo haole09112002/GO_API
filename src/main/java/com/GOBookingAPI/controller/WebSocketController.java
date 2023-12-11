@@ -17,7 +17,6 @@ import com.sun.security.auth.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
@@ -79,9 +78,13 @@ public class WebSocketController {
     }
 
     @MessageMapping("/current_booking")
-    public void getCurrentBooking() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userService.getByEmail(email);
-        webSocketService.notifyBookingStatusToCustomer(user.getId(), new BookingStatusResponse(188574, BookingStatus.WAITING_REFUND));
+    public void getCurrentBooking(Principal principal) {
+        if (principal != null) {
+            System.out.println("==> principal.getName(): " + principal.getName());
+            User user = userService.getByEmail(principal.getName());
+            webSocketService.notifyBookingStatusToCustomer(user.getId(), new BookingStatusResponse(188574, BookingStatus.WAITING_REFUND));
+        } else {
+            System.out.println("==> principal.getName(): NULL");
+        }
     }
 }

@@ -22,11 +22,10 @@ public class UserHandshakeHandler extends DefaultHandshakeHandler {
 	}
 	@Override
     protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
-  
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		System.out.println("Email handshake :" + email);
 		User user  = userService.findByEmail(email);
 	    log.info("User with ID '{}' opened the page", user.getId());
-        return new UserPrincipal(String.valueOf(user.getId()));
+        return new UserPrincipal(user.getEmail());
     }
 }
