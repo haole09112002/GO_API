@@ -57,13 +57,12 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
 
         // Lấy thông tin người dùng từ cơ sở dữ liệu
         User user = userService.getByEmail(email);
-
 //        BookingStatusResponse resp = bookingService.getCurrentBooking(user);
         BookingStatusResponse resp = new BookingStatusResponse();
 
         resp.setBookingId(100);
         resp.setBookingStatus(BookingStatus.CANCELLED);
-        System.out.println("==> afterHandshake in HandshakeInterceptor");
+        System.out.println("==>uid " + user.getId() +" afterHandshake in HandshakeInterceptor");
         // Gửi thông điệp chứa thông tin người dùng cho client ngay sau khi handshake thành công
         messagingTemplate.convertAndSendToUser(String.valueOf(user.getId()), "/booking_status", resp);
     }
