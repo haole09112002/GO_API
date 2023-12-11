@@ -33,5 +33,5 @@ public interface IBookingService {
 
     Booking changeBookingStatusAndNotify(String email, int bookingId, BookingStatus newStatus);
 
-    Integer getCurrentBookingId(User user);
+    BookingStatusResponse getCurrentBooking(User user);
 }

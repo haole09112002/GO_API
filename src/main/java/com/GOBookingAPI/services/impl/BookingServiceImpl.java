@@ -427,7 +427,7 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     @Override
-    public Integer getCurrentBookingId(User user) {
+    public BookingStatusResponse getCurrentBooking(User user) {
 
 
         return null;
