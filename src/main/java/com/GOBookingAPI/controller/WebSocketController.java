@@ -81,7 +81,7 @@ public class WebSocketController {
     public void getCurrentBooking(Principal principal) {
         if (principal != null) {
             System.out.println("==> principal.getName(): " + principal.getName());
-            User user = userService.getByEmail(principal.getName());
+            User user = userService.getById(Integer.parseInt(principal.getName()));     // todo remove
             webSocketService.notifyBookingStatusToCustomer(user.getId(), new BookingStatusResponse(188574, BookingStatus.WAITING_REFUND));
         } else {
             System.out.println("==> principal.getName(): NULL");

@@ -5,6 +5,7 @@ import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.services.IBookingService;
 import com.GOBookingAPI.services.IUserService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -52,10 +53,10 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
             Exception exception) {
         // Thực hiện các xử lý sau khi thực hiện handshake, nếu cần
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        int id  = Integer.parseInt( authentication.getName());
 
         // Lấy thông tin người dùng từ cơ sở dữ liệu
-        User user = userService.getByEmail(email);
+        User user = userService.getById(id);
 //        BookingStatusResponse resp = bookingService.getCurrentBooking(user);
         BookingStatusResponse resp = new BookingStatusResponse();
 

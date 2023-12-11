@@ -26,6 +26,6 @@ public class UserHandshakeHandler extends DefaultHandshakeHandler {
 		System.out.println("Email handshake :" + email);
 		User user  = userService.findByEmail(email);
 	    log.info("User with ID '{}' opened the page", user.getId());
-        return new UserPrincipal(user.getEmail());
+        return new UserPrincipal(String.valueOf(user.getId()));
     }
 }
