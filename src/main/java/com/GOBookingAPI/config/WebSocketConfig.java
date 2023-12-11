@@ -1,6 +1,7 @@
 package com.GOBookingAPI.config;
 
 
+import com.GOBookingAPI.config.socket.CustomHandshakeInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,5 +44,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
 //		registry.addEndpoint("/ws")
 //		.setAllowedOrigins("http://127.0.0.1:5500" ,"http://localhost:5500" ,"http://localhost:3000","https://goapi-production-9e3a.up.railway.app")
 //		.setHandshakeHandler(new UserHandshakeHandler(userService));
+	}
+
+	@Bean
+	public CustomHandshakeInterceptor customHandshakeInterceptor() {
+		return new CustomHandshakeInterceptor();
 	}
 }

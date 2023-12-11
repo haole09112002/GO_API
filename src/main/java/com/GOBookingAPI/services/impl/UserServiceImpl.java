@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import com.GOBookingAPI.enums.DriverInfoImg;
 import com.GOBookingAPI.enums.RoleEnum;
+import com.GOBookingAPI.exceptions.AppException;
 import com.GOBookingAPI.exceptions.BadCredentialsException;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
@@ -59,36 +60,26 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public BaseResponse<LoginResponse> loadUserbyEmail(String email) {
-        try {
-            Optional<User> userOptional = userRepository.findByEmail(email);
 
-            if (!userOptional.isPresent()) {
-                return new BaseResponse<LoginResponse>(new LoginResponse("unregistered", null, -1), "User not found");
-            } else {
-                User user = userOptional.get();
-                String roleName = "";
-                for (Role role : user.getRoles()) {
-                    roleName = String.valueOf(role.getName());
-                    break;
-                }
-                if (!user.getIsNonBlock()) {
-                    return new BaseResponse<LoginResponse>(new LoginResponse("blocked", roleName, user.getId()), "User is blocked");
-                } else {
-                    if (roleName.equals(RoleEnum.DRIVER)) {
-                        Optional<Driver> driverOptional = driverRepository.findById(user.getId());
-                        Driver driver = driverOptional.get();
-                        if (driver.getStatus().equals(DriverStatus.NOT_ACTIVATED.name())) {
-                            return new BaseResponse<LoginResponse>(new LoginResponse("uncheck", roleName, user.getId()), "Driver uncheck");
-                        }
-                    }
-                    return new BaseResponse<LoginResponse>(new LoginResponse("registered", roleName, user.getId()), "User registered");
-                }
-            }
+        Optional<User> userOptional = userRepository.findByEmail(email);
 
-        } catch (Exception e) {
-            log.info("Error in UserService");
-            return new BaseResponse<LoginResponse>(null, e.getMessage());
+        if (userOptional.isEmpty()) {
+            return new BaseResponse<LoginResponse>(new LoginResponse("unregistered", null, -1), "User not found");
         }
+
+        User user = userOptional.get();
+
+        if (!user.getIsNonBlock()) {
+            return new BaseResponse<LoginResponse>(new LoginResponse("blocked", user.getFirstRole().getName(), user.getId()), "User is blocked");
+        }
+
+        if (user.getFirstRole().getName().equals(RoleEnum.DRIVER)) {
+            Driver driver = driverRepository.findById(user.getId()).orElseThrow(() -> new AppException("Server error"));
+            if (driver.getStatus().equals(DriverStatus.NOT_ACTIVATED)) {
+                return new BaseResponse<LoginResponse>(new LoginResponse("uncheck", user.getFirstRole().getName(), user.getId()), "Driver uncheck");
+            }
+        }
+        return new BaseResponse<LoginResponse>(new LoginResponse("registered", user.getFirstRole().getName(), user.getId()), "User registered");
     }
 
     @Override
@@ -145,7 +136,7 @@ public class UserServiceImpl implements IUserService {
         Driver driver = new Driver();
         Date date = null;
         driver.setUser(user);
-        
+
         if (req.getDateOfBirth() != null) {
             try {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

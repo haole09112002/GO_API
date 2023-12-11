@@ -425,4 +425,11 @@ public class BookingServiceImpl implements IBookingService {
 
         return bookingRepository.save( booking);
     }
+
+    @Override
+    public Integer getCurrentBookingId(User user) {
+
+
+        return null;
+    }
 }

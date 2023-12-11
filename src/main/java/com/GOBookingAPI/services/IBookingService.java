@@ -32,4 +32,6 @@ public interface IBookingService {
     boolean isDriverBelongsToCustomerBooking(User cus, int driverId);
 
     Booking changeBookingStatusAndNotify(String email, int bookingId, BookingStatus newStatus);
+
+    Integer getCurrentBookingId(User user);
 }
