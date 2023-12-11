@@ -25,6 +25,7 @@ import net.minidev.json.JSONObject;
 public class WebSocketServiceImpl implements IWebSocketService {
 
     private final SimpMessagingTemplate messagingTemplate;
+
     @Autowired
     private DriverRepository driverRepository;
 

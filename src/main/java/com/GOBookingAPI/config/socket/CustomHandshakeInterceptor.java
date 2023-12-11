@@ -24,8 +24,7 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
     private IBookingService bookingService;
 
     @Autowired
-    private  SimpMessagingTemplate messagingTemplate;
-
+    private SimpMessagingTemplate messagingTemplate;
 
     @Override
     public boolean beforeHandshake(
@@ -64,6 +63,6 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
         resp.setBookingStatus(BookingStatus.CANCELLED);
         System.out.println("==>uid " + user.getId() +" afterHandshake in HandshakeInterceptor");
         // Gửi thông điệp chứa thông tin người dùng cho client ngay sau khi handshake thành công
-        messagingTemplate.convertAndSendToUser(String.valueOf(user.getId()), "/booking_status", resp);
+//        messagingTemplate.convertAndSendToUser(String.valueOf(user.getId()), "/booking_status", resp);
     }
 }
