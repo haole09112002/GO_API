@@ -83,7 +83,7 @@ public class DriverServiceImpl implements IDriverService {
                 id_driver = driver.getDriverId();
             }
         }
-        System.out.println("==> founded driver " + id_driver);
+//        System.out.println("==> founded driver " + id_driver);
         return driverRepository.findById(id_driver).orElse(null);
     }
 
@@ -107,6 +107,7 @@ public class DriverServiceImpl implements IDriverService {
             if (AppUtils.currentTimeInSecond() - updateBooking.getCreateAt().getTime() / 1000 > AppConstants.MAX_TIME_PENDING) {
                 updateBooking.setStatus(BookingStatus.WAITING_REFUND);
                 bookingRepository.save(updateBooking);
+                System.out.println("==> Time out booking id:" + updateBooking.getId() + ", status: " + updateBooking.getStatus());
                 webSocketService.notifyBookingStatusToCustomer(updateBooking.getCustomer().getId(), new BookingStatusResponse(updateBooking.getId(), updateBooking.getStatus()));
                 executorService.shutdown();
             }
@@ -117,8 +118,10 @@ public class DriverServiceImpl implements IDriverService {
     @Transactional
     public boolean findAndNotifyDriver(Booking booking, String locationCustomer) {
         Driver driverChosen = findDriverBooking(locationCustomer, booking.getVehicleType());
-        if (driverChosen == null)
+        if (driverChosen == null){
+            System.out.println("Find driver null for booking id: " + booking.getId());
             return false;
+        }
 
         driverChosen.setStatus(DriverStatus.ON_RIDE);
         driverRepository.save(driverChosen);

@@ -46,7 +46,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     @Query("SELECT b FROM Booking b WHERE b.customer.id = :cusId AND b.driver.id = :driverId")
     List<Booking> findByCustomerId(@Param("cusId") int cusId, @Param("driverId") int driverId);
 
-    @Query("SELECT b FROM Booking b WHERE (:role = 'DRIVER' AND b.driver.id = :id  AND (b.status = 'PAID' OR b.status = 'FOUND' OR b.status = 'ON_RIDE')) OR " +
-            "      (:role = 'CUSTOMER' AND b.customer.id = :id AND (b.status = 'PAID' OR b.status = 'FOUND' OR b.status = 'ON_RIDE'))")
-    Optional<Booking> getCurrentActiveBooking(@Param("id") int id, @Param("role") String role);
+    @Query("SELECT b FROM Booking b WHERE (:role = 'DRIVER' AND b.driver.id = :uid  AND (b.status = 'PAID' OR b.status = 'FOUND' OR b.status = 'ON_RIDE')) OR " +
+            "      (:role = 'CUSTOMER' AND b.customer.id = :uid AND (b.status = 'PAID' OR b.status = 'FOUND' OR b.status = 'ON_RIDE'))")
+    Optional<Booking> getCurrentActiveBooking(@Param("uid") int uid, @Param("role") String role);
 }

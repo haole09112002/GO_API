@@ -34,7 +34,7 @@ public interface IBookingService {
 
     Booking changeBookingStatusAndNotify(String email, int bookingId, BookingStatus newStatus);
 
-    BookingStatusResponse getCurrentBooking(User user);
+    BookingResponse getCurrentBooking(User user);
 
     PagedResponse<BookingResponse> filterBookings(String from, String to, BookingStatus status, String sortType,
                                                   String sortField, int page, int size, String email);

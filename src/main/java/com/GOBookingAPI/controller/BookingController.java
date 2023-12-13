@@ -94,4 +94,14 @@ public class BookingController {
         BookingResponse response = bookingService.changeBookingStatusForAdmin(bookingId, cancelRequest.getBookingStatus());
         return ResponseEntity.ok(response);
     }
+
+
+    @GetMapping("/active")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('DRIVER')")
+    public ResponseEntity<BookingResponse> getCurrentActiveBooking(){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.getByEmail(email);
+        BookingResponse response = bookingService.getCurrentBooking(user);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -8,6 +8,7 @@ import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.exceptions.BadRequestException;
+import com.GOBookingAPI.mapper.BookingMapper;
 import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.payload.vietmap.Route;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
@@ -211,18 +212,7 @@ public class BookingServiceImpl implements IBookingService {
     @Override           // use for ADMIN
     public BookingResponse changeBookingStatusForAdmin(int bookingId, BookingStatus status) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
-        BookingResponse resp = new BookingResponse();
-        resp.setId(booking.getId());
-        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
-        resp.setCreateAt(booking.getCreateAt());
-        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
-        resp.setCustomerId(booking.getCustomer().getId());
-        resp.setAmount(booking.getAmount());
-        resp.setDropOffLocation(booking.getDropoffLocation());
-        resp.setPickupLocation(booking.getPickupLocation());
-        resp.setStatus(booking.getStatus());
-        resp.setVehicleType(booking.getVehicleType());
-        return resp;
+        return BookingMapper.bookingToBookingResponse(booking);
     }
 
 //    @Override
@@ -415,8 +405,9 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     @Override
-    public BookingStatusResponse getCurrentBooking(User user) {
-        return null;
+    public BookingResponse getCurrentBooking(User user) {
+        Optional<Booking> bookingOptional = bookingRepository.getCurrentActiveBooking(user.getId(), user.getFirstRole().getName().name());
+        return bookingOptional.map(BookingMapper::bookingToBookingResponse).orElse(null);
     }
 
     @PersistenceContext
