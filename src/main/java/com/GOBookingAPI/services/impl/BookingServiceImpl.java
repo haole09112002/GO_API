@@ -441,7 +441,7 @@ public class BookingServiceImpl implements IBookingService {
             predicates.add(predicate1);
             predicates.add(predicate2);
         } else {
-            throw new BadRequestException("Form or to Date is invalid");
+//            throw new BadRequestException("'from' or 'o Date is invalid");
         }
 
         if (status != null) {

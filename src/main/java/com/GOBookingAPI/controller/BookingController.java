@@ -63,19 +63,9 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getBookingByBookingId(email, id));
     }
 
-//    @GetMapping
-//    public ResponseEntity<?> getListBooking(@RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String from,
-//                                            @RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String to,
-//                                            @RequestParam @NotBlank BookingStatus status, @RequestParam @NotBlank String sortType,
-//                                            @RequestParam @NotBlank String sortField,
-//                                            @RequestParam int page, @RequestParam int size) {
-//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-//        return ResponseEntity.ok(bookingService.getListBookingByUser(email, AppUtils.convertStringToDate(from), AppUtils.convertStringToDate(to), page, size));
-//    }
-
     @GetMapping
-    public ResponseEntity<?> filter(@RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String from,
-                                    @RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String to,
+    public ResponseEntity<?> filter(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") String from,
+                                    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") String to,
                                     @RequestParam(required = false) BookingStatus status,
                                     @RequestParam(required = false) String sortType,
                                     @RequestParam(required = false) String sortField,
