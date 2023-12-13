@@ -102,10 +102,10 @@ public class BookingController {
 
     @GetMapping("/active")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('DRIVER')")
-    public ResponseEntity<BookingResponse> getCurrentActiveBooking(){
+    public ResponseEntity<?> getCurrentActiveBooking(){
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getByEmail(email);
         BookingResponse response = bookingService.getCurrentBooking(user);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(response != null ? response : "null");
     }
 }
