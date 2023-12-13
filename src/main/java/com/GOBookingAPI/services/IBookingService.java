@@ -36,6 +36,6 @@ public interface IBookingService {
 
     BookingResponse getCurrentBooking(User user);
 
-    PagedResponse<BookingResponse> filterBookings(String from, String to, BookingStatus status, String sortType,
+    PagedResponse<BookingResponse> filterBookings(Date from, Date to, BookingStatus status, String sortType,
                                                   String sortField, int page, int size, String email);
 }

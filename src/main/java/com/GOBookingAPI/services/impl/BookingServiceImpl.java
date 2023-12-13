@@ -19,6 +19,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
+import jakarta.persistence.metamodel.SingularAttribute;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -414,7 +417,7 @@ public class BookingServiceImpl implements IBookingService {
     private EntityManager entityManager;
 
     @Override
-    public PagedResponse<BookingResponse> filterBookings(String from, String to, BookingStatus status, String sortType,
+    public PagedResponse<BookingResponse> filterBookings(Date from, Date to, BookingStatus status, String sortType,
                                                          String sortField, int page, int size, String email) {
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
 
@@ -425,14 +428,10 @@ public class BookingServiceImpl implements IBookingService {
         List<Predicate> predicates = new ArrayList<>();
         if (from != null && to != null) {
             Path<Date> fieldCreateAt = root.get("createAt");
-            Date fromDate = AppUtils.convertStringToDate(from);
-            Date toDate = AppUtils.convertStringToDate(to);
-            Predicate predicate1 = criteriaBuilder.greaterThanOrEqualTo(fieldCreateAt, fromDate);
-            Predicate predicate2 = criteriaBuilder.lessThanOrEqualTo(fieldCreateAt, toDate);
+            Predicate predicate1 = criteriaBuilder.greaterThanOrEqualTo(fieldCreateAt, from);
+            Predicate predicate2 = criteriaBuilder.lessThanOrEqualTo(fieldCreateAt, to);
             predicates.add(predicate1);
             predicates.add(predicate2);
-        } else {
-//            throw new BadRequestException("'from' or 'o Date is invalid");
         }
 
         if (status != null) {
@@ -441,16 +440,21 @@ public class BookingServiceImpl implements IBookingService {
             predicates.add(predicate);
         }
 
-        if (sortField == null) {
+        if (sortField.isBlank()) {
             sortField = "amount";
         }
         if (sortType == null)
             sortType = "asc";
 
-        Path<Object> sortRoute = root.get(sortField);
+        Path<Object> sortRoute = null;
+        try {
+            sortRoute = root.get(sortField);
+        }catch (IllegalArgumentException e){
+            throw new BadRequestException("Invalid sortField: " + sortField);
+        }
+
         Order order = "asc".equalsIgnoreCase(sortType) ? criteriaBuilder.asc(sortRoute) : criteriaBuilder.desc(sortRoute);
         criteriaQuery.orderBy(order);
-
 
         if (user.getFirstRole().getName().equals(RoleEnum.CUSTOMER)) {
             Path<Integer> fieldCusId = root.get("customer").get("id");

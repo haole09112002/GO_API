@@ -9,10 +9,12 @@ import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.services.IUserService;
 import com.GOBookingAPI.utils.AppConstants;
 import com.GOBookingAPI.utils.AppUtils;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ import com.GOBookingAPI.payload.request.BookingRequest;
 import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.services.IBookingService;
 
+import java.util.Date;
 import java.util.Map;
 
 @RestController
@@ -64,14 +67,15 @@ public class BookingController {
     }
 
     @GetMapping
-    public ResponseEntity<?> filter(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") String from,
-                                    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") String to,
+    public ResponseEntity<?> filter(@RequestParam(required = false) @Nullable   @DateTimeFormat(pattern = "yyyy-MM-dd") Date from,
+                                    @RequestParam(required = false) @Nullable  @DateTimeFormat(pattern = "yyyy-MM-dd") Date to,
                                     @RequestParam(required = false) BookingStatus status,
                                     @RequestParam(required = false) String sortType,
                                     @RequestParam(required = false) String sortField,
                                     @RequestParam(required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                     @RequestParam(required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        //todo valid to and from
         return ResponseEntity.ok(bookingService.filterBookings(from, to, status, sortType,
                 sortField, page, size, email));
     }
