@@ -16,10 +16,10 @@ public class MessagePacketResponse extends CreateMessageRequest {
     @Override
     public String toString() {
         return "MessagePacketResponse{" +
-                "id_sender=" + id_sender +
-                ", id_receiver=" + id_receiver +
+                "senderId=" + senderId +
+                ", receiverId=" + receiverId +
                 ", content='" + content + '\'' +
-                ", id_conversation=" + id_conversation +
+                ", conversationId=" + conversationId +
                 ", time=" + time +
                 '}';
     }

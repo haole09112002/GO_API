@@ -29,12 +29,12 @@ public class MessageServiceImpl implements IMessageService {
 	public Message createMessage(CreateMessageRequest messageRequest) {
 		Date current = new Date();
 		Message message = new Message();
-		message.setSenderId(messageRequest.getId_sender());
-		message.setReceiverId(messageRequest.getId_receiver());
+		message.setSenderId(messageRequest.getSenderId());
+		message.setReceiverId(messageRequest.getReceiverId());
 		message.setContent(messageRequest.getContent());
 		message.setCreateAt(current);
 
-		Optional<Conversation> conOptional= conservationRepository.findById(messageRequest.getId_conversation());
+		Optional<Conversation> conOptional= conservationRepository.findById(messageRequest.getConversationId());
 		if(conOptional.isEmpty())
 			System.out.println("==> Invalid Conversation");
 		message.setConversation(conOptional.get());

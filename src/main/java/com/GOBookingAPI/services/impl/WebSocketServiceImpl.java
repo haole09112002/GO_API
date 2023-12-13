@@ -93,14 +93,14 @@ public class WebSocketServiceImpl implements IWebSocketService {
     public void sendMessagePrivate(Message message) {
         MessagePacketResponse response = new MessagePacketResponse();
         response.setTime(message.getCreateAt());
-        response.setId_sender(message.getSenderId());
-        response.setId_receiver(message.getReceiverId());
+        response.setSenderId(message.getSenderId());
+        response.setReceiverId(message.getReceiverId());
         response.setContent(message.getContent());
-        response.setId_conversation(message.getConversation().getId());
+        response.setConversationId(message.getConversation().getId());
 
         System.out.println("==> sendMessagePrivate : "  + response.toString());
-        messagingTemplate.convertAndSendToUser(String.valueOf(response.getId_sender()), "/message_receive", response);
-        messagingTemplate.convertAndSendToUser(String.valueOf(response.getId_receiver()), "/message_receive", response);
+        messagingTemplate.convertAndSendToUser(String.valueOf(response.getSenderId()), "/message_receive", response);
+        messagingTemplate.convertAndSendToUser(String.valueOf(response.getReceiverId()), "/message_receive", response);
     }
 
     @Override
