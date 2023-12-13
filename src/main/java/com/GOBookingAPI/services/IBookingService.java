@@ -9,6 +9,7 @@ import com.GOBookingAPI.payload.request.BookingStatusRequest;
 import com.GOBookingAPI.payload.response.*;
 
 import java.util.Date;
+import java.util.Map;
 
 public interface IBookingService {
     BookingResponse createBooking(String username, BookingRequest req);
@@ -34,4 +35,7 @@ public interface IBookingService {
     Booking changeBookingStatusAndNotify(String email, int bookingId, BookingStatus newStatus);
 
     BookingStatusResponse getCurrentBooking(User user);
+
+    PagedResponse<BookingResponse> filterBookings(String from, String to, BookingStatus status, String sortType,
+                                                  String sortField, int page, int size, String email);
 }

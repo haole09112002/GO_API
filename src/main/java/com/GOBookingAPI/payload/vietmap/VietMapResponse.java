@@ -24,9 +24,9 @@ public class VietMapResponse {
     private String messages;
 
     @JsonProperty("paths")
-    private List<Path> paths;
+    private List<Route> routes;
 
-    public Path getFirstPath(){
-        return this.paths.get(0);
+    public Route getFirstPath(){
+        return this.routes.get(0);
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Path {
+public class Route {
 
     @JsonProperty("distance")
     private double distance;

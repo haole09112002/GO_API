@@ -2,14 +2,17 @@ package com.GOBookingAPI.controller;
 
 
 import com.GOBookingAPI.entities.User;
+import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.payload.request.BookingStatusRequest;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.services.IUserService;
+import com.GOBookingAPI.utils.AppConstants;
 import com.GOBookingAPI.utils.AppUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,8 @@ import com.GOBookingAPI.payload.request.BookingRequest;
 
 import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.services.IBookingService;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/bookings")
@@ -58,11 +63,27 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getBookingByBookingId(email, id));
     }
 
+//    @GetMapping
+//    public ResponseEntity<?> getListBooking(@RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String from,
+//                                            @RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String to,
+//                                            @RequestParam @NotBlank BookingStatus status, @RequestParam @NotBlank String sortType,
+//                                            @RequestParam @NotBlank String sortField,
+//                                            @RequestParam int page, @RequestParam int size) {
+//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+//        return ResponseEntity.ok(bookingService.getListBookingByUser(email, AppUtils.convertStringToDate(from), AppUtils.convertStringToDate(to), page, size));
+//    }
+
     @GetMapping
-    public ResponseEntity<?> getListBooking(@RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String from,
-                                            @RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String to, @RequestParam int page, @RequestParam int size) {
+    public ResponseEntity<?> filter(@RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String from,
+                                    @RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String to,
+                                    @RequestParam(required = false) BookingStatus status,
+                                    @RequestParam(required = false) String sortType,
+                                    @RequestParam(required = false) String sortField,
+                                    @RequestParam(required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                    @RequestParam(required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(bookingService.getListBookingByUser(email, AppUtils.convertStringToDate(from), AppUtils.convertStringToDate(to), page, size));
+        return ResponseEntity.ok(bookingService.filterBookings(from, to, status, sortType,
+                sortField, page, size, email));
     }
 
     @PutMapping("/{bookingId}/cancel")

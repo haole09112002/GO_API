@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
-import com.GOBookingAPI.exceptions.BadCredentialsException;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.payload.response.DriverBaseInfoResponse;
 import com.GOBookingAPI.payload.response.DriverInfoResponse;
@@ -25,7 +24,7 @@ import com.GOBookingAPI.enums.BookingStatus;
 
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.exceptions.NotFoundException;
-import com.GOBookingAPI.payload.vietmap.Path;
+import com.GOBookingAPI.payload.vietmap.Route;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.DriverRepository;
@@ -78,9 +77,9 @@ public class DriverServiceImpl implements IDriverService {
                 throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
             }
 
-            Path path = travel.getFirstPath();
-            if (path.getDistance() < minDistance) {
-                minDistance = path.getDistance();
+            Route route = travel.getFirstPath();
+            if (route.getDistance() < minDistance) {
+                minDistance = route.getDistance();
                 id_driver = driver.getDriverId();
             }
         }
