@@ -1,6 +1,7 @@
 package com.GOBookingAPI.services.impl;
 
 import com.GOBookingAPI.entities.Message;
+import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 
 import com.GOBookingAPI.payload.response.MessagePacketResponse;
@@ -102,18 +103,6 @@ public class WebSocketServiceImpl implements IWebSocketService {
         json.put("driverId", driverId);
         messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_info", json);
     }
-
-//    @Override
-//    public void updateBookStatus(int bookingId, BookingStatus status) {
-//        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay Booking nao"));
-//        booking.setStatus(status);
-//        bookingRepository.save(booking);
-//        notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
-//        // end booking
-//        if (status.equals(BookingStatus.COMPLETE)) {
-//            managerLocation.UpdateStatusDriver(booking.getDriver().getId());
-//        }
-//    }
 
     @Override
     public void notifytoDriver(int driverId, String title) {

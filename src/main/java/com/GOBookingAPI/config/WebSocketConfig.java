@@ -44,7 +44,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setHandshakeHandler(new UserHandshakeHandler(userService))
                 .withSockJS();
     }
-    
+
     @Bean
     public CustomHandshakeInterceptor customHandshakeInterceptor() {
         return new CustomHandshakeInterceptor();

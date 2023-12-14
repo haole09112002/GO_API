@@ -3,10 +3,12 @@ package com.GOBookingAPI.controller;
 
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
+import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.payload.request.BookingStatusRequest;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.services.IUserService;
+import com.GOBookingAPI.services.IWebSocketService;
 import com.GOBookingAPI.utils.AppConstants;
 import com.GOBookingAPI.utils.AppUtils;
 import jakarta.annotation.Nullable;
@@ -42,6 +44,9 @@ public class BookingController {
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private IWebSocketService webSocketService;
 
     @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
@@ -106,6 +111,10 @@ public class BookingController {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getByEmail(email);
         BookingResponse response = bookingService.getCurrentBooking(user);
+        if(user.getFirstRole().getName().equals(RoleEnum.DRIVER)){
+            //todo check have booking
+           webSocketService.notifytoDriver(user.getId(), "HAVEBOOKING");
+        }
         return ResponseEntity.ok(response != null ? response : "null");
     }
 }
