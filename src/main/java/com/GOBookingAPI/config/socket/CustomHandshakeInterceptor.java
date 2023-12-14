@@ -11,7 +11,6 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import java.util.Map;
@@ -21,9 +20,10 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
     @Autowired
     private IUserService userService;
 
-    @Autowired
-    private IBookingService bookingService;
+//    @Autowired
+//    private IBookingService bookingService;
 
+//    @Autowired
     private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired

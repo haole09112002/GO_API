@@ -6,6 +6,7 @@ import com.GOBookingAPI.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -25,8 +26,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //	public WebSocketConfig(SimpMessagingTemplate messagingTemplate) {
 //		this.messagingTemplate = messagingTemplate;
 //	}
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+//    @Autowired
+//    private SimpMessagingTemplate messagingTemplate;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -44,7 +45,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .withSockJS();
     }
 
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
     @Bean
+//    @DependsOn("messagingTemplate")
     public CustomHandshakeInterceptor customHandshakeInterceptor() {
         return new CustomHandshakeInterceptor(messagingTemplate);
     }
