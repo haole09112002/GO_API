@@ -40,6 +40,7 @@ public class ConversationServiceImpl implements ConversationService {
     @Transactional
     public void createConservation(Booking booking) {
         Conversation conservation = new Conversation();
+        conservation.setId(booking.getId());
         conservation.setDriver(booking.getDriver());
         conservation.setCustomer(booking.getCustomer());
         conservation.setBooking(booking);

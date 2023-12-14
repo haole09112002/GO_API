@@ -39,7 +39,6 @@ public class PaymentController {
     @GetMapping("/check")
     public ResponseEntity<?> createPayment(@RequestParam Map<String, String> req) {
         System.out.println(req);
-//		paymentService.handlePaymentTransaction(req);
         return ResponseEntity.ok("payment");
     }
 

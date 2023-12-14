@@ -218,51 +218,6 @@ public class BookingServiceImpl implements IBookingService {
         return BookingMapper.bookingToBookingResponse(booking);
     }
 
-//    @Override
-//    public BookingStatusResponse changeBookingStatusAndNotify(String email, BookingStatusRequest req) {
-//        User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
-//        Booking booking = bookingRepository.findById(req.getBookingId()).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
-//        switch (req.getBookingStatus()) {
-//            case CANCELLED:
-//                if (booking.getStatus() == BookingStatus.CANCELLED)
-//                    throw new BadRequestException("Đơn đặt đã bị hủy trước đó");
-//                if (booking.getStatus() == BookingStatus.ON_RIDE)
-//                    throw new BadRequestException("Bạn đang di chuyển trên xe không thể hủy");
-//                if (booking.getStatus() == BookingStatus.REFUNDED)
-//                    throw new BadRequestException("Đơn đặt đã được hoàn tiền, không thể hủy");
-////				if(booking.getStatus() == BookingStatus.WAITING || booking.getStatus() == BookingStatus.PAID)
-//
-//                break;
-//            case PAID:
-//                if (booking.getStatus() != BookingStatus.WAITING) {
-//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
-//                }
-//                break;
-//
-//            case REFUNDED:
-//                if (booking.getStatus() != BookingStatus.CANCELLED) {
-//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
-//                }
-//                break;
-//            case COMPLETE:
-//                if (booking.getStatus() != BookingStatus.ON_RIDE) {
-//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
-//                }
-//                break;
-//            case ON_RIDE:
-//                if (booking.getStatus() != BookingStatus.PAID) {
-//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
-//                }
-//            default:
-//                throw new BadRequestException("Booking status không tồn tại");
-//        }
-//        booking.setStatus(req.getBookingStatus());
-//        bookingRepository.save(booking);
-//        BookingStatusResponse resp = new BookingStatusResponse(booking.getId(), booking.getStatus());
-//        return resp;
-////        messagingTemplate.convertAndSendToUser(String.valueOf(user.getId()), "/bookings/status", req);
-//    }
-
     @Override
     public BookingStatusResponse cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req) {
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
@@ -310,15 +265,6 @@ public class BookingServiceImpl implements IBookingService {
     @Override
     public BaseResponse<Booking> Confirm(int id) {
         try {
-//			Booking booking = bookingRepository.findById(id);
-//			if(booking != null) {
-//				Date curentlydate = new Date();
-//				booking.setStartTime(curentlydate);
-//				bookingRepository.save(booking);
-//				return new BaseResponse<Booking>( booking ,"Confirm Success");
-//			}else {
-//				return new BaseResponse<Booking>( null, "Confirm fail!");
-//			}
             return null;
         } catch (Exception e) {
             log.info("error in Booking Service");
