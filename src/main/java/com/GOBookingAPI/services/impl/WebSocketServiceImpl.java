@@ -58,41 +58,19 @@ public class WebSocketServiceImpl implements IWebSocketService {
         managerLocation.addOrUpdateLocation(location, driver.getStatus());
 
         int customerId = managerBooking.getCustomerIdByDriverId(driver.getId());
-        if(customerId != -1){
-            JSONObject json = new JSONObject();
-            json.put("driverId", location.getDriverId());
-            json.put("location", location.getLocation());
-            System.out.println("Vị trí " + location.getLocation());
-            messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_location", json);
+        if(customerId != -1) {
+//            JSONObject json = new JSONObject();
+//            json.put("driverId", location.getDriverId());
+//            json.put("location", location.getLocation());
+            System.out.println("DriverId: + "+ driver.getId() +", Vị trí " + location.getLocation());
+            messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_location", websocket);
         }
-
-//        if (managerLocation.checkAddOrUpdate(websocket.getDriverId())) {
-////    		 loca.setStatus(driver.getStatus().toString());
-//            managerLocation.addData(loca);
-//        } else {
-////			 if(managerLocation.checkStatus(loca.getDriverId())) {
-//////				 loca.setStatus(WebSocketBookingTitle.FREE.toString());
-////			 }else {
-//////				 loca.setStatus(WebSocketBookingTitle.BUSY.toString());
-////			 }
-//            managerLocation.updateData(loca);
-////            int customerId = managerBooking.CheckBooking(loca.getDriverId());
-//            if (customerId != 0) {
-//                JSONObject json = new JSONObject();
-//                json.put("driverId", loca.getDriverId());
-//                json.put("location", loca.getLocation());
-//                System.out.println("Vị trí " + loca.getLocation());
-//                messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_location", json);
-////				 messagingTemplate.convertAndSendToUser(String.valueOf(loca.getDriverId()), "/customer_driver_location", json);
-//            }
-//        }
-//		 managerLocation.getById(loca.getDriverId());
     }
 
     @Override
     public void sendMessagePrivate(Message message) {
         MessagePacketResponse response = new MessagePacketResponse();
-        response.setTime(message.getCreateAt());
+        response.setCreateAt(message.getCreateAt());
         response.setSenderId(message.getSenderId());
         response.setReceiverId(message.getReceiverId());
         response.setContent(message.getContent());
@@ -144,5 +122,4 @@ public class WebSocketServiceImpl implements IWebSocketService {
         System.out.println("==> send request location to driver " + driverId);
         messagingTemplate.convertAndSendToUser(String.valueOf(driverId), "/driver_notify", json);
     }
-
 }

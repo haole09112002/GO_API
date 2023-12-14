@@ -11,7 +11,7 @@ import java.util.Date;
 @Setter
 public class MessagePacketResponse extends CreateMessageRequest {
 
-    private Date time;
+    private Date createAt;
 
     @Override
     public String toString() {
@@ -20,7 +20,7 @@ public class MessagePacketResponse extends CreateMessageRequest {
                 ", receiverId=" + receiverId +
                 ", content='" + content + '\'' +
                 ", conversationId=" + conversationId +
-                ", time=" + time +
+                ", time=" + createAt +
                 '}';
     }
 }
