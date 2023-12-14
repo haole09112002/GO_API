@@ -44,13 +44,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setHandshakeHandler(new UserHandshakeHandler(userService))
                 .withSockJS();
     }
-
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-
+    
     @Bean
-//    @DependsOn("messagingTemplate")
     public CustomHandshakeInterceptor customHandshakeInterceptor() {
-        return new CustomHandshakeInterceptor(messagingTemplate);
+        return new CustomHandshakeInterceptor();
     }
 }
