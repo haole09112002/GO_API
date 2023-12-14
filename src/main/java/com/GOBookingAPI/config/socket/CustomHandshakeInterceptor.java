@@ -32,14 +32,6 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
             ServerHttpResponse response,
             WebSocketHandler wsHandler,
             Map<String, Object> attributes) throws Exception {
-
-//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-//        User user  = userService.findByEmail(email);
-//        Integer currentBookingId = bookingService.getCurrentBookingId(user);
-//        attributes.put("bookingId", currentBookingId);
-
-
-        // Trả về true để tiếp tục quá trình handshake
         System.out.println("==> beforeHandshake in HandshakeInterceptor");
         return true;
     }
@@ -50,19 +42,14 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
             ServerHttpResponse response,
             WebSocketHandler wsHandler,
             Exception exception) {
-        // Thực hiện các xử lý sau khi thực hiện handshake, nếu cần
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-
-        // Lấy thông tin người dùng từ cơ sở dữ liệu
         User user = userService.getByEmail(email);
-//        BookingStatusResponse resp = bookingService.getCurrentBooking(user);
         BookingStatusResponse resp = new BookingStatusResponse();
-
         resp.setBookingId(100);
         resp.setBookingStatus(BookingStatus.CANCELLED);
         System.out.println("==>uid " + user.getId() +" afterHandshake in HandshakeInterceptor");
         // Gửi thông điệp chứa thông tin người dùng cho client ngay sau khi handshake thành công
-//        messagingTemplate.convertAndSendToUser(String.valueOf(user.getId()), "/booking_status", resp);
+        messagingTemplate.convertAndSendToUser(String.valueOf(user.getId()), "/booking_status", resp);
     }
 }
