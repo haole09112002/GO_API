@@ -15,36 +15,37 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
-{
-	@Autowired
-	IUserService userService ;
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    @Autowired
+    IUserService userService;
 
-	private final SimpMessagingTemplate messagingTemplate;
+//	private final SimpMessagingTemplate messagingTemplate;
 
-	@Autowired
-	public WebSocketConfig(SimpMessagingTemplate messagingTemplate) {
-		this.messagingTemplate = messagingTemplate;
-	}
-	
-	@Override
-	public void configureMessageBroker(MessageBrokerRegistry registry) {
-		registry.enableSimpleBroker("/all" , "/message_receive" , "/driver_notify" ,"/booking_status" , "/customer_driver_info" ,"/customer_driver_location", "/driver_booking", "topic");
-		registry.setApplicationDestinationPrefixes("/app", "/user");
-		registry.setUserDestinationPrefix("/user");
-	}
-
-	@Override
-	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/ws")
-				.addInterceptors(new CustomHandshakeInterceptor(messagingTemplate))
-		.setAllowedOrigins("http://127.0.0.1:5500" ,"http://localhost:5500" ,"http://localhost:3000","https://forlorn-bite-production.up.railway.app")
-		.setHandshakeHandler(new UserHandshakeHandler(userService))
-		.withSockJS();
-	}
-
-//	@Bean
-//	public CustomHandshakeInterceptor customHandshakeInterceptor() {
-//		return new CustomHandshakeInterceptor(mes);
+    //	@Autowired
+//	public WebSocketConfig(SimpMessagingTemplate messagingTemplate) {
+//		this.messagingTemplate = messagingTemplate;
 //	}
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker("/all", "/message_receive", "/driver_notify", "/booking_status", "/customer_driver_info", "/customer_driver_location", "/driver_booking", "topic");
+        registry.setApplicationDestinationPrefixes("/app", "/user");
+        registry.setUserDestinationPrefix("/user");
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws")
+                .addInterceptors(customHandshakeInterceptor())
+                .setAllowedOrigins("http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:3000", "https://forlorn-bite-production.up.railway.app")
+                .setHandshakeHandler(new UserHandshakeHandler(userService))
+                .withSockJS();
+    }
+
+    @Bean
+    public CustomHandshakeInterceptor customHandshakeInterceptor() {
+        return new CustomHandshakeInterceptor(messagingTemplate);
+    }
 }

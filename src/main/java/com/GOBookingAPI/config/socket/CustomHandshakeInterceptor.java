@@ -16,7 +16,6 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import java.util.Map;
 
-@Component
 public class CustomHandshakeInterceptor implements HandshakeInterceptor {
 
     @Autowired
