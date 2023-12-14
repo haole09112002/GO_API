@@ -6,6 +6,7 @@ import com.GOBookingAPI.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -18,6 +19,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
 {
 	@Autowired
 	IUserService userService ;
+
+	private final SimpMessagingTemplate messagingTemplate;
+
+	@Autowired
+	public WebSocketConfig(SimpMessagingTemplate messagingTemplate) {
+		this.messagingTemplate = messagingTemplate;
+	}
 	
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -29,14 +37,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws")
-				.addInterceptors(customHandshakeInterceptor())
+				.addInterceptors(new CustomHandshakeInterceptor(messagingTemplate))
 		.setAllowedOrigins("http://127.0.0.1:5500" ,"http://localhost:5500" ,"http://localhost:3000","https://forlorn-bite-production.up.railway.app")
 		.setHandshakeHandler(new UserHandshakeHandler(userService))
 		.withSockJS();
 	}
 
-	@Bean
-	public CustomHandshakeInterceptor customHandshakeInterceptor() {
-		return new CustomHandshakeInterceptor();
-	}
+//	@Bean
+//	public CustomHandshakeInterceptor customHandshakeInterceptor() {
+//		return new CustomHandshakeInterceptor(mes);
+//	}
 }
