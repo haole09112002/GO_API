@@ -49,7 +49,12 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
         resp.setBookingId(100);
         resp.setBookingStatus(BookingStatus.CANCELLED);
         System.out.println("==>uid " + user.getId() +" afterHandshake in HandshakeInterceptor");
-        // Gửi thông điệp chứa thông tin người dùng cho client ngay sau khi handshake thành công
         messagingTemplate.convertAndSendToUser(String.valueOf(user.getId()), "/booking_status", resp);
     }
 }
+// Gửi thông điệp chứa thông tin người dùng cho client ngay sau khi handshake thành công
+//        webSocketService.notifytoDriver(d.getId(), "HAVEBOOKING");
+//
+//        json.put("title", title);
+//        System.out.println("==> send request location to driver " + driverId);
+//        messagingTemplate.convertAndSendToUser(String.valueOf(driverId), "/driver_notify", json);
