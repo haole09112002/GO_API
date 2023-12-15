@@ -71,7 +71,7 @@ public class WebSocketServiceImpl implements IWebSocketService {
     @Override
     public void sendMessagePrivate(Message message) {
         MessagePacketResponse response = new MessagePacketResponse();
-        response.setCreateAt(message.getCreateAt().getTime()/1000);
+        response.setCreateAt(message.getCreateAt().getTime());
         response.setSenderId(message.getSenderId());
         response.setReceiverId(message.getReceiverId());
         response.setContent(message.getContent());

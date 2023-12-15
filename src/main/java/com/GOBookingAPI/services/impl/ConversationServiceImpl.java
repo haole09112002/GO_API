@@ -57,7 +57,7 @@ public class ConversationServiceImpl implements ConversationService {
             ConversationResponse resp = new ConversationResponse();
             List<MessageResponse> messageResponses = new ArrayList<>();
             for (Message message : conversation.getMessages()) {
-                messageResponses.add(new MessageResponse(message.getId(), message.getSenderId(), message.getReceiverId(), message.getContent(), message.getCreateAt().getTime()/1000));
+                messageResponses.add(new MessageResponse(message.getId(), message.getSenderId(), message.getReceiverId(), message.getContent(), message.getCreateAt().getTime()));
             }
             resp.setId(conversation.getId());
             resp.setMessageResponses(messageResponses);
