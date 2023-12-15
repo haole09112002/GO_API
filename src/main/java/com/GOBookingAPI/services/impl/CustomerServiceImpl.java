@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 import com.GOBookingAPI.entities.Customer;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.exceptions.NotFoundException;
-import com.GOBookingAPI.payload.response.CustomerBaseInfoResponse;
+import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,9 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 
-import com.GOBookingAPI.payload.response.CustomerDetailResponse;
-import com.GOBookingAPI.payload.response.CustomersResponse;
-import com.GOBookingAPI.payload.response.PagedResponse;
 import com.GOBookingAPI.repositories.CustomerRepository;
 import com.GOBookingAPI.repositories.projection.CustomerDetailProjection;
 import com.GOBookingAPI.repositories.projection.CustomerProjection;
@@ -32,8 +29,9 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepository customerRepository;
 
     @Override
-    public Customer getById(int id) {
-        return customerRepository.findById(id).orElseThrow(()-> new NotFoundException("Khong tim thay khach hang: " + id));
+    public CustomerResponse getById(int id) {
+        Customer customer = customerRepository.findById(id).orElseThrow(()-> new NotFoundException("Khong tim thay khach hang: " + id));
+   		return new CustomerResponse(customer);
     }
 
 	@Override

@@ -1,14 +1,11 @@
 package com.GOBookingAPI.services;
 
 import com.GOBookingAPI.entities.Customer;
-import com.GOBookingAPI.payload.response.CustomerBaseInfoResponse;
-import com.GOBookingAPI.payload.response.CustomerDetailResponse;
-import com.GOBookingAPI.payload.response.CustomersResponse;
-import com.GOBookingAPI.payload.response.PagedResponse;
+import com.GOBookingAPI.payload.response.*;
 
 public interface CustomerService {
 
-    Customer getById(int id);
+    CustomerResponse getById(int id);
 
     CustomerDetailResponse getCustomer(int id);
 
