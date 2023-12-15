@@ -3,6 +3,7 @@ package com.GOBookingAPI.services.impl;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -65,17 +66,24 @@ public class MapServiceImpl {
                 JsonParser jsonParser = new JsonParser();
                 JsonElement rootElement = jsonParser.parse(json);
 
-                if (rootElement.isJsonObject()) {
-                    JsonObject jsonObject = rootElement.getAsJsonObject();
+                if (rootElement.isJsonArray()) {
+                    JsonArray jsonArray = rootElement.getAsJsonArray();
 
-                    if (jsonObject.has("address")) {
-                        return jsonObject.get("address").getAsString();
+                    if (jsonArray.size() > 0) {
+                        JsonObject firstResult = jsonArray.get(0).getAsJsonObject();
+
+                        if (firstResult.has("address")) {
+                            return firstResult.get("address").getAsString();
+                        } else {
+                            System.out.println("Không có thông tin địa chỉ trong phản hồi JSON.");
+                            return null;
+                        }
                     } else {
-                        System.out.println("Không có thông tin địa chỉ trong phản hồi JSON.");
+                        System.out.println("Danh sách kết quả trống.");
                         return null;
                     }
                 } else {
-                    System.out.println("Phản hồi không phải là JSON Object.");
+                    System.out.println("Phản hồi không phải là JSON Array.");
                     return null;
                 }
             } else {
