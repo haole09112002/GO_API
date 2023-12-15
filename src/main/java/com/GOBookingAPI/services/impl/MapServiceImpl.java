@@ -52,6 +52,7 @@ public class MapServiceImpl {
         String lat = location.split(",")[1];
         String apiUrl = vietmapApiUrl + "/reverse/v3?apikey=" + vietmapApiKey
                 + "&lng=" + lng + "&lat=" + lat;
+        System.out.println("===> " + apiUrl);
         String json = restTemplate.getForObject(apiUrl, String.class);
         JsonParser jsonParser = new JsonParser();
         JsonObject jsonObject = jsonParser.parse(json).getAsJsonObject();
