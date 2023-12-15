@@ -40,7 +40,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .addInterceptors(customHandshakeInterceptor())
-                .setAllowedOrigins("http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:3000", "https://forlorn-bite-production.up.railway.app")
+                .setAllowedOrigins("http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:3000", "https://forlorn-bite-production.up.railway.app", "https://go-webapp.vercel.app")
                 .setHandshakeHandler(new UserHandshakeHandler(userService))
                 .withSockJS();
     }
