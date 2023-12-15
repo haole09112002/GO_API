@@ -1,5 +1,8 @@
 package com.GOBookingAPI.payload.request;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,9 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReviewRequest {
 
-	private int bookingId;
-	
-	private int rating;
-	
-	private String content;
+	@Min(0)
+	protected int bookingId;
+
+	@Min(0)
+	@Max(5)
+	protected int rating;
+
+	@NotBlank
+	protected String content;
 }

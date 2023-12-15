@@ -3,6 +3,7 @@ package com.GOBookingAPI.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ public class ReviewController {
 	@PostMapping("/")
 	@PreAuthorize("hasRole('CUSTOMER')")
 	public ResponseEntity<?> createReview(@RequestBody ReviewRequest reviewRequest){
-		return ResponseEntity.ok(reviewService.createReview(reviewRequest));
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		return ResponseEntity.ok(reviewService.createReview(reviewRequest, email));
 	}
 }
