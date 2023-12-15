@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -42,7 +43,7 @@ public class GoogleProvider implements AuthenticationProvider {
     private static final JacksonFactory jacksonFactory = new JacksonFactory();
 
     @Override
-    public Authentication authenticate(Authentication authentication) {
+    public Authentication authenticate(Authentication authentication)  throws AuthenticationException{
 
         TokenSecurity token = (TokenSecurity) authentication;
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), jacksonFactory)
@@ -70,7 +71,7 @@ public class GoogleProvider implements AuthenticationProvider {
                 System.out.println("This is Provider");
                 User user = userOptional.get();
                 if (!user.getIsNonBlock()) {
-                    throw new LockedException("User account is locked");
+                   throw new LockedException("User account is locked");        //todo fix
                 }
                 return new UserSecurity(user, user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
             }

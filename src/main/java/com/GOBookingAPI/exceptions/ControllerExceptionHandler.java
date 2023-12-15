@@ -20,7 +20,7 @@ import java.util.List;
 
 
 @RestControllerAdvice
-public class ControllerExceptionHandler{
+public class ControllerExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -68,12 +68,13 @@ public class ControllerExceptionHandler{
         }
         return new ErrorResponse(false, errorMessages, HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation2Exception(ConstraintViolationException ex) {
         List<String> details = ex.getConstraintViolations().stream()
-                        .map(e ->  e.getPropertyPath().toString()+ " : "  + e.getMessage())
-                        .toList();
+                .map(e -> e.getPropertyPath().toString() + " : " + e.getMessage())
+                .toList();
         return new ErrorResponse(false, details, HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
     }
 
@@ -116,5 +117,13 @@ public class ControllerExceptionHandler{
         List<String> messages = new ArrayList<>(1);
         messages.add(ex.getMessage());
         return new ErrorResponse(false, messages, HttpStatus.FORBIDDEN.getReasonPhrase(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleBadCredentialsException(org.springframework.security.authentication.BadCredentialsException ex) {
+        List<String> messages = new ArrayList<>(1);
+        messages.add(ex.getMessage());
+        return new ErrorResponse(false, messages, HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
     }
 }
