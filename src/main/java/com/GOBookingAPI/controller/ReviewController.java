@@ -12,7 +12,7 @@ import com.GOBookingAPI.payload.request.ReviewRequest;
 import com.GOBookingAPI.services.IReviewService;
 
 @RestController
-@RequestMapping("/reivews")
+@RequestMapping("/reviews")
 public class ReviewController {
 
 	@Autowired

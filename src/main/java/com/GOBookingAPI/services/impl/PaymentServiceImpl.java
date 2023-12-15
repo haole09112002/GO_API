@@ -114,6 +114,7 @@ public class PaymentServiceImpl implements IPaymentService {
                 payment.setCustomer(booking.getCustomer());
                 payment.setBooking(booking);
                 payment.setTimeStamp(AppUtils.convertTimeStringVNPayToDate(vnp_PayDate));
+                payment.setPaymentMethod(PaymentMethod.VNPAY);
                 paymentRepository.save(payment);
 
                 //todo sendRequestDriverLocation for all driver free
