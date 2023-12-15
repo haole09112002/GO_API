@@ -102,23 +102,9 @@ public class BookingServiceImpl implements IBookingService {
         booking.setVehicleType(req.getVehicleType());
         booking.setCreateAt(new Date());
         booking.setPickUpAddress(mapService.convertLocationToAddress(req.getPickUpLocation()));
-        booking.setDropOffLocation(mapService.convertLocationToAddress(req.getDropOffLocation()));
+        booking.setDropOffAddress(mapService.convertLocationToAddress(req.getDropOffLocation()));
         bookingRepository.save(booking);
-
-        BookingResponse resp = new BookingResponse();
-        resp.setId(booking.getId());
-        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
-        resp.setCreateAt(booking.getCreateAt());
-        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
-        resp.setCustomerId(booking.getCustomer().getId());
-        resp.setAmount(booking.getAmount());
-        resp.setDropOffLocation(booking.getDropOffLocation());
-        resp.setPickUpLocation(booking.getPickUpLocation());
-        resp.setStatus(booking.getStatus());
-        resp.setVehicleType(booking.getVehicleType());
-        resp.setDistance(vietMapResponse.getFirstPath().getDistance());
-        resp.setPredictTime(vietMapResponse.getFirstPath().getTime());
-        return resp;
+        return BookingMapper.bookingToBookingResponse(booking);
     }
 
     @Override
