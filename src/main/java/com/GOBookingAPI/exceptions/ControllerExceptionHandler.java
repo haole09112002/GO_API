@@ -4,6 +4,7 @@ package com.GOBookingAPI.exceptions;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.ui.Model;
 import org.springframework.validation.FieldError;
@@ -107,5 +108,13 @@ public class ControllerExceptionHandler{
         List<String> messages = new ArrayList<>(1);
         messages.add(ex.getMessage());
         return new ErrorResponse(false, messages, HttpStatus.NOT_FOUND.getReasonPhrase(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(LockedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleLockedException(LockedException ex) {
+        List<String> messages = new ArrayList<>(1);
+        messages.add(ex.getMessage());
+        return new ErrorResponse(false, messages, HttpStatus.FORBIDDEN.getReasonPhrase(), HttpStatus.FORBIDDEN);
     }
 }
