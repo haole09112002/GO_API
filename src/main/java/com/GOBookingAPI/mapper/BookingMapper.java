@@ -13,8 +13,10 @@ public class BookingMapper {
         resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
         resp.setCustomerId(booking.getCustomer().getId());
         resp.setAmount(booking.getAmount());
-        resp.setDropOffLocation(booking.getDropoffLocation());
-        resp.setPickupLocation(booking.getPickupLocation());
+        resp.setDropOffLocation(booking.getDropOffLocation());
+        resp.setPickUpLocation(booking.getPickUpLocation());
+        resp.setDropOffAddress(booking.getDropOffAddress());
+        resp.setPickUpAddress(booking.getPickUpAddress());
         resp.setStatus(booking.getStatus());
         resp.setVehicleType(booking.getVehicleType());
         return resp;

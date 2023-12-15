@@ -128,7 +128,7 @@ public class PaymentServiceImpl implements IPaymentService {
                 for (Driver d : drivers) {
                     webSocketService.notifytoDriver(d.getId(), "HAVEBOOKING");
                 }
-                driverService.scheduleFindDriverTask(booking, booking.getPickupLocation());
+                driverService.scheduleFindDriverTask(booking, booking.getPickUpLocation());
             }
         } else {
             System.out.println("==>Verify FAIL, bookingId: " + bookingId +", invalid checksum ");
