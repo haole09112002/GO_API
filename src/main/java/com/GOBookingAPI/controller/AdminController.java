@@ -46,7 +46,8 @@ public class AdminController {
 		System.out.print(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
 		return ResponseEntity.ok("Welcome to admin page : ");
 	}
-	
+	// search {email, sdt, ten}, sort{teen, email, id}- acs, decs, filter{ isNonBlock}, pageable { page, size}
+	// customer?id=1&keyword=hieu&sortType=acs&sortField=email&isNonBlock=true&page=0&size=5
 	@GetMapping("/customer/{offset}/{pagesize}/{field}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> getCustomers(@PathVariable("offset") int offset , @PathVariable("pagesize") int pagesize
