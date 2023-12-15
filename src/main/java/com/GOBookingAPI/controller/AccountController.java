@@ -28,9 +28,6 @@ public class AccountController {
     @Autowired
     private IUserService userService;
 
-    @Autowired
-    private IDriverService driverService;
-
     @PostMapping("/customer")
     public ResponseEntity<?> registerCustomer(
             @RequestParam("phoneNumber") String phoneNumber,

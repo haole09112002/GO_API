@@ -2,6 +2,7 @@ package com.GOBookingAPI.services;
 
 import java.util.Map;
 
+import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.enums.PaymentMethod;
 import com.GOBookingAPI.payload.request.PaymentRequest;
 
@@ -24,4 +25,6 @@ public interface IPaymentService {
                           String vnp_TxnRef,
                           String vnp_SecureHashType,
                           String vnp_SecureHash);
+
+    boolean refundPayment(Booking booking);
 }

@@ -22,7 +22,11 @@ public class BookingResponse {
 
     private Date createAt;
 
-    private String pickupLocation;
+    private String pickUpLocation;
+
+    private String pickUpAddress;
+
+    private String dropOffAddress;
 
     private String dropOffLocation;
 
@@ -34,7 +38,6 @@ public class BookingResponse {
 
     private Integer driverId;
 
-//    @JsonProperty("payment")
     private PaymentMethod paymentMethod;
 
     private Integer customerId;

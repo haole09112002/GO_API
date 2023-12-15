@@ -28,7 +28,6 @@ import lombok.Setter;
 public class Conversation implements Serializable{
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id ;
 	@Column
 	private Date createAt;
@@ -42,9 +41,7 @@ public class Conversation implements Serializable{
 	
 	@Column
 	private Date lastmessageTime;
-	
-	
-	
+
 	@OneToMany(mappedBy = "conversation")
 	private List<Message> messages = new ArrayList<>();
 	

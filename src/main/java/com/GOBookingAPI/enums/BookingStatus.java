@@ -14,7 +14,7 @@ public enum BookingStatus {
     @author: HaoLV
     @description: WAITING, PAID, FOUND, ON_RIDE, COMPLETE
     Customer action:
-		=> cancel: WAITING, CANCELLED
+		=> cancel: WAITING, CANCELLEDB
 		=> cancel: WAITING, PAID, WAITING_REFUND, REFUNDED
 		=> cancel: WAITING, PAID, FOUND, WAITING_REFUND, REFUNDED
 */

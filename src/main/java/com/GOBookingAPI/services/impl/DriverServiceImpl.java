@@ -37,7 +37,7 @@ import com.GOBookingAPI.enums.BookingStatus;
 
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.exceptions.NotFoundException;
-import com.GOBookingAPI.payload.vietmap.Path;
+import com.GOBookingAPI.payload.vietmap.Route;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.DriverRepository;
@@ -91,13 +91,13 @@ public class DriverServiceImpl implements IDriverService {
                 throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
             }
 
-            Path path = travel.getFirstPath();
-            if (path.getDistance() < minDistance) {
-                minDistance = path.getDistance();
+            Route route = travel.getFirstPath();
+            if (route.getDistance() < minDistance) {
+                minDistance = route.getDistance();
                 id_driver = driver.getDriverId();
             }
         }
-        System.out.println("==> founded driver " + id_driver);
+//        System.out.println("==> founded driver " + id_driver);
         return driverRepository.findById(id_driver).orElse(null);
     }
 
@@ -121,6 +121,7 @@ public class DriverServiceImpl implements IDriverService {
             if (AppUtils.currentTimeInSecond() - updateBooking.getCreateAt().getTime() / 1000 > AppConstants.MAX_TIME_PENDING) {
                 updateBooking.setStatus(BookingStatus.WAITING_REFUND);
                 bookingRepository.save(updateBooking);
+                System.out.println("==> Time out booking id:" + updateBooking.getId() + ", status: " + updateBooking.getStatus());
                 webSocketService.notifyBookingStatusToCustomer(updateBooking.getCustomer().getId(), new BookingStatusResponse(updateBooking.getId(), updateBooking.getStatus()));
                 executorService.shutdown();
             }
@@ -131,9 +132,10 @@ public class DriverServiceImpl implements IDriverService {
     @Transactional
     public boolean findAndNotifyDriver(Booking booking, String locationCustomer) {
         Driver driverChosen = findDriverBooking(locationCustomer, booking.getVehicleType());
-
-        if (driverChosen == null)
+        if (driverChosen == null){
+            System.out.println("Find driver null for booking id: " + booking.getId());
             return false;
+        }
 
         driverChosen.setStatus(DriverStatus.ON_RIDE);
         driverRepository.save(driverChosen);

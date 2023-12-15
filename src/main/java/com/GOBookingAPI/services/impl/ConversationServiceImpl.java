@@ -40,6 +40,7 @@ public class ConversationServiceImpl implements ConversationService {
     @Transactional
     public void createConservation(Booking booking) {
         Conversation conservation = new Conversation();
+        conservation.setId(booking.getId());
         conservation.setDriver(booking.getDriver());
         conservation.setCustomer(booking.getCustomer());
         conservation.setBooking(booking);
@@ -56,7 +57,7 @@ public class ConversationServiceImpl implements ConversationService {
             ConversationResponse resp = new ConversationResponse();
             List<MessageResponse> messageResponses = new ArrayList<>();
             for (Message message : conversation.getMessages()) {
-                messageResponses.add(new MessageResponse(message.getId(), message.getSenderId(), message.getReceiverId(), message.getContent(), message.getCreateAt()));
+                messageResponses.add(new MessageResponse(message.getId(), message.getSenderId(), message.getReceiverId(), message.getContent(), message.getCreateAt().getTime()));
             }
             resp.setId(conversation.getId());
             resp.setMessageResponses(messageResponses);

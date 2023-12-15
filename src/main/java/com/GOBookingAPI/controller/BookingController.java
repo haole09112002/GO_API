@@ -2,14 +2,18 @@ package com.GOBookingAPI.controller;
 
 
 import com.GOBookingAPI.entities.User;
+import com.GOBookingAPI.enums.BookingStatus;
+import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.payload.request.BookingStatusRequest;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.services.IUserService;
-import com.GOBookingAPI.utils.AppUtils;
+import com.GOBookingAPI.services.IWebSocketService;
+import com.GOBookingAPI.utils.AppConstants;
+import com.GOBookingAPI.utils.DriverStatus;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +28,9 @@ import com.GOBookingAPI.payload.request.BookingRequest;
 import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.services.IBookingService;
 
+import java.util.Date;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/bookings")
 @Validated
@@ -34,6 +41,9 @@ public class BookingController {
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private IWebSocketService webSocketService;
 
     @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
@@ -59,10 +69,17 @@ public class BookingController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getListBooking(@RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String from,
-                                            @RequestParam @NotBlank @DateTimeFormat(pattern = "yyyy-MM-dd") String to, @RequestParam int page, @RequestParam int size) {
+    public ResponseEntity<?> filter(@RequestParam(required = false) @Nullable   @DateTimeFormat(pattern = "yyyy-MM-dd") Date from,
+                                    @RequestParam(required = false) @Nullable  @DateTimeFormat(pattern = "yyyy-MM-dd") Date to,
+                                    @RequestParam(required = false) BookingStatus status,
+                                    @RequestParam(required = false) String sortType,
+                                    @RequestParam(required = false) String sortField,
+                                    @RequestParam(required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                    @RequestParam(required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(bookingService.getListBookingByUser(email, AppUtils.convertStringToDate(from), AppUtils.convertStringToDate(to), page, size));
+        //todo valid to and from
+        return ResponseEntity.ok(bookingService.filterBookings(from, to, status, sortType,
+                sortField, page, size, email));
     }
 
     @PutMapping("/{bookingId}/cancel")
@@ -82,5 +99,19 @@ public class BookingController {
             @RequestBody BookingStatusRequest cancelRequest) {      // todo validation
         BookingResponse response = bookingService.changeBookingStatusForAdmin(bookingId, cancelRequest.getBookingStatus());
         return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/active")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('DRIVER')")
+    public ResponseEntity<?> getCurrentActiveBooking(){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.getByEmail(email);
+        BookingResponse response = bookingService.getCurrentBooking(user);
+        if(user.getFirstRole().getName().equals(RoleEnum.DRIVER) && user.getDriver().getStatus() == DriverStatus.FREE){
+            //todo check have booking
+           webSocketService.notifytoDriver(user.getId(), "HAVEBOOKING");
+        }
+        return ResponseEntity.ok(response != null ? response : "null");
     }
 }

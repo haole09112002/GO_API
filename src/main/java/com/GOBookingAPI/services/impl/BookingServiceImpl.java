@@ -7,19 +7,27 @@ import com.GOBookingAPI.entities.*;
 import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
-import com.GOBookingAPI.exceptions.AppException;
 import com.GOBookingAPI.exceptions.BadRequestException;
+import com.GOBookingAPI.mapper.BookingMapper;
 import com.GOBookingAPI.payload.response.*;
-import com.GOBookingAPI.payload.vietmap.Path;
+import com.GOBookingAPI.payload.vietmap.Route;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
+import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.services.IWebSocketService;
-import com.GOBookingAPI.utils.AppUtils;
-import com.GOBookingAPI.utils.DriverStatus;
-import com.GOBookingAPI.utils.ManagerBooking;
-import com.GOBookingAPI.utils.ManagerLocation;
+import com.GOBookingAPI.utils.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
+import jakarta.persistence.metamodel.SingularAttribute;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.enums.BookingStatus;
@@ -32,6 +40,8 @@ import com.GOBookingAPI.repositories.MyUserRepository;
 import com.GOBookingAPI.services.IBookingService;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @Service
@@ -58,6 +68,9 @@ public class BookingServiceImpl implements IBookingService {
     @Autowired
     private ManagerBooking managerBooking;
 
+    @Autowired
+    private DriverRepository driverRepository;
+
     @Override
     public BookingResponse createBooking(String username, BookingRequest req) {
         User user = myUserRepository.findByEmail(username).orElseThrow(() -> new NotFoundException("Không tìm thấy khách hàng"));
@@ -69,13 +82,13 @@ public class BookingServiceImpl implements IBookingService {
             throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
         }
 
-        System.out.println("vietMapResponse.getFirstPath().getDistance(): " + vietMapResponse.getFirstPath().getDistance());
+        System.out.println("VietMapResponse.getFirstPath().getDistance(): " + vietMapResponse.getFirstPath().getDistance());
 
-        if(vietMapResponse.getFirstPath().getDistance() <= 200)  //     quảng đường bé hơn 200m
-            throw new BadRequestException("Quảng đường quá gần, chúng tôi chưa hổ trợ");
+        if (vietMapResponse.getFirstPath().getDistance() <= 200)  //     quảng đường bé hơn 200m
+            throw new BadRequestException("Quảng đường quá gần, chúng tôi chưa hỗ trợ");
 
-        if(vietMapResponse.getFirstPath().getDistance() >= 150000)  //     quảng đường lớn hơn 150km
-            throw new BadRequestException("Quảng đường quá xa, chúng tôi chưa hổ trợ");
+        if (vietMapResponse.getFirstPath().getDistance() >= 150000)  //     quảng đường lớn hơn 150km
+            throw new BadRequestException("Quảng đường quá xa, chúng tôi chưa hỗ trợ");
 
         long amount = this.calculatePrice(vietMapResponse.getFirstPath().getDistance(), req.getVehicleType());
 
@@ -83,27 +96,15 @@ public class BookingServiceImpl implements IBookingService {
         booking.setCustomer(customer);
         booking.setDriver(null);
         booking.setStatus(BookingStatus.WAITING);
-        booking.setPickupLocation(req.getPickUpLocation());
-        booking.setDropoffLocation(req.getDropOffLocation());
+        booking.setPickUpLocation(req.getPickUpLocation());
+        booking.setDropOffLocation(req.getDropOffLocation());
         booking.setAmount(amount);
         booking.setVehicleType(req.getVehicleType());
         booking.setCreateAt(new Date());
+        booking.setPickUpAddress(mapService.convertLocationToAddress(req.getPickUpLocation()));
+        booking.setDropOffAddress(mapService.convertLocationToAddress(req.getDropOffLocation()));
         bookingRepository.save(booking);
-
-        BookingResponse resp = new BookingResponse();
-        resp.setId(booking.getId());
-        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
-        resp.setCreateAt(booking.getCreateAt());
-        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
-        resp.setCustomerId(booking.getCustomer().getId());
-        resp.setAmount(booking.getAmount());
-        resp.setDropOffLocation(booking.getDropoffLocation());
-        resp.setPickupLocation(booking.getPickupLocation());
-        resp.setStatus(booking.getStatus());
-        resp.setVehicleType(booking.getVehicleType());
-        resp.setDistance(vietMapResponse.getFirstPath().getDistance());
-        resp.setPredictTime(vietMapResponse.getFirstPath().getTime());
-        return resp;
+        return BookingMapper.bookingToBookingResponse(booking);
     }
 
     @Override
@@ -125,8 +126,8 @@ public class BookingServiceImpl implements IBookingService {
             if (travel.getCode().equals("ERROR")) {
                 throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
             }
-            Path path = travel.getPaths().get(0);
-            long total = this.calculatePrice(path.getDistance(), type);
+            Route route = travel.getFirstPath();
+            long total = this.calculatePrice(route.getDistance(), type);
             amounts.put(type.getValue(), total);
         }
         return new TravelInfoResponse(pickUpLocation, dropOffLocation, amounts);
@@ -148,18 +149,7 @@ public class BookingServiceImpl implements IBookingService {
                 throw new NotFoundException("Không tìm thấy booking");
             }
         }
-        BookingResponse resp = new BookingResponse();
-        resp.setId(booking.getId());
-        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
-        resp.setCreateAt(booking.getCreateAt());
-        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
-        resp.setCustomerId(booking.getCustomer().getId());
-        resp.setAmount(booking.getAmount());
-        resp.setDropOffLocation(booking.getDropoffLocation());
-        resp.setPickupLocation(booking.getPickupLocation());
-        resp.setStatus(booking.getStatus());
-        resp.setVehicleType(booking.getVehicleType());
-        return resp;
+        return BookingMapper.bookingToBookingResponse(booking);
     }
 
     @Override
@@ -167,38 +157,13 @@ public class BookingServiceImpl implements IBookingService {
         AppUtils.validatePageNumberAndSize(page, size);
         PageRequest pageable = PageRequest.of(page, size);
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
-        Page<Booking> bookingPage = null;
-        Iterator<Role> iterator = user.getRoles().iterator();
-        if (iterator.hasNext()) {
-            switch (iterator.next().getName()) {
-                case ADMIN:
-                    bookingPage = bookingRepository.findBookingBetweenAndCustomer(from, to, user.getId(), pageable);
-                    break;
-                case DRIVER:
-                    bookingPage = bookingRepository.findBookingBetweenAndDriver(from, to, user.getId(), pageable);
-                    break;
-                case CUSTOMER:
-                    bookingPage = bookingRepository.findBookingBetween(from, to, pageable);
-                    break;
-            }
-        } else {
-            throw new AppException("Có lỗi xảy ra");
-        }
-        List<BookingResponse> bookingResponses = new ArrayList<>(bookingPage.getContent().size());
-        bookingResponses = bookingPage.getContent().stream().map(booking -> {
-            BookingResponse resp = new BookingResponse();
-            resp.setId(booking.getId());
-            resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
-            resp.setCreateAt(booking.getCreateAt());
-            resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
-            resp.setCustomerId(booking.getCustomer().getId());
-            resp.setAmount(booking.getAmount());
-            resp.setDropOffLocation(booking.getDropoffLocation());
-            resp.setPickupLocation(booking.getPickupLocation());
-            resp.setStatus(booking.getStatus());
-            resp.setVehicleType(booking.getVehicleType());
-            return resp;
-        }).collect(Collectors.toList());
+        Page<Booking> bookingPage = switch (user.getFirstRole().getName()) {
+            case CUSTOMER -> bookingRepository.findBookingBetweenAndCustomer(from, to, user.getId(), pageable);
+            case DRIVER -> bookingRepository.findBookingBetweenAndDriver(from, to, user.getId(), pageable);
+            case ADMIN -> bookingRepository.findBookingBetween(from, to, pageable);
+        };
+
+        List<BookingResponse> bookingResponses = bookingPage.getContent().stream().map(BookingMapper::bookingToBookingResponse).collect(Collectors.toList());
         return new PagedResponse<>(bookingResponses, bookingPage.getNumber(), bookingPage.getSize(),
                 bookingPage.getTotalElements(), bookingPage.getTotalPages(), bookingPage.isLast());
     }
@@ -206,71 +171,15 @@ public class BookingServiceImpl implements IBookingService {
     @Override           // use for ADMIN
     public BookingResponse changeBookingStatusForAdmin(int bookingId, BookingStatus status) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
-        BookingResponse resp = new BookingResponse();
-        resp.setId(booking.getId());
-        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
-        resp.setCreateAt(booking.getCreateAt());
-        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
-        resp.setCustomerId(booking.getCustomer().getId());
-        resp.setAmount(booking.getAmount());
-        resp.setDropOffLocation(booking.getDropoffLocation());
-        resp.setPickupLocation(booking.getPickupLocation());
-        resp.setStatus(booking.getStatus());
-        resp.setVehicleType(booking.getVehicleType());
-        return resp;
+        return BookingMapper.bookingToBookingResponse(booking);
     }
-
-//    @Override
-//    public BookingStatusResponse changeBookingStatusAndNotify(String email, BookingStatusRequest req) {
-//        User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
-//        Booking booking = bookingRepository.findById(req.getBookingId()).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
-//        switch (req.getBookingStatus()) {
-//            case CANCELLED:
-//                if (booking.getStatus() == BookingStatus.CANCELLED)
-//                    throw new BadRequestException("Đơn đặt đã bị hủy trước đó");
-//                if (booking.getStatus() == BookingStatus.ON_RIDE)
-//                    throw new BadRequestException("Bạn đang di chuyển trên xe không thể hủy");
-//                if (booking.getStatus() == BookingStatus.REFUNDED)
-//                    throw new BadRequestException("Đơn đặt đã được hoàn tiền, không thể hủy");
-////				if(booking.getStatus() == BookingStatus.WAITING || booking.getStatus() == BookingStatus.PAID)
-//
-//                break;
-//            case PAID:
-//                if (booking.getStatus() != BookingStatus.WAITING) {
-//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
-//                }
-//                break;
-//
-//            case REFUNDED:
-//                if (booking.getStatus() != BookingStatus.CANCELLED) {
-//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
-//                }
-//                break;
-//            case COMPLETE:
-//                if (booking.getStatus() != BookingStatus.ON_RIDE) {
-//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
-//                }
-//                break;
-//            case ON_RIDE:
-//                if (booking.getStatus() != BookingStatus.PAID) {
-//                    throw new BadRequestException("Bạn không thể thay đổi trạng thái");
-//                }
-//            default:
-//                throw new BadRequestException("Booking status không tồn tại");
-//        }
-//        booking.setStatus(req.getBookingStatus());
-//        bookingRepository.save(booking);
-//        BookingStatusResponse resp = new BookingStatusResponse(booking.getId(), booking.getStatus());
-//        return resp;
-////        messagingTemplate.convertAndSendToUser(String.valueOf(user.getId()), "/bookings/status", req);
-//    }
 
     @Override
     public BookingStatusResponse cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req) {
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
         Booking booking = bookingRepository.findById(req.getBookingId()).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
 
-        if (user.getId() !=(booking.getCustomer().getUser().getId())) {
+        if (user.getId() != (booking.getCustomer().getUser().getId())) {
             throw new AccessDeniedException("Booking này không thuộc về bạn");
         }
 
@@ -302,25 +211,17 @@ public class BookingServiceImpl implements IBookingService {
         }
 
         booking.setStatus(requestedStatus);
+        booking.setReasonType(req.getReasonType());
+        booking.setContentCancel(req.getContent());
         bookingRepository.save(booking);
 
         // Trả về thông tin trạng thái mới của đơn đặt
         return new BookingStatusResponse(booking.getId(), booking.getStatus());
     }
 
-
     @Override
     public BaseResponse<Booking> Confirm(int id) {
         try {
-//			Booking booking = bookingRepository.findById(id);
-//			if(booking != null) {
-//				Date curentlydate = new Date();
-//				booking.setStartTime(curentlydate);
-//				bookingRepository.save(booking);
-//				return new BaseResponse<Booking>( booking ,"Confirm Success");
-//			}else {
-//				return new BaseResponse<Booking>( null, "Confirm fail!");
-//			}
             return null;
         } catch (Exception e) {
             log.info("error in Booking Service");
@@ -331,15 +232,6 @@ public class BookingServiceImpl implements IBookingService {
     @Override
     public BaseResponse<Booking> Cancel(BookingCancelRequest req) {
         try {
-//			Booking booking = bookingRepository.findById(req.getBookingId());
-//			if(booking != null) {
-//			booking.setReasonType(req.getReasonType());
-//			booking.setContentCancel(req.getContent());
-//			bookingRepository.save(booking);
-//			return new BaseResponse<Booking>(null, "Cancel Success");
-//			}else {
-//				return new BaseResponse<Booking>( null, "Cancel fail!");
-//			}
             return null;
         } catch (Exception e) {
             log.info("error in Booking Service");
@@ -353,68 +245,149 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     @Override
-    public boolean isDriverBelongsToCustomerBooking(User cus, int driverId){
-       List<Booking> bookingList = bookingRepository.findByCustomerId(cus.getId(), driverId);
-       return  bookingList.size() > 0;
+    public boolean isDriverBelongsToCustomerBooking(User cus, int driverId) {
+        List<Booking> bookingList = bookingRepository.findByCustomerId(cus.getId(), driverId);
+        return bookingList.size() > 0;
     }
 
     @Override
-    public Booking changeBookingStatusAndNotify(String email, int bookingId, BookingStatus newStatus){
+    @Transactional
+    public Booking changeBookingStatusAndNotify(String email, int bookingId, BookingStatus newStatus) {
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
 
-        if(user.getFirstRole().getName().equals(RoleEnum.CUSTOMER)){
-            if(!newStatus.equals(BookingStatus.CANCELLED)){
+        if (user.getFirstRole().getName().equals(RoleEnum.CUSTOMER)) {
+            if (booking.getCustomer().getId() != user.getId()) {
+                System.out.println("==>Fail, Booking khong thuoc ve ban: " + bookingId);
+                return null;
+            }
+
+            if (!newStatus.equals(BookingStatus.CANCELLED)) {
                 System.out.println("==>Fail, booking status not permit: " + newStatus);
                 return null;
             }
 
-            if(booking.getStatus() != BookingStatus.WAITING && booking.getStatus() != BookingStatus.PAID && booking.getStatus() != BookingStatus.FOUND){
+            if (booking.getStatus() != BookingStatus.WAITING && booking.getStatus() != BookingStatus.PAID && booking.getStatus() != BookingStatus.FOUND) {
                 System.out.println("==> booking.getStatus() != BookingStatus.WAITING || booking.getStatus() != BookingStatus.PAID");
                 return null;
             }
 
-            if(booking.getStatus().equals(BookingStatus.PAID))
-            {
+            if (booking.getStatus().equals(BookingStatus.PAID)) {
                 booking.setStatus(BookingStatus.WAITING_REFUND);
-            }else {
+            } else {
                 booking.setStatus(BookingStatus.CANCELLED);
             }
         }
 
-        if(user.getFirstRole().getName().equals(RoleEnum.DRIVER)){
-            if(!booking.getStatus().equals(BookingStatus.FOUND) && newStatus.equals(BookingStatus.ON_RIDE))
-            {
-                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + newStatus);
+        if (user.getFirstRole().getName().equals(RoleEnum.DRIVER)) {
+            if (booking.getDriver().getId() != user.getId()) {
+                System.out.println("==>Fail, Booking khong thuoc ve ban: " + bookingId);
                 return null;
             }
 
-            if(!booking.getStatus().equals(BookingStatus.ON_RIDE) && newStatus.equals(BookingStatus.COMPLETE))
-            {
-                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() +"=> " + newStatus);
+            if (!booking.getStatus().equals(BookingStatus.FOUND) && newStatus.equals(BookingStatus.ON_RIDE)) {
+                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() + "=> " + newStatus);
+                return null;
+            }
+
+            if (!booking.getStatus().equals(BookingStatus.ON_RIDE) && newStatus.equals(BookingStatus.COMPLETE)) {
+                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() + "=> " + newStatus);
                 return null;
             }
             booking.setStatus(newStatus);
         }
 
-        if(user.getFirstRole().getName().equals(RoleEnum.ADMIN)){
+        if (user.getFirstRole().getName().equals(RoleEnum.ADMIN)) {
             booking.setStatus(newStatus);
         }
 
-        return bookingRepository.save( booking);
-    }
-
-    private void processChangeBookingForDriver(User user, BookingStatus newStatus, int bookingId){
-        Driver driver = user.getDriver();
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()-> new NotFoundException("Không tìm thấy booking, id: " + bookingId));
-
-        if(!newStatus.equals(BookingStatus.ON_RIDE) && !newStatus.equals(BookingStatus.COMPLETE))
-        {
-            System.out.println("==> FAIL, booking status is not permit: " + newStatus);
-            return;
+        if (booking.getDriver() != null) {
+            managerBooking.deleteData(booking.getDriver().getId());
+            booking.getDriver().setStatus(DriverStatus.FREE);
+            driverRepository.save(booking.getDriver());
         }
 
-//        if()
-        //todo
+        return bookingRepository.save(booking);
     }
+
+    @Override
+    public BookingResponse getCurrentBooking(User user) {
+        Optional<Booking> bookingOptional = bookingRepository.getCurrentActiveBooking(user.getId(), user.getFirstRole().getName().name());
+        return bookingOptional.map(BookingMapper::bookingToBookingResponse).orElse(null);
+    }
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Override
+    public PagedResponse<BookingResponse> filterBookings(Date from, Date to, BookingStatus status, String sortType,
+                                                         String sortField, int page, int size, String email) {
+        User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Booking> criteriaQuery = criteriaBuilder.createQuery(Booking.class);
+        Root<Booking> root = criteriaQuery.from(Booking.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        if (from != null && to != null) {
+            Path<Date> fieldCreateAt = root.get("createAt");
+            Predicate predicate1 = criteriaBuilder.greaterThanOrEqualTo(fieldCreateAt, from);
+            Predicate predicate2 = criteriaBuilder.lessThanOrEqualTo(fieldCreateAt, to);
+            predicates.add(predicate1);
+            predicates.add(predicate2);
+        }
+
+        if (status != null) {
+            Path<BookingStatus> fieldStatus = root.get("status");
+            Predicate predicate = criteriaBuilder.equal(fieldStatus, status);
+            predicates.add(predicate);
+        }
+
+        if (sortField.isBlank()) {
+            sortField = "amount";
+        }
+        if (sortType == null)
+            sortType = "asc";
+
+        Path<Object> sortRoute = null;
+        try {
+            sortRoute = root.get(sortField);
+        }catch (IllegalArgumentException e){
+            throw new BadRequestException("Invalid sortField: " + sortField);
+        }
+
+        Order order = "asc".equalsIgnoreCase(sortType) ? criteriaBuilder.asc(sortRoute) : criteriaBuilder.desc(sortRoute);
+        criteriaQuery.orderBy(order);
+
+        if (user.getFirstRole().getName().equals(RoleEnum.CUSTOMER)) {
+            Path<Integer> fieldCusId = root.get("customer").get("id");
+            Predicate predicate = criteriaBuilder.equal(fieldCusId, user.getId());
+            predicates.add(predicate);
+        }
+
+        if (user.getFirstRole().getName().equals(RoleEnum.DRIVER)) {
+            Path<Integer> fieldDriverId = root.get("driver").get("id");
+            Predicate predicate = criteriaBuilder.equal(fieldDriverId, user.getId());
+            predicates.add(predicate);
+        }
+
+        criteriaQuery.select(root).where(predicates.toArray(new Predicate[0]));
+        TypedQuery<Booking> typedQuery = entityManager.createQuery(criteriaQuery);
+
+        AppUtils.validatePageNumberAndSize(page, size);
+
+        int totalResults = typedQuery.getResultList().size();
+
+        typedQuery.setFirstResult(page * size);
+        typedQuery.setMaxResults(size);
+        List<Booking> books = typedQuery.getResultList();
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        List<BookingResponse> bookingResponses = books.stream().map(BookingMapper::bookingToBookingResponse).collect(Collectors.toList());
+
+        Page<BookingResponse> pagedResponse = new PageImpl<>(bookingResponses, pageRequest, totalResults);
+        return new PagedResponse<>(pagedResponse.getContent(), pagedResponse.getNumber(), pagedResponse.getSize(),
+                pagedResponse.getTotalElements(), pagedResponse.getTotalPages(), pagedResponse.isLast());
+    }
+
 }

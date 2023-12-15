@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.GOBookingAPI.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,7 +32,7 @@ import net.minidev.json.JSONObject;
 public class AdminController {
 
 	@Autowired
-	private ICustomerService customerService;
+	private CustomerService customerService;
 	
 	@Autowired
 	private IUserService userService;

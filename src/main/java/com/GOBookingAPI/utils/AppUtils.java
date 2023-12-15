@@ -2,6 +2,10 @@ package com.GOBookingAPI.utils;
 
 import com.GOBookingAPI.exceptions.AppException;
 import com.GOBookingAPI.exceptions.BadRequestException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -47,5 +51,15 @@ public class AppUtils {
 
     public static long currentTimeInSecond() {
         return System.currentTimeMillis() / 1000;
+    }
+
+    public static boolean isValidField(EntityManager entityManager, Class<?> entityClass, String fieldName) {
+        Metamodel metamodel = entityManager.getMetamodel();
+        EntityType<?> entityType = metamodel.entity(entityClass);
+
+        // Kiểm tra xem fieldName có phải là một thuộc tính hợp lệ không
+        SingularAttribute<?, ?> attribute = entityType.getSingularAttribute(fieldName);
+
+        return attribute != null;
     }
 }

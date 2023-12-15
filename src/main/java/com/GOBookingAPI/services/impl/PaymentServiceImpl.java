@@ -7,9 +7,7 @@ import com.GOBookingAPI.entities.Payment;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.enums.PaymentMethod;
-import com.GOBookingAPI.enums.WebSocketBookingTitle;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
-import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.exceptions.NotFoundException;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
@@ -32,6 +30,10 @@ import java.nio.charset.StandardCharsets;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @Slf4j
@@ -117,6 +119,7 @@ public class PaymentServiceImpl implements IPaymentService {
                 payment.setCustomer(booking.getCustomer());
                 payment.setBooking(booking);
                 payment.setTimeStamp(AppUtils.convertTimeStringVNPayToDate(vnp_PayDate));
+                payment.setPaymentMethod(PaymentMethod.VNPAY);
                 paymentRepository.save(payment);
 
                 //todo sendRequestDriverLocation for all driver free
@@ -130,7 +133,7 @@ public class PaymentServiceImpl implements IPaymentService {
                 for (Driver d : drivers) {
                     webSocketService.notifytoDriver(d.getId(), "HAVEBOOKING");
                 }
-                driverService.scheduleFindDriverTask(booking, booking.getPickupLocation());
+                driverService.scheduleFindDriverTask(booking, booking.getPickUpLocation());
             }
         } else {
             System.out.println("==>Verify FAIL, bookingId: " + bookingId +", invalid checksum ");
@@ -286,5 +289,19 @@ public class PaymentServiceImpl implements IPaymentService {
 //        webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
     }
 
+    @Override
+    public boolean refundPayment(Booking booking){
+        AtomicBoolean isSuccess = new AtomicBoolean(true);
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(() -> {
+            //todo fix refunded
+            booking.setStatus(BookingStatus.REFUNDED);
+            bookingRepository.save(booking);
+            isSuccess.set(false);
+            webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
+            executorService.shutdown();
+        }, AppConstants.INIT_DELAY, AppConstants.PERIOD_TIME, TimeUnit.SECONDS);
+        return isSuccess.get();
+    }
 
 }

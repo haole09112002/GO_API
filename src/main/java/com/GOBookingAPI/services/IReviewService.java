@@ -1,9 +1,8 @@
 package com.GOBookingAPI.services;
 
-import com.GOBookingAPI.entities.Review;
 import com.GOBookingAPI.payload.request.ReviewRequest;
-import com.GOBookingAPI.payload.response.BaseResponse;
+import com.GOBookingAPI.payload.response.ReviewResponse;
 
 public interface IReviewService {
-	String createReview(ReviewRequest review);
+	ReviewResponse createReview(ReviewRequest reviewRequest, String email);
 }
