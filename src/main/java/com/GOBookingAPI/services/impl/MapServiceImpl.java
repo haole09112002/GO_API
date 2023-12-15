@@ -54,6 +54,7 @@ public class MapServiceImpl {
                 + "&lng=" + lng + "&lat=" + lat;
         System.out.println("===> " + apiUrl);
         String json = restTemplate.getForObject(apiUrl, String.class);
+        System.out.println("===> " + json);
         JsonParser jsonParser = new JsonParser();
         JsonObject jsonObject = jsonParser.parse(json).getAsJsonObject();
         return jsonObject.get("address").getAsString();
