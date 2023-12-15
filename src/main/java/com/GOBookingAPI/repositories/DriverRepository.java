@@ -23,11 +23,11 @@ public interface DriverRepository extends JpaRepository<Driver, Integer> {
 	List<Driver> findDriverStatus(@Param("status") DriverStatus status );
 
 	@Query(value = "select d.id , d.activity_area as area , d.full_name as fullname , d.status, u.phone_number as phonenumber, u.is_non_block as isnonblock\r\n"
-			+ " from gobooking.driver as d inner join gobooking.user as u on u.id = d.user_id" , nativeQuery = true)
+			+ " from railway.driver as d inner join railway.user as u on u.id = d.user_id" , nativeQuery = true)
 	Page<DriverProjection> getDriverPageAndSort(Pageable pageable);
 	
 	@Modifying
 	@Transactional
-	@Query(value  = "Update gobooking.driver as d set d.status = 'OFF' where d.id in ?1" , nativeQuery = true) 
+	@Query(value  = "Update railway.driver as d set d.status = 'OFF' where d.id in ?1" , nativeQuery = true) 
 	void ActiveDriver(List<Integer>  ids);
 }

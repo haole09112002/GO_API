@@ -18,11 +18,11 @@ import com.GOBookingAPI.repositories.projection.CustomerProjection;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 	
-	@Query(value = "select u.id , u.email, c.full_name as fullname, u.phone_number as phonenumber ,u.is_non_block as isnonblock  from gobooking.user as u inner join gobooking.customer as c on u.id = c.user_id"
+	@Query(value = "select u.id , u.email, c.full_name as fullname, u.phone_number as phonenumber ,u.is_non_block as isnonblock  from railway.user as u inner join gobooking.customer as c on u.id = c.user_id"
 			, nativeQuery = true)
 	Page<CustomerProjection> getCustomerPageAndSort(Pageable pageable);
 	
-	@Query(value = "select u.id, u.create_date ,u.email,u.is_non_block,u.phone_number, c.date_of_birth,c.full_name , c.gender from gobooking.user as u inner join gobooking.customer as c on u.id = c.user_id where u.id= ?1"
+	@Query(value = "select u.id, u.create_date ,u.email,u.is_non_block,u.phone_number, c.date_of_birth,c.full_name , c.gender from railway.user as u inner join gobooking.customer as c on u.id = c.user_id where u.id= ?1"
 			, nativeQuery = true)
 	CustomerDetailProjection findByIdByAdmin(int id);
 }
