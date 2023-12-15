@@ -48,8 +48,8 @@ public class MapServiceImpl {
     }
 
     public String convertLocationToAddress(String location) {
-        String lng = location.split(",")[0];
-        String lat = location.split(",")[1];
+        String lng = location.split(",")[1];            // note :
+        String lat = location.split(",")[0];
         String apiUrl = vietmapApiUrl + "/reverse/v3?apikey=" + vietmapApiKey
                 + "&lng=" + lng + "&lat=" + lat;
         System.out.println("===> " + apiUrl);
