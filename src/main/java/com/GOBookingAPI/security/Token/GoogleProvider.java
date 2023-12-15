@@ -14,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import com.GOBookingAPI.entities.User;
+import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.security.Model.TokenSecurity;
 import com.GOBookingAPI.security.Model.UserSecurity;

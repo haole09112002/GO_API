@@ -77,6 +77,11 @@ public class PaymentServiceImpl implements IPaymentService {
 
         String vnp_SecureHashType = req.get("vnp_SecureHashType");
         String vnp_SecureHash = req.get("vnp_SecureHash");
+
+        for(String s : req.values())
+            System.out.print(s + " ");
+
+
         if (req.containsKey("vnp_SecureHashType")) {
             req.remove("vnp_SecureHashType");
         }

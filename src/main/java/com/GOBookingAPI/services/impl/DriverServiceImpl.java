@@ -4,18 +4,31 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
+import com.GOBookingAPI.exceptions.BadCredentialsException;
+import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.payload.response.DriverBaseInfoResponse;
 import com.GOBookingAPI.payload.response.DriverInfoResponse;
+import com.GOBookingAPI.payload.response.DriverPageResponse;
 import com.GOBookingAPI.payload.response.DriverStatusResponse;
+import com.GOBookingAPI.payload.response.PagedResponse;
 import com.GOBookingAPI.repositories.UserRepository;
+import com.GOBookingAPI.repositories.projection.DriverProjection;
 import com.GOBookingAPI.services.IBookingService;
 import com.GOBookingAPI.utils.*;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Booking;
@@ -34,6 +47,7 @@ import com.GOBookingAPI.services.IWebSocketService;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class DriverServiceImpl implements IDriverService {
     @Autowired
     private MapServiceImpl mapService;
@@ -230,4 +244,33 @@ public class DriverServiceImpl implements IDriverService {
     public Driver getById(int id) {
         return driverRepository.findById(id).orElseThrow(()-> new NotFoundException("Khong tim thay driver, driverId: " + id));
     }
+
+	@Override
+	public PagedResponse<DriverPageResponse> getDriverPageAndSort(int offset, int pagesize, String field) {
+		Page<DriverProjection> page =driverRepository.getDriverPageAndSort(PageRequest.of(offset, pagesize).withSort(Sort.by(field)));
+		List<DriverPageResponse> list = page.getContent().stream().map(driver -> new DriverPageResponse(
+				driver.getId(),
+				driver.getArea(),
+				driver.getFullname(),
+				driver.getPhonenumber(),
+				driver.getStatus(),
+				driver.getIsnonblock()
+				)).collect(Collectors.toList());
+		return new PagedResponse<DriverPageResponse>(list ,page.getNumber(), page.getSize(),
+				page.getTotalElements(), page.getTotalPages(), page.isLast());
+	}
+
+	@Override
+	public boolean ActiveDriver(List<Integer> ids) {
+		try {
+			driverRepository.ActiveDriver(ids);
+			return true;
+		} catch (Exception e) {
+			log.info("Error Active " + e.getMessage());
+			return false;
+		}
+	
+	}
+    
+    
 }

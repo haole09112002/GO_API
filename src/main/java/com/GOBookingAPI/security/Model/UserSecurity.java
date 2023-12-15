@@ -25,7 +25,6 @@ public class UserSecurity implements Authentication{
 		this.authorities =authorities;
 	}
 
-	
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
@@ -52,7 +51,7 @@ public class UserSecurity implements Authentication{
 	@Override
 	public Object getPrincipal() {
 		// TODO Auto-generated method stub
-		return null;
+		return user;
 	}
 
 	@Override

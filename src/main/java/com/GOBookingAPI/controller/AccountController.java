@@ -1,6 +1,7 @@
 package com.GOBookingAPI.controller;
 
 
+import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
 
 import com.GOBookingAPI.services.IDriverService;
@@ -26,9 +27,6 @@ public class AccountController {
 
     @Autowired
     private IUserService userService;
-
-    @Autowired
-    private IDriverService driverService;
 
     @PostMapping("/customer")
     public ResponseEntity<?> registerCustomer(

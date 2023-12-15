@@ -1,13 +1,11 @@
 package com.GOBookingAPI.services.impl;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import java.util.Optional;
 
 import com.GOBookingAPI.enums.DriverInfoImg;
 import com.GOBookingAPI.enums.RoleEnum;
@@ -17,7 +15,6 @@ import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
 import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.repositories.*;
-import com.GOBookingAPI.services.IBookingService;
 import com.GOBookingAPI.utils.DriverStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -228,4 +225,10 @@ public class UserServiceImpl implements IUserService {
         }
         return user;
     }
+
+	@Override
+	public void UpdateUserIsNonBlock(boolean isnonblock , int id) {
+		userRepository.UpdateIsNonBlock(isnonblock,id);
+	}
+    
 }

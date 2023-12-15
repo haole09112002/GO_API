@@ -20,15 +20,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Autowired
     IUserService userService;
 
-//	private final SimpMessagingTemplate messagingTemplate;
-
-    //	@Autowired
-//	public WebSocketConfig(SimpMessagingTemplate messagingTemplate) {
-//		this.messagingTemplate = messagingTemplate;
-//	}
-//    @Autowired
-//    private SimpMessagingTemplate messagingTemplate;
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/all", "/message_receive", "/driver_notify", "/booking_status", "/customer_driver_info", "/customer_driver_location", "/driver_booking", "topic");

@@ -8,9 +8,13 @@ import java.util.concurrent.TimeUnit;
 import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.enums.VehicleType;
+import com.GOBookingAPI.payload.response.BaseResponse;
+import com.GOBookingAPI.payload.response.CustomersResponse;
 import com.GOBookingAPI.payload.response.DriverBaseInfoResponse;
 import com.GOBookingAPI.payload.response.DriverInfoResponse;
 import com.GOBookingAPI.payload.response.DriverStatusResponse;
+import com.GOBookingAPI.payload.response.DriverPageResponse;
+import com.GOBookingAPI.payload.response.PagedResponse;
 import com.GOBookingAPI.utils.DriverStatus;
 import com.GOBookingAPI.utils.LocationDriver;
 public interface IDriverService {
@@ -29,4 +33,8 @@ public interface IDriverService {
 	DriverStatusResponse changeDriverStatus(int driverId, DriverStatus newStatus);
 
 	Driver getById(int id);
+	
+	PagedResponse<DriverPageResponse> getDriverPageAndSort(int offset , int pagesize , String field);
+	
+	boolean ActiveDriver(List<Integer> ids);
 }
