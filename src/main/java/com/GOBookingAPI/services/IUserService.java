@@ -28,4 +28,6 @@ public interface IUserService {
 
 	RegisterCustomerResponse getCustomerInfo(String email);
 	
+	void UpdateUserIsNonBlock(boolean isnonblock, int id);
+	
 }
