@@ -10,14 +10,10 @@ import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.services.IUserService;
 import com.GOBookingAPI.services.IWebSocketService;
 import com.GOBookingAPI.utils.AppConstants;
-import com.GOBookingAPI.utils.AppUtils;
 import com.GOBookingAPI.utils.DriverStatus;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;

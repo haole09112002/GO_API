@@ -41,9 +41,7 @@ public class Conversation implements Serializable{
 	
 	@Column
 	private Date lastmessageTime;
-	
-	
-	
+
 	@OneToMany(mappedBy = "conversation")
 	private List<Message> messages = new ArrayList<>();
 	

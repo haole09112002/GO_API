@@ -82,13 +82,13 @@ public class BookingServiceImpl implements IBookingService {
             throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
         }
 
-        System.out.println("vietMapResponse.getFirstPath().getDistance(): " + vietMapResponse.getFirstPath().getDistance());
+        System.out.println("VietMapResponse.getFirstPath().getDistance(): " + vietMapResponse.getFirstPath().getDistance());
 
         if (vietMapResponse.getFirstPath().getDistance() <= 200)  //     quảng đường bé hơn 200m
-            throw new BadRequestException("Quảng đường quá gần, chúng tôi chưa hổ trợ");
+            throw new BadRequestException("Quảng đường quá gần, chúng tôi chưa hỗ trợ");
 
         if (vietMapResponse.getFirstPath().getDistance() >= 150000)  //     quảng đường lớn hơn 150km
-            throw new BadRequestException("Quảng đường quá xa, chúng tôi chưa hổ trợ");
+            throw new BadRequestException("Quảng đường quá xa, chúng tôi chưa hỗ trợ");
 
         long amount = this.calculatePrice(vietMapResponse.getFirstPath().getDistance(), req.getVehicleType());
 
@@ -96,11 +96,13 @@ public class BookingServiceImpl implements IBookingService {
         booking.setCustomer(customer);
         booking.setDriver(null);
         booking.setStatus(BookingStatus.WAITING);
-        booking.setPickupLocation(req.getPickUpLocation());
-        booking.setDropoffLocation(req.getDropOffLocation());
+        booking.setPickUpLocation(req.getPickUpLocation());
+        booking.setDropOffLocation(req.getDropOffLocation());
         booking.setAmount(amount);
         booking.setVehicleType(req.getVehicleType());
         booking.setCreateAt(new Date());
+        booking.setPickUpAddress(mapService.convertLocationToAddress(req.getPickUpLocation()));
+        booking.setDropOffLocation(mapService.convertLocationToAddress(req.getDropOffLocation()));
         bookingRepository.save(booking);
 
         BookingResponse resp = new BookingResponse();
@@ -110,8 +112,8 @@ public class BookingServiceImpl implements IBookingService {
         resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
         resp.setCustomerId(booking.getCustomer().getId());
         resp.setAmount(booking.getAmount());
-        resp.setDropOffLocation(booking.getDropoffLocation());
-        resp.setPickupLocation(booking.getPickupLocation());
+        resp.setDropOffLocation(booking.getDropOffLocation());
+        resp.setPickUpLocation(booking.getPickUpLocation());
         resp.setStatus(booking.getStatus());
         resp.setVehicleType(booking.getVehicleType());
         resp.setDistance(vietMapResponse.getFirstPath().getDistance());
@@ -161,18 +163,7 @@ public class BookingServiceImpl implements IBookingService {
                 throw new NotFoundException("Không tìm thấy booking");
             }
         }
-        BookingResponse resp = new BookingResponse();
-        resp.setId(booking.getId());
-        resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
-        resp.setCreateAt(booking.getCreateAt());
-        resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
-        resp.setCustomerId(booking.getCustomer().getId());
-        resp.setAmount(booking.getAmount());
-        resp.setDropOffLocation(booking.getDropoffLocation());
-        resp.setPickupLocation(booking.getPickupLocation());
-        resp.setStatus(booking.getStatus());
-        resp.setVehicleType(booking.getVehicleType());
-        return resp;
+        return BookingMapper.bookingToBookingResponse(booking);
     }
 
     @Override
@@ -180,34 +171,13 @@ public class BookingServiceImpl implements IBookingService {
         AppUtils.validatePageNumberAndSize(page, size);
         PageRequest pageable = PageRequest.of(page, size);
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
-        Page<Booking> bookingPage = null;
-        switch (user.getFirstRole().getName()) {
-            case CUSTOMER:
-                bookingPage = bookingRepository.findBookingBetweenAndCustomer(from, to, user.getId(), pageable);
-                break;
-            case DRIVER:
-                bookingPage = bookingRepository.findBookingBetweenAndDriver(from, to, user.getId(), pageable);
-                break;
-            case ADMIN:
-                bookingPage = bookingRepository.findBookingBetween(from, to, pageable);
-                break;
-        }
+        Page<Booking> bookingPage = switch (user.getFirstRole().getName()) {
+            case CUSTOMER -> bookingRepository.findBookingBetweenAndCustomer(from, to, user.getId(), pageable);
+            case DRIVER -> bookingRepository.findBookingBetweenAndDriver(from, to, user.getId(), pageable);
+            case ADMIN -> bookingRepository.findBookingBetween(from, to, pageable);
+        };
 
-        List<BookingResponse> bookingResponses = new ArrayList<>(bookingPage.getContent().size());
-        bookingResponses = bookingPage.getContent().stream().map(booking -> {
-            BookingResponse resp = new BookingResponse();
-            resp.setId(booking.getId());
-            resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
-            resp.setCreateAt(booking.getCreateAt());
-            resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
-            resp.setCustomerId(booking.getCustomer().getId());
-            resp.setAmount(booking.getAmount());
-            resp.setDropOffLocation(booking.getDropoffLocation());
-            resp.setPickupLocation(booking.getPickupLocation());
-            resp.setStatus(booking.getStatus());
-            resp.setVehicleType(booking.getVehicleType());
-            return resp;
-        }).collect(Collectors.toList());
+        List<BookingResponse> bookingResponses = bookingPage.getContent().stream().map(BookingMapper::bookingToBookingResponse).collect(Collectors.toList());
         return new PagedResponse<>(bookingResponses, bookingPage.getNumber(), bookingPage.getSize(),
                 bookingPage.getTotalElements(), bookingPage.getTotalPages(), bookingPage.isLast());
     }
@@ -427,20 +397,7 @@ public class BookingServiceImpl implements IBookingService {
         List<Booking> books = typedQuery.getResultList();
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        List<BookingResponse> bookingResponses = books.stream().map(booking -> {
-            BookingResponse resp = new BookingResponse();
-            resp.setId(booking.getId());
-            resp.setDriverId(booking.getDriver() != null ? booking.getDriver().getId() : null);
-            resp.setCreateAt(booking.getCreateAt());
-            resp.setPaymentMethod(booking.getPayment() != null ? booking.getPayment().getPaymentMethod() : null);
-            resp.setCustomerId(booking.getCustomer().getId());
-            resp.setAmount(booking.getAmount());
-            resp.setDropOffLocation(booking.getDropoffLocation());
-            resp.setPickupLocation(booking.getPickupLocation());
-            resp.setStatus(booking.getStatus());
-            resp.setVehicleType(booking.getVehicleType());
-            return resp;
-        }).collect(Collectors.toList());
+        List<BookingResponse> bookingResponses = books.stream().map(BookingMapper::bookingToBookingResponse).collect(Collectors.toList());
 
         Page<BookingResponse> pagedResponse = new PageImpl<>(bookingResponses, pageRequest, totalResults);
         return new PagedResponse<>(pagedResponse.getContent(), pagedResponse.getNumber(), pagedResponse.getSize(),
