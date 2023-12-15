@@ -11,7 +11,7 @@ import java.util.Date;
 @Setter
 public class MessagePacketResponse extends CreateMessageRequest {
 
-    private String createAt;
+    private long createAt;
 
     @Override
     public String toString() {

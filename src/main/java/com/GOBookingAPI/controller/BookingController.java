@@ -11,6 +11,7 @@ import com.GOBookingAPI.services.IUserService;
 import com.GOBookingAPI.services.IWebSocketService;
 import com.GOBookingAPI.utils.AppConstants;
 import com.GOBookingAPI.utils.AppUtils;
+import com.GOBookingAPI.utils.DriverStatus;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -111,7 +112,7 @@ public class BookingController {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getByEmail(email);
         BookingResponse response = bookingService.getCurrentBooking(user);
-        if(user.getFirstRole().getName().equals(RoleEnum.DRIVER)){
+        if(user.getFirstRole().getName().equals(RoleEnum.DRIVER) && user.getDriver().getStatus() == DriverStatus.FREE){
             //todo check have booking
            webSocketService.notifytoDriver(user.getId(), "HAVEBOOKING");
         }

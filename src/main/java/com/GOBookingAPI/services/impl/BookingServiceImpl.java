@@ -255,12 +255,13 @@ public class BookingServiceImpl implements IBookingService {
         }
 
         booking.setStatus(requestedStatus);
+        booking.setReasonType(req.getReasonType());
+        booking.setContentCancel(req.getContent());
         bookingRepository.save(booking);
 
         // Trả về thông tin trạng thái mới của đơn đặt
         return new BookingStatusResponse(booking.getId(), booking.getStatus());
     }
-
 
     @Override
     public BaseResponse<Booking> Confirm(int id) {

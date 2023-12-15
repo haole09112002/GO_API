@@ -23,5 +23,5 @@ public class MessageResponse {
 
     protected String content;
 
-    protected Date createAt;
+    protected long createAt;
 }
