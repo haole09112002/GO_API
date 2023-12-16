@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -16,7 +17,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import com.GOBookingAPI.entities.User;
-import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.security.Model.TokenSecurity;
 import com.GOBookingAPI.security.Model.UserSecurity;
@@ -71,7 +71,7 @@ public class GoogleProvider implements AuthenticationProvider {
                 System.out.println("This is Provider");
                 User user = userOptional.get();
                 if (!user.getIsNonBlock()) {
-                   throw new LockedException("User account is locked");        //todo fix
+                   throw new AccessDeniedException("User account is locked");        //todo fix
                 }
                 return new UserSecurity(user, user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
             }
