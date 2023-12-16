@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +22,7 @@ import com.GOBookingAPI.payload.response.DriverPageResponse;
 import com.GOBookingAPI.payload.response.DriverStatusResponse;
 import com.GOBookingAPI.payload.response.PagedResponse;
 import com.GOBookingAPI.repositories.UserRepository;
+import com.GOBookingAPI.repositories.projection.UserDriverProjection;
 import com.GOBookingAPI.services.IBookingService;
 import com.GOBookingAPI.utils.*;
 
@@ -398,19 +400,22 @@ public class DriverServiceImpl implements IDriverService {
 			return new DriverActiveResponse("Fail", notify.toString());
 		} else {
 			for (int i = 0 ; i< list.size(); i++) {
-				Driver driver = driverRepository.findById(list.get(i))
-						.orElseThrow(() -> new NotFoundException("One of drivers is not found"));
-				User user = userRepository.findById(list.get(i))
-						.orElseThrow(() -> new NotFoundException("One of User is not found"));
-				if (!user.getIsNonBlock()) {
-					error.add("driver with id " + String.valueOf(list.get(i)) + " is blocked,");
+				UserDriverProjection project = driverRepository.getStatusAndIsNonBlock(list.get(i));
+				if(project == null) {
+					error.add("driver with id " + String.valueOf(list.get(i)) + " is not exits,");
 					list.remove(i);
 					i--;
 				}else {
-					if (!driver.getStatus().equals(DriverStatus.NOT_ACTIVATED)) {
-						error.add("driver with id " + String.valueOf(list.get(i)) + " activated,");
+					if (!project.getisNonBlock()) {
+						error.add("driver with id " + String.valueOf(list.get(i)) + " is blocked,");
 						list.remove(i);
 						i--;
+					}else {
+						if (!project.getStatus().equals(DriverStatus.NOT_ACTIVATED)) {
+							error.add("driver with id " + String.valueOf(list.get(i)) + " activated,");
+							list.remove(i);
+							i--;
+						}
 					}
 				}
 			}

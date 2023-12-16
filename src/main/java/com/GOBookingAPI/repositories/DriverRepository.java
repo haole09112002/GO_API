@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.GOBookingAPI.entities.Driver;
-import com.GOBookingAPI.repositories.projection.DriverProjection;
+import com.GOBookingAPI.repositories.projection.UserDriverProjection;
 import com.GOBookingAPI.utils.DriverStatus;
 
 
@@ -22,9 +22,9 @@ public interface DriverRepository extends JpaRepository<Driver, Integer> {
 	@Query("SELECT d FROM Driver d WHERE status = :status")
 	List<Driver> findDriverStatus(@Param("status") DriverStatus status );
 
-	@Query(value = "select d.id , d.activity_area as area , d.full_name as fullname , d.status, u.phone_number as phonenumber, u.is_non_block as isnonblock\r\n"
-			+ " from gobooking.driver as d inner join gobooking.user as u on u.id = d.user_id" , nativeQuery = true)
-	Page<DriverProjection> getDriverPageAndSort(Pageable pageable);
+	@Query(value = "select d.status,u.is_non_block as isnonblock\r\n"
+			+ " from gobooking.driver as d inner join gobooking.user as u on u.id = d.user_id where u.id =?1" , nativeQuery = true)
+	UserDriverProjection getStatusAndIsNonBlock(int id);
 	
 	@Modifying
 	@Transactional

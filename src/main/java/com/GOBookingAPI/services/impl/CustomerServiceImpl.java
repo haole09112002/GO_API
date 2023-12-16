@@ -21,9 +21,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.repositories.CustomerRepository;
-import com.GOBookingAPI.repositories.projection.CustomerDetailProjection;
-import com.GOBookingAPI.repositories.projection.CustomerProjection;
-import com.GOBookingAPI.services.ICustomerService;
 import com.GOBookingAPI.utils.AppUtils;
 
 import jakarta.persistence.EntityManager;
@@ -61,11 +58,6 @@ public class CustomerServiceImpl implements CustomerService {
    		return new CustomerResponse(customer);
     }
 
-	@Override
-	public CustomerDetailResponse getCustomer(int id) {
-//	Customer customerRepository.findById(id).orElseThrow(()-> new NotFoundException("Khong tim thay khach hang: " + id));
-		return null;
-	}
 
 	@Override
     public CustomerBaseInfoResponse getBaseInfoById(int id) {

@@ -12,7 +12,6 @@ public interface CustomerService {
 
     CustomerResponse getById(int id);
 
-    CustomerDetailResponse getCustomer(int id);
 
     CustomerBaseInfoResponse getBaseInfoById(int id);
 
