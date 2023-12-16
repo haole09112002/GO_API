@@ -60,11 +60,11 @@ public class WebSocketServiceImpl implements IWebSocketService {
         managerLocation.addOrUpdateLocation(location, driver.getStatus());
 
         int customerId = managerBooking.getCustomerIdByDriverId(driver.getId());
-        if(customerId != -1) {
+        if (customerId != -1) {
 //            JSONObject json = new JSONObject();
 //            json.put("driverId", location.getDriverId());
 //            json.put("location", location.getLocation());
-            System.out.println("DriverId: + "+ driver.getId() +", Vị trí " + location.getLocation());
+            System.out.println("DriverId: + " + driver.getId() + ", Vị trí " + location.getLocation());
             messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_location", websocket);
         }
     }
@@ -78,20 +78,20 @@ public class WebSocketServiceImpl implements IWebSocketService {
         response.setContent(message.getContent());
         response.setConversationId(message.getConversation().getId());
 
-        System.out.println("==> sendMessagePrivate : "  + response.toString());
+        System.out.println("==> sendMessagePrivate : " + response.toString());
         messagingTemplate.convertAndSendToUser(String.valueOf(response.getSenderId()), "/message_receive", response);
         messagingTemplate.convertAndSendToUser(String.valueOf(response.getReceiverId()), "/message_receive", response);
     }
 
     @Override
     public void notifyBookingStatusToCustomer(int userId, BookingStatusResponse resp) {
-        System.out.println("==> notifyBookingStatusToCustomer: " + resp.getBookingStatus() +", " + userId);
+        System.out.println("==> notifyBookingStatusTo user: " + userId + ", " + resp.toString());
         messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/booking_status", resp);
     }
 
     @Override
     public void notifyBookingToDriver(int driverId, int bookingId) {
-        System.out.println("==> notifyBookingToDriver: " + bookingId +", " + driverId);
+        System.out.println("==> notifyBookingToDriver: " + bookingId + ", " + driverId);
         JSONObject json = new JSONObject();
         json.put("bookingId", bookingId);
         messagingTemplate.convertAndSendToUser(String.valueOf(driverId), "/driver_booking", json);
@@ -99,7 +99,7 @@ public class WebSocketServiceImpl implements IWebSocketService {
 
     @Override
     public void notifyDriverToCustomer(int customerId, int driverId) {
-        System.out.println("==> notifyDriverToCustomer: " + customerId +", " + driverId);
+        System.out.println("==> notifyDriverToCustomer: " + customerId + ", " + driverId);
         JSONObject json = new JSONObject();
         json.put("driverId", driverId);
         messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_info", json);

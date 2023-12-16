@@ -176,7 +176,7 @@ public class BookingServiceImpl implements IBookingService {
 
     @Override
     @Transactional
-    public BookingStatusResponse cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req) {
+    public Booking cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req) {
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
         Booking booking = bookingRepository.findById(req.getBookingId()).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
 
@@ -192,6 +192,8 @@ public class BookingServiceImpl implements IBookingService {
         }
 
         switch (currentStatus) {
+            case COMPLETE:
+                throw new BadRequestException("Chuyến đi đã hoàn tất không thể hủy");
             case ON_RIDE:
                 throw new BadRequestException("Bạn đang di chuyển trên xe không thể hủy");
             case REFUNDED:
@@ -205,9 +207,8 @@ public class BookingServiceImpl implements IBookingService {
                 }
                 break;
             case PAID:
-                if (requestedStatus != BookingStatus.WAITING_REFUND) {
-                    throw new BadRequestException("Bạn chỉ có thể chuyển sang trạng thái chờ hoàn tiền");
-                }
+            case FOUND:
+                requestedStatus = BookingStatus.WAITING_REFUND;
                 break;
         }
 
@@ -217,11 +218,13 @@ public class BookingServiceImpl implements IBookingService {
         bookingRepository.save(booking);
 
         //todo tach ham
-        booking.getDriver().setStatus(DriverStatus.FREE);           //todo bug
-        driverRepository.save(booking.getDriver());
-
+        if (booking.getDriver() != null) {
+            managerBooking.deleteData(booking.getDriver().getId());
+            booking.getDriver().setStatus(DriverStatus.FREE);       //todo bug
+            driverRepository.save(booking.getDriver());
+        }
         // Trả về thông tin trạng thái mới của đơn đặt
-        return new BookingStatusResponse(booking.getId(), booking.getStatus());
+        return booking;
     }
 
     @Override

@@ -28,7 +28,7 @@ public interface IBookingService {
 
     BookingResponse changeBookingStatusForAdmin(int bookingId, BookingStatus status);
 
-    BookingStatusResponse cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req);
+    Booking cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req);
 
     boolean isDriverBelongsToCustomerBooking(User cus, int driverId);
 

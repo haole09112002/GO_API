@@ -1,16 +1,20 @@
 package com.GOBookingAPI.controller;
 
 
+import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.payload.request.BookingStatusRequest;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
+import com.GOBookingAPI.services.IPaymentService;
 import com.GOBookingAPI.services.IUserService;
 import com.GOBookingAPI.services.IWebSocketService;
 import com.GOBookingAPI.utils.AppConstants;
 import com.GOBookingAPI.utils.DriverStatus;
+import com.GOBookingAPI.utils.ManagerBooking;
+import com.GOBookingAPI.utils.ManagerLocation;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -44,6 +48,15 @@ public class BookingController {
 
     @Autowired
     private IWebSocketService webSocketService;
+
+    @Autowired
+    private ManagerLocation managerLocation;
+
+    @Autowired
+    private ManagerBooking managerBooking;
+
+    @Autowired
+    private IPaymentService paymentService;
 
     @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
@@ -82,14 +95,24 @@ public class BookingController {
                 sortField, page, size, email));
     }
 
-    @PutMapping("/{id}/cancel")
+    @PatchMapping("/{id}/cancel")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<BookingStatusResponse> cancelBooking(
-            @PathVariable int id,
-            @RequestBody BookingCancelRequest cancelRequest) {
+    public ResponseEntity<BookingStatusResponse> cancelBooking(@PathVariable int id, @RequestBody BookingCancelRequest cancelRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        BookingStatusResponse response = bookingService.cancelBookingForCustomer(email, id, cancelRequest);
-        return ResponseEntity.ok(response);
+        Booking booking = bookingService.cancelBookingForCustomer(email, id, cancelRequest);
+
+        webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
+        if (booking.getDriver() != null) {
+            webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
+            System.out.println("===> notify to driver: " + (new BookingStatusResponse(booking.getId(), booking.getStatus())).toString());
+            if (booking.getStatus().equals(BookingStatus.WAITING_REFUND)) {
+                System.out.println("Booking status : " + BookingStatus.WAITING_REFUND);
+                managerBooking.deleteData(booking.getDriver().getId());
+                managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
+                paymentService.refundPayment(booking); // todo bug
+            }
+        }
+        return ResponseEntity.ok(new BookingStatusResponse(booking.getId(), booking.getStatus()));
     }
 
     @PutMapping("/{bookingId}/status")

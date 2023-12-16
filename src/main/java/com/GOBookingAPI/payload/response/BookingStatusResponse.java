@@ -12,10 +12,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class BookingStatusResponse extends BookingStatusRequest {
+public class BookingStatusResponse{
 
     private int bookingId;
 
     @JsonProperty("status")
     private BookingStatus bookingStatus;
+
+    @Override
+    public String toString() {
+        return "BookingStatusResponse{" +
+                "bookingId=" + bookingId +
+                ", bookingStatus=" + bookingStatus +
+                '}';
+    }
 }

@@ -295,6 +295,7 @@ public class PaymentServiceImpl implements IPaymentService {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleAtFixedRate(() -> {
             //todo fix refunded
+            System.out.println("============> REFUND: " + booking.getId());
             booking.setStatus(BookingStatus.REFUNDED);
             bookingRepository.save(booking);
             isSuccess.set(false);

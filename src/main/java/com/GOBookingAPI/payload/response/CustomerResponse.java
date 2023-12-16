@@ -28,6 +28,8 @@ public class CustomerResponse {
 
     private long createAt;
 
+    private String phoneNumber;
+
     public CustomerResponse(Customer cus){
         this.id = cus.getId();
         this.fullName = cus.getFullName();
@@ -37,5 +39,6 @@ public class CustomerResponse {
         this.avatarUrl = cus.getUser().getAvatarUrl();
         this.isNonBlock = cus.getUser().getIsNonBlock();
         this.createAt = cus.getUser().getCreateDate().getTime();
+        this.phoneNumber = cus.getUser().getPhoneNumber();
     }
 }
