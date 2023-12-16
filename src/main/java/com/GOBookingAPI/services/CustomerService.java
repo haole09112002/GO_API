@@ -1,6 +1,6 @@
 package com.GOBookingAPI.services;
 
-import com.GOBookingAPI.entities.Customer;
+import com.GOBookingAPI.payload.request.ChangeCustomerInfoRequest;
 import com.GOBookingAPI.payload.response.*;
 
 public interface CustomerService {
@@ -14,4 +14,6 @@ public interface CustomerService {
     PagedResponse<CustomersResponse> getCustomerPageAndSort(int offset , int pagesize , String field);
 
     CustomerDetailResponse getCustomerDetailById(int id);
+
+    CustomerResponse changeInfo(int id, String email, ChangeCustomerInfoRequest req);
 }

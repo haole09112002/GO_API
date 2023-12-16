@@ -1,32 +1,37 @@
 package com.GOBookingAPI.services.impl;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.GOBookingAPI.entities.Customer;
-import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.exceptions.NotFoundException;
+import com.GOBookingAPI.payload.request.ChangeCustomerInfoRequest;
 import com.GOBookingAPI.payload.response.*;
+import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
 
 import com.GOBookingAPI.repositories.CustomerRepository;
 import com.GOBookingAPI.repositories.projection.CustomerDetailProjection;
 import com.GOBookingAPI.repositories.projection.CustomerProjection;
-import com.GOBookingAPI.services.ICustomerService;
 import org.modelmapper.ModelMapper;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+	@Autowired
+	private UserRepository userRepository;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @Override
     public CustomerResponse getById(int id) {
@@ -84,5 +89,27 @@ public class CustomerServiceImpl implements CustomerService {
 				customerDetailProjection.getCreate_date() ,
 				customerDetailProjection.getDate_of_birth(),
 				customerDetailProjection.getGender());
+	}
+
+	@Override
+	@Transactional
+	public CustomerResponse changeInfo(int id, String email, ChangeCustomerInfoRequest req) {
+    	Customer customer = customerRepository.findById(id).orElseThrow(()-> new NotFoundException("Khong tim thay khach hang: " + id));
+
+    	if(customer.getId() != id){
+			throw new NotFoundException("Not found customer id: " + id);
+		}
+
+    	customer.setFullName(req.getFullName());
+    	customer.setGender(req.isGender());
+    	customer.setDateOfBirth(req.getDateOfBirth());
+
+    	if(req.getAvatar() != null){
+			String url = fileStorageService.createImgUrl(req.getAvatar());
+			customer.getUser().setAvatarUrl(url);
+			userRepository.save(customer.getUser());
+		}
+    	customerRepository.save(customer);
+		return new CustomerResponse(customer);
 	}
 }

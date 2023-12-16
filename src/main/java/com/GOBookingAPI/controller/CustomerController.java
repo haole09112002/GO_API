@@ -2,16 +2,16 @@ package com.GOBookingAPI.controller;
 
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.RoleEnum;
+import com.GOBookingAPI.payload.request.ChangeCustomerInfoRequest;
 import com.GOBookingAPI.services.CustomerService;
 import com.GOBookingAPI.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
@@ -36,5 +36,11 @@ public class CustomerController {
 	@GetMapping("/{id}/base-info")
 	public ResponseEntity<?> getBaseInfoCustomer(@PathVariable int id){
 		return ResponseEntity.ok(customerService.getBaseInfoById(id));
+	}
+
+	@PatchMapping(value = "{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+	public ResponseEntity<?> changeInfo(@PathVariable int id, @ModelAttribute ChangeCustomerInfoRequest request){
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		return ResponseEntity.ok(customerService.changeInfo(id, email, request));
 	}
 }
