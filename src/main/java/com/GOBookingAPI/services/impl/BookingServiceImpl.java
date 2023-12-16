@@ -208,6 +208,7 @@ public class BookingServiceImpl implements IBookingService {
                 break;
             case PAID:
             case FOUND:
+            case ARRIVED_PICKUP:
                 requestedStatus = BookingStatus.WAITING_REFUND;
                 break;
         }
@@ -275,7 +276,7 @@ public class BookingServiceImpl implements IBookingService {
                 return null;
             }
 
-            if (booking.getStatus() != BookingStatus.WAITING && booking.getStatus() != BookingStatus.PAID && booking.getStatus() != BookingStatus.FOUND) {
+            if (booking.getStatus() != BookingStatus.WAITING && booking.getStatus() != BookingStatus.PAID && booking.getStatus() != BookingStatus.FOUND && booking.getStatus() != BookingStatus.ARRIVED_PICKUP) {
                 System.out.println("==> booking.getStatus() != BookingStatus.WAITING || booking.getStatus() != BookingStatus.PAID");
                 return null;
             }
@@ -293,7 +294,12 @@ public class BookingServiceImpl implements IBookingService {
                 return null;
             }
 
-            if (!booking.getStatus().equals(BookingStatus.FOUND) && newStatus.equals(BookingStatus.ON_RIDE)) {
+            if (!booking.getStatus().equals(BookingStatus.FOUND) && newStatus.equals(BookingStatus.ARRIVED_PICKUP)) {
+                System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() + "=> " + newStatus);
+                return null;
+            }
+
+            if (!booking.getStatus().equals(BookingStatus.ARRIVED_PICKUP) && newStatus.equals(BookingStatus.ON_RIDE)) {
                 System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() + "=> " + newStatus);
                 return null;
             }

@@ -60,13 +60,16 @@ public class WebSocketServiceImpl implements IWebSocketService {
         managerLocation.addOrUpdateLocation(location, driver.getStatus());
 
         int customerId = managerBooking.getCustomerIdByDriverId(driver.getId());
+
+
+        System.out.println("====> managerBooking.getCustomerIdByDriverId(driver.getId()) == null");
         if (customerId != -1) {
-//            JSONObject json = new JSONObject();
-//            json.put("driverId", location.getDriverId());
-//            json.put("location", location.getLocation());
             System.out.println("DriverId: + " + driver.getId() + ", Vị trí " + location.getLocation());
             messagingTemplate.convertAndSendToUser(String.valueOf(customerId), "/customer_driver_location", websocket);
+        }else {
+            System.out.println("====> managerBooking.getCustomerIdByDriverId(driver.getId()) == null");
         }
+
     }
 
     @Override

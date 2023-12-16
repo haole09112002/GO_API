@@ -41,6 +41,7 @@ import jakarta.persistence.criteria.Root;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -200,7 +201,7 @@ public class CustomerServiceImpl implements CustomerService {
     		customer.setGender(req.getGender());
 
 
-    	if(req.getAvatar() != null){
+    	if(req.getAvatar() != null && !req.getAvatar().isEmpty()){
 			String url = fileStorageService.createImgUrl(req.getAvatar());
 			customer.getUser().setAvatarUrl(url);
 			userRepository.save(customer.getUser());
