@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.GOBookingAPI.entities.Customer;
-import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.entities.User;
-import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.exceptions.NotFoundException;
+import com.GOBookingAPI.payload.request.ChangeCustomerInfoRequest;
 import com.GOBookingAPI.payload.response.*;
+import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,14 +19,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
 
 import com.GOBookingAPI.repositories.CustomerRepository;
 import com.GOBookingAPI.repositories.projection.CustomerDetailProjection;
 import com.GOBookingAPI.repositories.projection.CustomerProjection;
 import com.GOBookingAPI.services.ICustomerService;
 import com.GOBookingAPI.utils.AppUtils;
-import com.GOBookingAPI.utils.DriverStatus;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -43,14 +40,21 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
-
     @PersistenceContext
     private EntityManager entityManager;
+    
+    @Autowired
+	private UserRepository userRepository;
+
+    @Autowired
+    private FileStorageService fileStorageService;
     @Override
     public CustomerResponse getById(int id) {
         Customer customer = customerRepository.findById(id).orElseThrow(()-> new NotFoundException("Khong tim thay khach hang: " + id));
@@ -177,5 +181,31 @@ public class CustomerServiceImpl implements CustomerService {
 				customerDetailProjection.getCreate_date() ,
 				customerDetailProjection.getDate_of_birth(),
 				customerDetailProjection.getGender());
+	}
+
+	@Override
+	@Transactional
+	public CustomerResponse changeInfo(int id, String email, ChangeCustomerInfoRequest req) {
+    	Customer customer = customerRepository.findById(id).orElseThrow(()-> new NotFoundException("Khong tim thay khach hang: " + id));
+
+    	if(customer.getId() != id){
+			throw new NotFoundException("Not found customer id: " + id);
+		}
+
+    	if(req.getDateOfBirth() != null)
+			customer.setDateOfBirth(req.getDateOfBirth());
+		if(req.getFullName() != null && !req.getFullName().isBlank())
+			customer.setFullName(req.getFullName());
+		if(req.getGender() != null)
+    		customer.setGender(req.getGender());
+
+
+    	if(req.getAvatar() != null){
+			String url = fileStorageService.createImgUrl(req.getAvatar());
+			customer.getUser().setAvatarUrl(url);
+			userRepository.save(customer.getUser());
+		}
+    	customerRepository.save(customer);
+		return new CustomerResponse(customer);
 	}
 }

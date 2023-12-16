@@ -7,14 +7,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import com.GOBookingAPI.entities.User;
-import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.security.Model.TokenSecurity;
 import com.GOBookingAPI.security.Model.UserSecurity;
@@ -28,8 +30,8 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 
 @Slf4j
 @Component
-public class GoogleProvider
-        implements AuthenticationProvider {
+public class GoogleProvider implements AuthenticationProvider {
+
     @Autowired
     private UserRepository userRepository;
 
@@ -42,7 +44,6 @@ public class GoogleProvider
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-
         try {
             TokenSecurity token = (TokenSecurity) authentication;
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), jacksonFactory)
@@ -52,19 +53,20 @@ public class GoogleProvider
             GoogleIdToken idToken = verifier.verify(token.getToken());
             if (idToken != null) {
                 Payload payload = idToken.getPayload();
-
                 String email = payload.getEmail();
                 Optional<User> userOptional = userRepository.findByEmail(email);
-                if (!userOptional.isPresent()) {
+                if (userOptional.isEmpty()) {
                     User user = new User();
                     user.setEmail(email);
                     user.setIsNonBlock(true);
                     System.out.println("This is Provider and provider null");
                     return new UserSecurity(user, null);
-
                 } else {
                     System.out.println("This is Provider");
                     User user = userOptional.get();
+//                if (!user.getIsNonBlock()) {
+//                   throw new AccessDeniedException("User account is locked");        //todo fix
+//                }
                     return new UserSecurity(user, user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
                 }
             } else {

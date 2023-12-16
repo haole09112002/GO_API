@@ -4,6 +4,7 @@ package com.GOBookingAPI.exceptions;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.ui.Model;
 import org.springframework.validation.FieldError;
@@ -19,7 +20,7 @@ import java.util.List;
 
 
 @RestControllerAdvice
-public class ControllerExceptionHandler{
+public class ControllerExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -67,12 +68,13 @@ public class ControllerExceptionHandler{
         }
         return new ErrorResponse(false, errorMessages, HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation2Exception(ConstraintViolationException ex) {
         List<String> details = ex.getConstraintViolations().stream()
-                        .map(e ->  e.getPropertyPath().toString()+ " : "  + e.getMessage())
-                        .toList();
+                .map(e -> e.getPropertyPath().toString() + " : " + e.getMessage())
+                .toList();
         return new ErrorResponse(false, details, HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
     }
 
@@ -108,4 +110,29 @@ public class ControllerExceptionHandler{
         messages.add(ex.getMessage());
         return new ErrorResponse(false, messages, HttpStatus.NOT_FOUND.getReasonPhrase(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(LockedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleLockedException(LockedException ex) {
+        List<String> messages = new ArrayList<>(1);
+        messages.add(ex.getMessage());
+        return new ErrorResponse(false, messages, HttpStatus.FORBIDDEN.getReasonPhrase(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleBadCredentialsException(org.springframework.security.authentication.BadCredentialsException ex) {
+        List<String> messages = new ArrayList<>(1);
+        messages.add(ex.getMessage());
+        return new ErrorResponse(false, messages, HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+    }
+
+
+//    @ExceptionHandler(IllegalArgumentException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {
+//        List<String> messages = new ArrayList<>(1);
+//        messages.add(ex.getMessage());
+//        return new ErrorResponse(false, messages, HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
+//    }
 }

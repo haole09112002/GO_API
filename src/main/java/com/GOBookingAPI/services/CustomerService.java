@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.GOBookingAPI.entities.Customer;
 import com.GOBookingAPI.enums.BookingStatus;
+import com.GOBookingAPI.payload.request.ChangeCustomerInfoRequest;
 import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.utils.DriverStatus;
 
@@ -19,4 +20,6 @@ public interface CustomerService {
     														String keyword, String sortType, String sortField, int size, int page);
 
     CustomerDetailResponse getCustomerDetailById(int id);
+
+    CustomerResponse changeInfo(int id, String email, ChangeCustomerInfoRequest req);
 }

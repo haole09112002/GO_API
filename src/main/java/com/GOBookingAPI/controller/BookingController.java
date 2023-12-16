@@ -82,13 +82,13 @@ public class BookingController {
                 sortField, page, size, email));
     }
 
-    @PutMapping("/{bookingId}/cancel")
+    @PutMapping("/{id}/cancel")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<BookingStatusResponse> cancelBooking(
-            @PathVariable int bookingId,
+            @PathVariable int id,
             @RequestBody BookingCancelRequest cancelRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        BookingStatusResponse response = bookingService.cancelBookingForCustomer(email, bookingId, cancelRequest);
+        BookingStatusResponse response = bookingService.cancelBookingForCustomer(email, id, cancelRequest);
         return ResponseEntity.ok(response);
     }
 

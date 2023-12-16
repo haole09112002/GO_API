@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import com.GOBookingAPI.enums.BookingStatus;
 
+import com.GOBookingAPI.enums.ReasonType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -58,9 +59,9 @@ public class Booking implements Serializable {
 	
 	@Column
 	private Date endTime;
-	
-	@Column
-	private String reasonType;
+
+	@Enumerated(EnumType.STRING)
+	private ReasonType reasonType;
 	
 	@Column(columnDefinition = "text") 
 	private String contentCancel;

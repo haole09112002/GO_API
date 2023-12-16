@@ -175,6 +175,7 @@ public class BookingServiceImpl implements IBookingService {
     }
 
     @Override
+    @Transactional
     public BookingStatusResponse cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req) {
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
         Booking booking = bookingRepository.findById(req.getBookingId()).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
@@ -214,6 +215,10 @@ public class BookingServiceImpl implements IBookingService {
         booking.setReasonType(req.getReasonType());
         booking.setContentCancel(req.getContent());
         bookingRepository.save(booking);
+
+        //todo tach ham
+        booking.getDriver().setStatus(DriverStatus.FREE);           //todo bug
+        driverRepository.save(booking.getDriver());
 
         // Trả về thông tin trạng thái mới của đơn đặt
         return new BookingStatusResponse(booking.getId(), booking.getStatus());

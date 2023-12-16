@@ -27,38 +27,41 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class ReviewServiceImpl implements IReviewService{
+public class ReviewServiceImpl implements IReviewService {
 
-	@Autowired
-	private ReviewRepository reviewRepository;
-	
-	@Autowired
-	private BookingRepository bookingRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
 
-	@Autowired
-	private UserRepository userRepository;
-	
-	@Override
-	public ReviewResponse createReview(ReviewRequest reviewRequest, String email) {
-		 User user = userRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Khong tim thay user: " + email));
-		 Booking booking = bookingRepository.findById(reviewRequest.getBookingId()).orElseThrow(() -> new NotFoundException("Khong tim thay booking: " + reviewRequest.getBookingId()));
+    @Autowired
+    private BookingRepository bookingRepository;
 
-		 if(booking.getCustomer().getId() != user.getId())
-		 {
-		 	throw new AccessDeniedException("You don't have permit to access this resource");
-		 }
+    @Autowired
+    private UserRepository userRepository;
 
-		 if(!booking.getStatus().equals(BookingStatus.COMPLETE)){
-		 	throw new BadRequestException("Booking not yet complete");
-		 }
+    @Override
+    public ReviewResponse createReview(ReviewRequest reviewRequest, String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Khong tim thay user: " + email));
+        Booking booking = bookingRepository.findById(reviewRequest.getBookingId()).orElseThrow(() -> new NotFoundException("Khong tim thay booking: " + reviewRequest.getBookingId()));
 
-		Review review = new Review();
-		review.setBooking(booking);
-		review.setRating(reviewRequest.getRating());
-		review.setContent(reviewRequest.getContent());
-		review.setCreateAt(new Date());
-		reviewRepository.save(review);
-		return new ReviewResponse(review);
-	}
+        if (booking.getCustomer().getId() != user.getId()) {
+            throw new AccessDeniedException("You don't have permit to access this resource");
+        }
+
+        if (!booking.getStatus().equals(BookingStatus.COMPLETE)) {
+            throw new BadRequestException("Booking not yet complete");
+        }
+
+        if (booking.getReview() != null) {
+            throw new BadRequestException("You already reviewed this booking " + reviewRequest.getBookingId());
+        }
+
+        Review review = new Review();
+        review.setBooking(booking);
+        review.setRating(reviewRequest.getRating());
+        review.setContent(reviewRequest.getContent());
+        review.setCreateAt(new Date());
+        reviewRepository.save(review);
+        return new ReviewResponse(review);
+    }
 
 }

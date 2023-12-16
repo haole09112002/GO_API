@@ -3,6 +3,8 @@ package com.GOBookingAPI.controller;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.enums.RoleEnum;
+import com.GOBookingAPI.exceptions.BadRequestException;
+import com.GOBookingAPI.payload.request.ChangeCustomerInfoRequest;
 import com.GOBookingAPI.services.CustomerService;
 import com.GOBookingAPI.services.IUserService;
 import com.GOBookingAPI.utils.AppConstants;
@@ -21,6 +23,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
@@ -31,7 +39,7 @@ public class CustomerController {
 	@Autowired
 	private IUserService userService;
 
-	@GetMapping("/{id}")
+	@GetMapping(value = {"/{id}", "/"})
 	@PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
 	public ResponseEntity<?> getCustomer(@PathVariable(required = false) int id){
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -67,4 +75,14 @@ public class CustomerController {
 //		return ResponseEntity.ok(customerService.getCustomerDetailById(id));
 //	}
 	
+
+
+	@PatchMapping(value = "{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+	public ResponseEntity<?> changeInfo(@PathVariable int id, @ModelAttribute ChangeCustomerInfoRequest request){
+		if(request.isNull())
+			throw new BadRequestException("Content is null");
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		return ResponseEntity.ok(customerService.changeInfo(id, email, request));
+	}
+
 }
