@@ -22,7 +22,7 @@ public class CustomerController {
 	@Autowired
 	private IUserService userService;
 
-	@GetMapping("/{id}")
+	@GetMapping(value = {"/{id}", "/"})
 	@PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
 	public ResponseEntity<?> getCustomer(@PathVariable(required = false) int id){
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
