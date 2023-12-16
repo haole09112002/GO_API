@@ -100,9 +100,13 @@ public class CustomerServiceImpl implements CustomerService {
 			throw new NotFoundException("Not found customer id: " + id);
 		}
 
-    	customer.setFullName(req.getFullName());
-    	customer.setGender(req.isGender());
-    	customer.setDateOfBirth(req.getDateOfBirth());
+    	if(req.getDateOfBirth() != null)
+			customer.setDateOfBirth(req.getDateOfBirth());
+		if(req.getFullName() != null && !req.getFullName().isBlank())
+			customer.setFullName(req.getFullName());
+		if(req.getGender() != null)
+    		customer.setGender(req.getGender());
+
 
     	if(req.getAvatar() != null){
 			String url = fileStorageService.createImgUrl(req.getAvatar());

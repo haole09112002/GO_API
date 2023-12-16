@@ -2,6 +2,7 @@ package com.GOBookingAPI.controller;
 
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.RoleEnum;
+import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.request.ChangeCustomerInfoRequest;
 import com.GOBookingAPI.services.CustomerService;
 import com.GOBookingAPI.services.IUserService;
@@ -40,6 +41,8 @@ public class CustomerController {
 
 	@PatchMapping(value = "{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public ResponseEntity<?> changeInfo(@PathVariable int id, @ModelAttribute ChangeCustomerInfoRequest request){
+		if(request.isNull())
+			throw new BadRequestException("Content is null");
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		return ResponseEntity.ok(customerService.changeInfo(id, email, request));
 	}

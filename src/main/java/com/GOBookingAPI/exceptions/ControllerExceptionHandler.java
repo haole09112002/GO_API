@@ -126,4 +126,13 @@ public class ControllerExceptionHandler {
         messages.add(ex.getMessage());
         return new ErrorResponse(false, messages, HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
     }
+
+
+//    @ExceptionHandler(IllegalArgumentException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {
+//        List<String> messages = new ArrayList<>(1);
+//        messages.add(ex.getMessage());
+//        return new ErrorResponse(false, messages, HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
+//    }
 }
