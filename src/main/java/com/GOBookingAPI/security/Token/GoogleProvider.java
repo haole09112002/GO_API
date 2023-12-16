@@ -70,9 +70,9 @@ public class GoogleProvider implements AuthenticationProvider {
             } else {
                 System.out.println("This is Provider");
                 User user = userOptional.get();
-                if (!user.getIsNonBlock()) {
-                   throw new AccessDeniedException("User account is locked");        //todo fix
-                }
+//                if (!user.getIsNonBlock()) {
+//                   throw new AccessDeniedException("User account is locked");        //todo fix
+//                }
                 return new UserSecurity(user, user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
             }
         } else {
