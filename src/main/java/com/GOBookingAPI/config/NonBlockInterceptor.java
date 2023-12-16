@@ -8,7 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-//@Component
+@Component
 public class NonBlockInterceptor implements HandlerInterceptor {
 
     @Override

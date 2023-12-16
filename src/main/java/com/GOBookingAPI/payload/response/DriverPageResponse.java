@@ -11,9 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DriverPageResponse {
 	private int id;
+	private String email;
 	private String area;
 	private String fullname;
 	private String phonenumber;
 	private DriverStatus status;
-	private boolean insonblock;
+	private boolean isNonblock;
 }

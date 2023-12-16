@@ -19,7 +19,6 @@ public interface CustomerService {
     PagedResponse<CustomersResponse> getCustomerPageAndSort(Date from, Date to, Boolean isNonBlock,  String searchField,
     														String keyword, String sortType, String sortField, int size, int page);
 
-    CustomerDetailResponse getCustomerDetailById(int id);
 
     CustomerResponse changeInfo(int id, String email, ChangeCustomerInfoRequest req);
 }

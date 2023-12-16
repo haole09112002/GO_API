@@ -6,6 +6,7 @@ import java.util.List;
 import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.enums.VehicleType;
+import com.GOBookingAPI.payload.response.DriverActiveResponse;
 import com.GOBookingAPI.payload.response.DriverBaseInfoResponse;
 import com.GOBookingAPI.payload.response.DriverInfoResponse;
 import com.GOBookingAPI.payload.response.DriverStatusResponse;
@@ -32,5 +33,5 @@ public interface IDriverService {
 	PagedResponse<DriverPageResponse> getDriverPageAndSort(Date from, Date to, Boolean isNonBlock, DriverStatus status, String searchField,
 			String keyword, String sortType, String sortField, int size, int page);
 	
-	boolean ActiveDriver(String ids);
+	DriverActiveResponse ActiveDriver(String ids);
 }

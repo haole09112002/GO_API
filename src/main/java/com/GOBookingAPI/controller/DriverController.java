@@ -66,12 +66,6 @@ public class DriverController {
 	@PutMapping("/active/{ids}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> ActiveDriver(@PathVariable String ids){
-		JSONObject json = new JSONObject();
-		if(driverService.ActiveDriver(ids)) {
-			json.put("message", "Active Complete!");
-		}else {
-			json.put("message", "Active Fail!");
-		}
-		return ResponseEntity.ok(json);
+		return ResponseEntity.ok(driverService.ActiveDriver(ids));
 	}
 }
