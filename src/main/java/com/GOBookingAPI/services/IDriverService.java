@@ -1,22 +1,17 @@
 package com.GOBookingAPI.services;
 
+import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import com.GOBookingAPI.entities.Booking;
 import com.GOBookingAPI.entities.Driver;
 import com.GOBookingAPI.enums.VehicleType;
-import com.GOBookingAPI.payload.response.BaseResponse;
-import com.GOBookingAPI.payload.response.CustomersResponse;
 import com.GOBookingAPI.payload.response.DriverBaseInfoResponse;
 import com.GOBookingAPI.payload.response.DriverInfoResponse;
 import com.GOBookingAPI.payload.response.DriverStatusResponse;
 import com.GOBookingAPI.payload.response.DriverPageResponse;
 import com.GOBookingAPI.payload.response.PagedResponse;
 import com.GOBookingAPI.utils.DriverStatus;
-import com.GOBookingAPI.utils.LocationDriver;
 public interface IDriverService {
 	Driver findDriverBooking(String locationCustomer, VehicleType vehicleType);
 
@@ -34,7 +29,8 @@ public interface IDriverService {
 
 	Driver getById(int id);
 	
-	PagedResponse<DriverPageResponse> getDriverPageAndSort(int offset , int pagesize , String field);
+	PagedResponse<DriverPageResponse> getDriverPageAndSort(Date from, Date to, Boolean isNonBlock, DriverStatus status, String searchField,
+			String keyword, String sortType, String sortField, int size, int page);
 	
-	boolean ActiveDriver(List<Integer> ids);
+	boolean ActiveDriver(String ids);
 }

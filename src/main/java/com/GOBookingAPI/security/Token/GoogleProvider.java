@@ -58,6 +58,7 @@ public class GoogleProvider implements AuthenticationProvider {
                 if (userOptional.isEmpty()) {
                     User user = new User();
                     user.setEmail(email);
+                    user.setIsNonBlock(true);
                     System.out.println("This is Provider and provider null");
                     return new UserSecurity(user, null);
                 } else {

@@ -12,5 +12,7 @@ public class AppConstants {
     public static final int PERIOD_TIME = 15;   // 15s
 
     public static final int INIT_DELAY = 5;   // 5s
+    
+    public static final String IS_NON_BLOCK = "true";
 
 }

@@ -1,5 +1,7 @@
 package com.GOBookingAPI.services.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -9,8 +11,6 @@ import java.util.stream.Collectors;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
-import com.GOBookingAPI.exceptions.BadCredentialsException;
-import com.GOBookingAPI.payload.response.BaseResponse;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.payload.response.DriverBaseInfoResponse;
 import com.GOBookingAPI.payload.response.DriverInfoResponse;
@@ -18,17 +18,27 @@ import com.GOBookingAPI.payload.response.DriverPageResponse;
 import com.GOBookingAPI.payload.response.DriverStatusResponse;
 import com.GOBookingAPI.payload.response.PagedResponse;
 import com.GOBookingAPI.repositories.UserRepository;
-import com.GOBookingAPI.repositories.projection.DriverProjection;
 import com.GOBookingAPI.services.IBookingService;
 import com.GOBookingAPI.utils.*;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.entities.Booking;
@@ -76,6 +86,9 @@ public class DriverServiceImpl implements IDriverService {
     @Autowired
     private IBookingService bookingService;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+    
     @Override
     public Driver findDriverBooking(String locationCustomer, VehicleType vehicleType) {
         int id_driver = 0;
@@ -245,32 +258,136 @@ public class DriverServiceImpl implements IDriverService {
         return driverRepository.findById(id).orElseThrow(()-> new NotFoundException("Khong tim thay driver, driverId: " + id));
     }
 
-	@Override
-	public PagedResponse<DriverPageResponse> getDriverPageAndSort(int offset, int pagesize, String field) {
-		Page<DriverProjection> page =driverRepository.getDriverPageAndSort(PageRequest.of(offset, pagesize).withSort(Sort.by(field)));
-		List<DriverPageResponse> list = page.getContent().stream().map(driver -> new DriverPageResponse(
-				driver.getId(),
-				driver.getArea(),
-				driver.getFullname(),
-				driver.getPhonenumber(),
-				driver.getStatus(),
-				driver.getIsnonblock()
-				)).collect(Collectors.toList());
-		return new PagedResponse<DriverPageResponse>(list ,page.getNumber(), page.getSize(),
-				page.getTotalElements(), page.getTotalPages(), page.isLast());
-	}
 
-	@Override
-	public boolean ActiveDriver(List<Integer> ids) {
-		try {
-			driverRepository.ActiveDriver(ids);
-			return true;
-		} catch (Exception e) {
-			log.info("Error Active " + e.getMessage());
-			return false;
+    
+    @Override
+	public PagedResponse<DriverPageResponse> getDriverPageAndSort(Date from, Date to, Boolean isNonBlock,
+			DriverStatus status, String searchField, String keyword, String sortType, String sortField, int size,
+			int page) {
+    	CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Tuple> criteriaQuery = criteriaBuilder.createTupleQuery();
+		Root<Driver> root = criteriaQuery.from(Driver.class);
+		
+		Join<Driver, User> userJoin = root.join("user", JoinType.INNER);
+		
+		criteriaQuery.multiselect(
+				userJoin.get("id").alias("Id"),
+				root.get("activityArea").alias("Area"),
+				root.get("fullName").alias("FullName"),
+				userJoin.get("phoneNumber").alias("PhoneNumber"),
+				root.get("status").alias("Status"),
+				userJoin.get("isNonBlock").alias("IsNonBlock")
+				);
+		
+		List<Predicate> predicates = new ArrayList<Predicate>();
+		if(from != null && to != null) {
+			Path<Date> fieldcreateDate = userJoin.get("createDate");
+			Predicate predicate1 = criteriaBuilder.greaterThanOrEqualTo(fieldcreateDate, from);
+			Predicate predicate2 = criteriaBuilder.lessThanOrEqualTo(fieldcreateDate, to);
+			predicates.add(predicate1);
+			predicates.add(predicate2);
 		}
+		
+		
+		Path<Boolean> fieldIsNonBlock = userJoin.get("isNonBlock");
+		Predicate predicateboolean = criteriaBuilder.equal(fieldIsNonBlock, isNonBlock);
+		predicates.add(predicateboolean);
+		
+		if(sortField == null) {
+			sortField = "id";
+		}
+		
+		if(sortType == null) {
+			sortType = "asc";
+		}
+		
+		Path<Object> sortRoute =null ;
+		
+		try {
+			sortRoute = userJoin.get(sortField);
+		} catch (IllegalArgumentException e) {
+			throw new BadRequestException("Invalid sortField" + sortField);
+		}
+		Order order = "asc".equalsIgnoreCase(sortField) ? criteriaBuilder.asc(sortRoute) : criteriaBuilder.desc(sortRoute);
+		criteriaQuery.orderBy(order);
+		if(keyword != null ) {
+			if(searchField.equals("email")) {
+				Path<String> fieldEmail = userJoin.get("email");
+				Predicate predicate = criteriaBuilder.like(criteriaBuilder.lower(fieldEmail), "%"+keyword.toLowerCase() +"%" );
+				predicates.add(predicate);
+			} else if(searchField.equals("fullName")) {
+				Path<String> fieldName = root.get("full_name");
+				Predicate predicate = criteriaBuilder.like(criteriaBuilder.lower(fieldName),"%"+ keyword.toLowerCase() + "%");
+				predicates.add(predicate);
+			}else if(searchField.equals("phoneNumber")){
+				Path<String> fieldPhone = userJoin.get("phone_number");
+				Predicate predicate = criteriaBuilder.like(fieldPhone, keyword.toLowerCase() + "%");
+				predicates.add(predicate);
+			}else {
+				Path<String> fieldPhone = root.get("activity_area");
+				Predicate predicate = criteriaBuilder.like(fieldPhone, "%"+keyword.toLowerCase() + "%");
+				predicates.add(predicate);
+			}
+		}
+		
+		criteriaQuery.where(predicates.toArray(new Predicate[0]));
+		TypedQuery<Tuple> typedQuery = entityManager.createQuery(criteriaQuery);
+		
+		 AppUtils.validatePageNumberAndSize(page, size);
+
+        int totalResults = typedQuery.getResultList().size();
+
+        typedQuery.setFirstResult(page * size);
+        typedQuery.setMaxResults(size);
+        
+        List<DriverPageResponse> drivers = typedQuery.getResultList().stream().map(result -> new DriverPageResponse((int) result.get("Id"),
+        																						(String) result.get("Area"),
+        																						(String) result.get("FullName"),
+        																						(String) result.get("PhoneNumber"),
+        																						(DriverStatus) result.get("Status"),
+        																						(Boolean) result.get("IsNonBlock"))).collect(Collectors.toList());
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<DriverPageResponse> pageResponse = new PageImpl<DriverPageResponse>(drivers, pageRequest ,totalResults);
+        
+        return new PagedResponse<DriverPageResponse>(pageResponse.getContent() , pageResponse.getNumber() ,pageResponse.getSize(),
+        											pageResponse.getTotalElements(), pageResponse.getTotalPages(), pageResponse.isLast());
 	
 	}
-    
+	@Override
+	public boolean ActiveDriver(String ids) {
+		String[] idsString = ids.split(",");
+		List<Integer> list = new ArrayList<Integer>();
+		for(String i :idsString) {
+			if(isInteger(i)) {
+				list.add(Integer.parseInt(i));
+			}else {
+				throw new BadRequestException("id driver is not string!");
+			}
+			
+		}
+			for(Integer i : list) {
+				Driver driver = driverRepository.findById(i).orElseThrow(() -> new NotFoundException( "One of drivers is not found"));
+				if(!driver.getStatus().equals(DriverStatus.NOT_ACTIVATED)) {
+					throw new BadRequestException("One of Driver activated!");
+				}
+				User user = userRepository.findById(i).orElseThrow(() -> new NotFoundException("One of User is not found"));
+				if(!user.getIsNonBlock()) {
+					throw new BadRequestException("One of Driver is block!");
+				}
+			}
+			
+			driverRepository.ActiveDriver(list);
+			return true;
+	}
+
+	
+	private boolean isInteger(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
     
 }

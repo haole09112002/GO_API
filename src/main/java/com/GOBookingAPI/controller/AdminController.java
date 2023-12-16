@@ -31,67 +31,10 @@ import net.minidev.json.JSONObject;
 @RequestMapping("/admin")
 public class AdminController {
 
-	@Autowired
-	private CustomerService customerService;
-	
-	@Autowired
-	private IUserService userService;
-	
-	@Autowired
-	private IDriverService driverService;
-	
 	@GetMapping("/get")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<String> index(Principal principal){
 		System.out.print(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
 		return ResponseEntity.ok("Welcome to admin page : ");
-	}
-	// search {email, sdt, ten}, sort{teen, email, id}- acs, decs, filter{ isNonBlock}, pageable { page, size}
-	// customer?id=1&keyword=hieu&sortType=acs&sortField=email&isNonBlock=true&page=0&size=5
-	@GetMapping("/customer/{offset}/{pagesize}/{field}")
-	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> getCustomers(@PathVariable("offset") int offset , @PathVariable("pagesize") int pagesize
-			,@PathVariable("field") String field){
-		return ResponseEntity.ok(customerService.getCustomerPageAndSort(offset, pagesize, field));
-	}
-	
-	@GetMapping("/customer/{id}")
-	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> getCustomerDetail(@PathVariable("id") int id){
-		return ResponseEntity.ok(customerService.getCustomerDetailById(id));
-	}
-	
-	@PutMapping("/user/{id}")
-	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> updateIsNonBlock(@PathVariable("id") int id , @RequestParam("isnonblock") boolean isnonblock){
-		userService.UpdateUserIsNonBlock(isnonblock, id);
-		JSONObject json = new JSONObject();
-		json.put("message", "Update Complete!");
-		return ResponseEntity.ok(json);
-	}
-	
-	
-	@GetMapping("/driver/{offset}/{pagesize}/{field}")
-	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> getDrivers(@PathVariable("offset") int offset , @PathVariable("pagesize") int pagesize
-			,@PathVariable("field") String field){
-		return ResponseEntity.ok(driverService.getDriverPageAndSort(offset, pagesize, field));
-	}
-	
-	@PutMapping("/driver/active/{ids}")
-	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> ActiveDriver(@PathVariable String ids){
-		String[] idsString = ids.split(",");
-		List<Integer> list = new ArrayList<Integer>();
-		for(String i :idsString) {
-			list.add(Integer.parseInt(i));
-		}
-		JSONObject json = new JSONObject();
-		if(driverService.ActiveDriver(list)) {
-			json.put("message", "Active Complete!");
-		}else {
-			json.put("message", "Active Fail!");
-		}
-		return ResponseEntity.ok(json);
 	}
 }
