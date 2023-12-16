@@ -3,8 +3,18 @@ package com.GOBookingAPI.controller;
 
 import com.GOBookingAPI.payload.request.DriverStatusRequest;
 import com.GOBookingAPI.services.IDriverService;
+import com.GOBookingAPI.utils.AppConstants;
 import com.GOBookingAPI.utils.DriverStatus;
+
+import io.micrometer.common.lang.Nullable;
+import net.minidev.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,5 +45,33 @@ public class DriverController {
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> changeDriverStatus(@PathVariable Integer id, @RequestBody DriverStatusRequest status) {
 		return ResponseEntity.ok(driverService.changeDriverStatus(id, status.getStatus()));
+	}
+	
+
+	@GetMapping("/all")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> getDrivers(@RequestParam(required = false) @Nullable @DateTimeFormat( pattern = "yyyy-MM-dd") Date from,
+									  @RequestParam(required = false) @Nullable @DateTimeFormat(pattern = "yyyy-MM-dd") Date to,
+									  @RequestParam(required = false ,defaultValue = AppConstants.IS_NON_BLOCK ) boolean isNonBlock,
+									  @RequestParam(required = false) DriverStatus status,
+									  @RequestParam(required = false) String searchField,
+									  @RequestParam(required = false) String keyword,
+									  @RequestParam(required = false) String sortType,
+									  @RequestParam(required = false) String sortField,
+									  @RequestParam(required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size,
+									  @RequestParam(required = false , defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page){
+		return ResponseEntity.ok(driverService.getDriverPageAndSort(from, to ,isNonBlock,status, searchField, keyword, sortType, sortField, size,page));
+	}
+	
+	@PutMapping("/active/{ids}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> ActiveDriver(@PathVariable String ids){
+		JSONObject json = new JSONObject();
+		if(driverService.ActiveDriver(ids)) {
+			json.put("message", "Active Complete!");
+		}else {
+			json.put("message", "Active Fail!");
+		}
+		return ResponseEntity.ok(json);
 	}
 }

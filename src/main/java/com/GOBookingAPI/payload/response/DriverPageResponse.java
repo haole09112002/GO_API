@@ -15,5 +15,5 @@ public class DriverPageResponse {
 	private String fullname;
 	private String phonenumber;
 	private DriverStatus status;
-	private boolean innonblock;
+	private boolean insonblock;
 }
