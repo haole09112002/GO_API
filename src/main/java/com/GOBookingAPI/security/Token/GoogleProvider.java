@@ -43,40 +43,37 @@ public class GoogleProvider implements AuthenticationProvider {
     private static final JacksonFactory jacksonFactory = new JacksonFactory();
 
     @Override
-    public Authentication authenticate(Authentication authentication)  throws AuthenticationException{
-
-        TokenSecurity token = (TokenSecurity) authentication;
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), jacksonFactory)
-//						    .setAudience(Collections.singletonList(CLIENT_ID))
-                .setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3, CLIENT_ID_4))
-                .build();
-        GoogleIdToken idToken = null;
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         try {
-            idToken = verifier.verify(token.getToken());
-        } catch (GeneralSecurityException | IOException e) {
-            log.info("Fail in Provider ", e.getMessage());
-            return null;
-        }
-
-        if (idToken != null) {
-            Payload payload = idToken.getPayload();
-            String email = payload.getEmail();
-            Optional<User> userOptional = userRepository.findByEmail(email);
-            if (userOptional.isEmpty()) {
-                User user = new User();
-                user.setEmail(email);
-                System.out.println("This is Provider and provider null");
-                return new UserSecurity(user, null);
-            } else {
-                System.out.println("This is Provider");
-                User user = userOptional.get();
+            TokenSecurity token = (TokenSecurity) authentication;
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), jacksonFactory)
+//						    .setAudience(Collections.singletonList(CLIENT_ID))
+                    .setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3, CLIENT_ID_4))
+                    .build();
+            GoogleIdToken idToken = verifier.verify(token.getToken());
+            if (idToken != null) {
+                Payload payload = idToken.getPayload();
+                String email = payload.getEmail();
+                Optional<User> userOptional = userRepository.findByEmail(email);
+                if (userOptional.isEmpty()) {
+                    User user = new User();
+                    user.setEmail(email);
+                    System.out.println("This is Provider and provider null");
+                    return new UserSecurity(user, null);
+                } else {
+                    System.out.println("This is Provider");
+                    User user = userOptional.get();
 //                if (!user.getIsNonBlock()) {
 //                   throw new AccessDeniedException("User account is locked");        //todo fix
 //                }
-                return new UserSecurity(user, user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
+                    return new UserSecurity(user, user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
+                }
+            } else {
+                System.out.println("Invalid ID token.");
+                return null;
             }
-        } else {
-            System.out.println("Invalid ID token.");
+        } catch (GeneralSecurityException | IOException e) {
+            log.info("Fail in Provider ", e.getMessage());
             return null;
         }
     }
