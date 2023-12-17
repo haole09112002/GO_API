@@ -11,9 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingCancelRequest {
-	@Min(0)
-	private int bookingId ;
-
 	@NotNull
 	private ReasonType reasonType;
 

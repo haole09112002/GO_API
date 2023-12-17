@@ -7,6 +7,7 @@ import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.payload.request.BookingStatusRequest;
+import com.GOBookingAPI.payload.response.BookingCancelResponse;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.services.IPaymentService;
 import com.GOBookingAPI.services.IUserService;
@@ -97,7 +98,7 @@ public class BookingController {
 
     @PatchMapping("/{id}/cancel")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<BookingStatusResponse> cancelBooking(@PathVariable int id, @RequestBody BookingCancelRequest cancelRequest) {
+    public ResponseEntity<?> cancelBooking(@PathVariable int id, @RequestBody BookingCancelRequest cancelRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Booking booking = bookingService.cancelBookingForCustomer(email, id, cancelRequest);
 
@@ -112,7 +113,7 @@ public class BookingController {
                 paymentService.refundPayment(booking); // todo bug
             }
         }
-        return ResponseEntity.ok(new BookingStatusResponse(booking.getId(), booking.getStatus()));
+        return ResponseEntity.ok(new BookingCancelResponse(booking.getId(), booking.getReasonType(), booking.getContentCancel(), booking.getStatus()));
     }
 
     @PutMapping("/{bookingId}/status")

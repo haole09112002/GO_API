@@ -177,8 +177,8 @@ public class BookingServiceImpl implements IBookingService {
     @Override
     @Transactional
     public Booking cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req) {
-        User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user"));
-        Booking booking = bookingRepository.findById(req.getBookingId()).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
+        User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user: " + email));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking: " + bookingId));
 
         if (user.getId() != (booking.getCustomer().getUser().getId())) {
             throw new AccessDeniedException("Booking này không thuộc về bạn");
