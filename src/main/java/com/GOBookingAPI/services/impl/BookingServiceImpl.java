@@ -75,7 +75,6 @@ public class BookingServiceImpl implements IBookingService {
     public BookingResponse createBooking(String username, BookingRequest req) {
         User user = myUserRepository.findByEmail(username).orElseThrow(() -> new NotFoundException("Không tìm thấy khách hàng"));
         Customer customer = customerRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy Customer"));
-        System.out.println(user.toString());
 
         VietMapResponse vietMapResponse = mapService.getRoute(req.getPickUpLocation(), req.getDropOffLocation(), req.getVehicleType().name());
         if (vietMapResponse.getCode().equals("ERROR")) {
@@ -221,8 +220,10 @@ public class BookingServiceImpl implements IBookingService {
         //todo tach ham
         if (booking.getDriver() != null) {
             managerBooking.deleteData(booking.getDriver().getId());
-            booking.getDriver().setStatus(DriverStatus.FREE);       //todo bug
-            driverRepository.save(booking.getDriver());
+            Driver driver = booking.getDriver();
+            driver.updateRatingByCancel(req.getReasonType().getValue());
+            driver.setStatus(DriverStatus.FREE);       //todo bug
+            driverRepository.save(driver);
         }
         // Trả về thông tin trạng thái mới của đơn đặt
         return booking;
@@ -366,7 +367,7 @@ public class BookingServiceImpl implements IBookingService {
         Path<Object> sortRoute = null;
         try {
             sortRoute = root.get(sortField);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new BadRequestException("Invalid sortField: " + sortField);
         }
 

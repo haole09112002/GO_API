@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.GOBookingAPI.entities.User;
+import com.GOBookingAPI.enums.ReasonType;
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
@@ -462,5 +463,4 @@ public class DriverServiceImpl implements IDriverService {
 			return false;
 		}
 	}
-
 }

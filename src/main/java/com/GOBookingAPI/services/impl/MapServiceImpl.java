@@ -42,8 +42,7 @@ public class MapServiceImpl {
         String json = restTemplate.getForObject(apiUrl, String.class);
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            VietMapResponse vietMapResponse = objectMapper.readValue(json, VietMapResponse.class);
-            return vietMapResponse;
+            return objectMapper.readValue(json, VietMapResponse.class);
         } catch (JsonProcessingException e) {
             log.error("Error convert json to class VietMapResponse", e);
             return null;
@@ -72,8 +71,8 @@ public class MapServiceImpl {
                     if (jsonArray.size() > 0) {
                         JsonObject firstResult = jsonArray.get(0).getAsJsonObject();
 
-                        if (firstResult.has("address")) {
-                            return firstResult.get("address").getAsString();
+                        if (firstResult.has("display")) {
+                            return firstResult.get("display").getAsString();
                         } else {
                             System.out.println("Không có thông tin địa chỉ trong phản hồi JSON.");
                             return null;

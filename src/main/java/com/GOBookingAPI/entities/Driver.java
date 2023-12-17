@@ -50,16 +50,14 @@ public class Driver implements Serializable {
     @Column(columnDefinition = "varchar(50)")
     private String activityArea;
 
-    @Column
-    private Double rating;
+    @Column(columnDefinition = "DOUBLE DEFAULT 0.0")
+    private double ratingTotal;
 
+    @Column(columnDefinition = "INT DEFAULT 0")
+    private int ratingCount;
 
     @Column
     private String drivingLicense;
-
-//	@OneToOne
-//	@JoinColumn(name = "vehicle_id" , referencedColumnName = "id")
-//	private VehicleType vehicle;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @JoinTable(name = "driver_vehicle", joinColumns = @JoinColumn(name = "driver_id", referencedColumnName = "id"),
@@ -82,7 +80,6 @@ public class Driver implements Serializable {
     @Column
     private String imgUrl;
 
-
     public VehicleType getFirstVehicleType() {
         Iterator<VehicleType> vehicleIterator = this.vehicles.iterator();
         if (vehicleIterator.hasNext()) {
@@ -90,5 +87,24 @@ public class Driver implements Serializable {
         } else {
             throw new NotFoundException("Không có loại xe");
         }
+    }
+
+    public void updateRating(double ratingValue){
+        this.ratingTotal += ratingValue;
+        this.ratingCount ++;
+    }
+
+    public void updateRatingByCancel(double ratingValue){      // 2 or 0
+        if(this.ratingTotal >= ratingValue)
+            this.ratingTotal -= ratingValue;
+        else {
+            this.ratingTotal = 0;
+        }
+    }
+
+    public double getRating(){
+        if (ratingCount == 0)
+            return 0;
+        return ratingTotal / (double) ratingCount;
     }
 }
