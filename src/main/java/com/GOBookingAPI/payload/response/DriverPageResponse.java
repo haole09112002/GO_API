@@ -1,5 +1,7 @@
 package com.GOBookingAPI.payload.response;
 
+import java.util.Date;
+
 import com.GOBookingAPI.utils.DriverStatus;
 
 import lombok.AllArgsConstructor;
@@ -11,9 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DriverPageResponse {
 	private int id;
-	private String area;
-	private String fullname;
-	private String phonenumber;
+	private String email;
+	private Date createDate;
+	private String activityArea;
+	private String fullName;
+	private String phoneNumber;
 	private DriverStatus status;
-	private boolean insonblock;
+	private boolean isNonBlock;
 }

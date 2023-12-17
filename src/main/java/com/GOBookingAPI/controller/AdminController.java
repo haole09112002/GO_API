@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.GOBookingAPI.entities.User;
-import com.GOBookingAPI.services.ICustomerService;
 import com.GOBookingAPI.services.IDriverService;
 import com.GOBookingAPI.services.IUserService;
 

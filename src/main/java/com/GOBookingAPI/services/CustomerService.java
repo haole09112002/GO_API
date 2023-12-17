@@ -12,14 +12,12 @@ public interface CustomerService {
 
     CustomerResponse getById(int id);
 
-    CustomerDetailResponse getCustomer(int id);
 
     CustomerBaseInfoResponse getBaseInfoById(int id);
 
     PagedResponse<CustomersResponse> getCustomerPageAndSort(Date from, Date to, Boolean isNonBlock,  String searchField,
     														String keyword, String sortType, String sortField, int size, int page);
 
-    CustomerDetailResponse getCustomerDetailById(int id);
 
     CustomerResponse changeInfo(int id, String email, ChangeCustomerInfoRequest req);
 }

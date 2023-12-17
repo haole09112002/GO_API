@@ -11,7 +11,6 @@ import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.response.ReviewResponse;
 import com.GOBookingAPI.repositories.CustomerRepository;
 import com.GOBookingAPI.repositories.UserRepository;
-import com.GOBookingAPI.services.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

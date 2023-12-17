@@ -65,13 +65,13 @@ public class DriverController {
 	
 	@PutMapping("/active/{ids}")
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> ActiveDriver(@PathVariable String ids){
-		JSONObject json = new JSONObject();
-		if(driverService.ActiveDriver(ids)) {
-			json.put("message", "Active Complete!");
-		}else {
-			json.put("message", "Active Fail!");
-		}
-		return ResponseEntity.ok(json);
+	public ResponseEntity<?> activeDriver(@PathVariable String ids){
+		return ResponseEntity.ok(driverService.ActiveOrRefuseDriver(ids,AppConstants.ACTIVE.toString()));
+	}
+	
+	@PutMapping("/refuse/{ids}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> refuseDriver(@PathVariable String ids){
+		return ResponseEntity.ok(driverService.ActiveOrRefuseDriver(ids,AppConstants.REFUSE.toString()));
 	}
 }

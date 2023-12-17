@@ -21,9 +21,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.repositories.CustomerRepository;
-import com.GOBookingAPI.repositories.projection.CustomerDetailProjection;
-import com.GOBookingAPI.repositories.projection.CustomerProjection;
-import com.GOBookingAPI.services.ICustomerService;
 import com.GOBookingAPI.utils.AppUtils;
 
 import jakarta.persistence.EntityManager;
@@ -62,11 +59,6 @@ public class CustomerServiceImpl implements CustomerService {
    		return new CustomerResponse(customer);
     }
 
-	@Override
-	public CustomerDetailResponse getCustomer(int id) {
-//	Customer customerRepository.findById(id).orElseThrow(()-> new NotFoundException("Khong tim thay khach hang: " + id));
-		return null;
-	}
 
 	@Override
     public CustomerBaseInfoResponse getBaseInfoById(int id) {
@@ -92,11 +84,8 @@ public class CustomerServiceImpl implements CustomerService {
 		Join<Customer, User> userJoin = root.join("user", JoinType.INNER);
 		
 		criteriaQuery.multiselect(
-				userJoin.get("id").alias("Id"),
-				userJoin.get("email").alias("Email"),
-				root.get("fullName").alias("FullName"),
-				userJoin.get("phoneNumber").alias("PhoneNumber"),
-				userJoin.get("isNonBlock").alias("IsNonBlock")
+				userJoin.alias("user"),
+				root.alias("customer")
 				);
 		
 		List<Predicate> predicates = new ArrayList<Predicate>();
@@ -124,25 +113,31 @@ public class CustomerServiceImpl implements CustomerService {
 		Path<Object> sortRoute =null ;
 		
 		try {
-			sortRoute = userJoin.get(sortField);
+			if(sortField.equals("fullName")) {
+				sortRoute = root.get(sortField);
+			}else {
+				sortRoute = userJoin.get(sortField);
+			}
 		} catch (IllegalArgumentException e) {
 			throw new BadRequestException("Invalid sortField" + sortField);
 		}
-		Order order = "asc".equalsIgnoreCase(sortField) ? criteriaBuilder.asc(sortRoute) : criteriaBuilder.desc(sortRoute);
+		Order order = "asc".equalsIgnoreCase(sortType) ? criteriaBuilder.asc(sortRoute) : criteriaBuilder.desc(sortRoute);
 		criteriaQuery.orderBy(order);
 		if(keyword != null ) {
 			if(searchField.equals("email")) {
 				Path<String> fieldEmail = userJoin.get("email");
 				Predicate predicate = criteriaBuilder.like(criteriaBuilder.lower(fieldEmail), "%"+keyword.toLowerCase() +"%" );
 				predicates.add(predicate);
-			} else if(searchField.equals("fullname")) {
-				Path<String> fieldName = root.get("full_name");
+			} else if(searchField.equals("fullName")) {
+				Path<String> fieldName = root.get("fullName");
 				Predicate predicate = criteriaBuilder.like(criteriaBuilder.lower(fieldName),"%"+ keyword.toLowerCase() + "%");
 				predicates.add(predicate);
-			}else {
-				Path<String> fieldPhone = userJoin.get("phone_number");
+			}else if(searchField.equals("phoneNumber")) {
+				Path<String> fieldPhone = userJoin.get("phoneNumber");
 				Predicate predicate = criteriaBuilder.like(fieldPhone, keyword.toLowerCase() + "%");
 				predicates.add(predicate);
+			}else {
+				throw new BadRequestException("Invalid field" + searchField);
 			}
 		}
 		
@@ -155,12 +150,14 @@ public class CustomerServiceImpl implements CustomerService {
 
         typedQuery.setFirstResult(page * size);
         typedQuery.setMaxResults(size);
-        
-        List<CustomersResponse> customers = typedQuery.getResultList().stream().map(result -> new CustomersResponse((int) result.get("Id"),
-        																						(String) result.get("Email"),
-        																						(String) result.get("FullName"),
-        																						(String) result.get("PhoneNumber"),
-        																						(Boolean) result.get("IsNonBlock"))).collect(Collectors.toList());
+        List<CustomersResponse> customers = new ArrayList<CustomersResponse>();
+        for(Tuple tuple : typedQuery.getResultList()) {
+        	User user = tuple.get("user", User.class);
+        	Customer customer = tuple.get("customer", Customer.class);
+        	customers.add(new CustomersResponse(user.getId(), user.getEmail(), user.getPhoneNumber(), user.getCreateDate(),
+        										user.getIsNonBlock(),user.getAvatarUrl(),customer.getFullName(),
+        										customer.getGender(), customer.getDateOfBirth()));
+        }
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<CustomersResponse> pageResponse = new PageImpl<CustomersResponse>(customers, pageRequest ,totalResults);
         
@@ -168,21 +165,6 @@ public class CustomerServiceImpl implements CustomerService {
         											pageResponse.getTotalElements(), pageResponse.getTotalPages(), pageResponse.isLast());
 	}
 
-	@Override
-	public CustomerDetailResponse getCustomerDetailById(int id) {
-		ModelMapper modelMap = new ModelMapper();
-		CustomerDetailProjection customerDetailProjection = customerRepository.findByIdByAdmin(id);
-		modelMap.map(customerDetailProjection, CustomerDetailProjection.class);
-		return new CustomerDetailResponse(
-				customerDetailProjection.getId(),
-				customerDetailProjection.getEmail(),
-				customerDetailProjection.getFull_name(),
-				customerDetailProjection.getPhone_number(),
-				customerDetailProjection.getIs_non_block(),
-				customerDetailProjection.getCreate_date() ,
-				customerDetailProjection.getDate_of_birth(),
-				customerDetailProjection.getGender());
-	}
 
 	@Override
 	@Transactional

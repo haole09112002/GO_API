@@ -69,11 +69,6 @@ public class CustomerController {
 		return ResponseEntity.ok(customerService.getCustomerPageAndSort(from, to ,isNonBlock, searchField, keyword, sortType, sortField, size,page));
 	}
 	
-//	@GetMapping("/{id}")
-//	@PreAuthorize("hasRole('ADMIN')")
-//	public ResponseEntity<?> getCustomerDetail(@PathVariable("id") int id){
-//		return ResponseEntity.ok(customerService.getCustomerDetailById(id));
-//	}
 	
 
 
