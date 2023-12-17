@@ -29,5 +29,10 @@ public interface DriverRepository extends JpaRepository<Driver, Integer> {
 	@Modifying
 	@Transactional
 	@Query(value  = "Update gobooking.driver as d set d.status = 'OFF' where d.id in ?1" , nativeQuery = true) 
-	void ActiveDriver(List<Integer>  ids);
+	void activeDriver(List<Integer>  ids);
+	
+	@Modifying
+	@Transactional
+	@Query(value  = "Update gobooking.driver as d set d.status = 'REFUSED' where d.id in ?1" , nativeQuery = true) 
+	void refuseDriver(List<Integer>  ids);
 }

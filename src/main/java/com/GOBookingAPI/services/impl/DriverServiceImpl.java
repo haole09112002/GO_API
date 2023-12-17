@@ -285,6 +285,7 @@ public class DriverServiceImpl implements IDriverService {
 		Join<Driver, User> userJoin = root.join("user", JoinType.INNER);
 
 		criteriaQuery.multiselect(userJoin.get("id").alias("Id"), 
+									userJoin.get("createDate").alias("CreateDate"),
 									root.get("activityArea").alias("Area"),
 									userJoin.get("email").alias("Email"),
 									root.get("fullName").alias("FullName"),
@@ -322,29 +323,34 @@ public class DriverServiceImpl implements IDriverService {
 		Path<Object> sortRoute = null;
 
 		try {
-			sortRoute = userJoin.get(sortField);
+			if(sortField.equals("fullName")) {
+				sortRoute = root.get(sortField);
+			}else {
+				sortRoute = userJoin.get(sortField);
+			}
+			
 		} catch (IllegalArgumentException e) {
 			throw new BadRequestException("Invalid sortField" + sortField);
 		}
-		Order order = "asc".equalsIgnoreCase(sortField) ? criteriaBuilder.asc(sortRoute)
+		Order order = "asc".equalsIgnoreCase(sortType) ? criteriaBuilder.asc(sortRoute)
 				: criteriaBuilder.desc(sortRoute);
 		criteriaQuery.orderBy(order);
 		if (keyword != null) {
-			if (searchField.equals("Email")) {
+			if (searchField.equals("email")) {
 				Path<String> fieldEmail = userJoin.get("email");
 				Predicate predicate = criteriaBuilder.like(criteriaBuilder.lower(fieldEmail),
 						"%" + keyword.toLowerCase() + "%");
 				predicates.add(predicate);
-			} else if (searchField.equals("Name")) {
+			} else if (searchField.equals("fullName")) {
 				Path<String> fieldName = root.get("fullName");
 				Predicate predicate = criteriaBuilder.like(criteriaBuilder.lower(fieldName),
 						"%" + keyword.toLowerCase() + "%");
 				predicates.add(predicate);
-			} else if (searchField.equals("Phone")) {
+			} else if (searchField.equals("phoneNumber")) {
 				Path<String> fieldPhone = userJoin.get("phoneNumber");
 				Predicate predicate = criteriaBuilder.like(fieldPhone, keyword.toLowerCase() + "%");
 				predicates.add(predicate);
-			} else if(searchField.equals("Area")){
+			} else if(searchField.equals("activityArea")){
 				Path<String> fieldArea = root.get("activityArea");
 				Predicate predicate = criteriaBuilder.like(fieldArea, "%" + keyword.toLowerCase() + "%");
 				predicates.add(predicate);
@@ -366,6 +372,7 @@ public class DriverServiceImpl implements IDriverService {
 		List<DriverPageResponse> drivers = typedQuery.getResultList().stream()
 				.map(result -> new DriverPageResponse((int) result.get("Id"), 
 													  (String) result.get("Email"),
+													  (Date) result.get("CreateDate"),
 													  (String) result.get("Area"),
 													  (String) result.get("FullName"),
 													  (String) result.get("PhoneNumber"),
@@ -382,7 +389,7 @@ public class DriverServiceImpl implements IDriverService {
 	}
 
 	@Override
-	public DriverActiveResponse ActiveDriver(String ids) {
+	public DriverActiveResponse ActiveOrRefuseDriver(String ids,String type) {
 		List<String> error = new ArrayList<String>();
 		String[] idsString = ids.split(",");
 		List<Integer> list = new ArrayList<Integer>();
@@ -397,21 +404,26 @@ public class DriverServiceImpl implements IDriverService {
 		if (list.isEmpty()) {
 			StringBuilder notify = new StringBuilder();
 			error.forEach(e -> notify.append(e));
+			notify.deleteCharAt(notify.length()-1);
 			return new DriverActiveResponse("Fail", notify.toString());
 		} else {
 			for (int i = 0 ; i< list.size(); i++) {
-				UserDriverProjection project = driverRepository.getStatusAndIsNonBlock(list.get(i));
-				if(project == null) {
+				UserDriverProjection projection = driverRepository.getStatusAndIsNonBlock(list.get(i));
+				if(projection == null) {
 					error.add("driver with id " + String.valueOf(list.get(i)) + " is not exits,");
 					list.remove(i);
 					i--;
 				}else {
-					if (!project.getisNonBlock()) {
+					if (!projection.getisNonBlock()) {
 						error.add("driver with id " + String.valueOf(list.get(i)) + " is blocked,");
 						list.remove(i);
 						i--;
 					}else {
-						if (!project.getStatus().equals(DriverStatus.NOT_ACTIVATED)) {
+						if(projection.getStatus().equals(DriverStatus.REFUSED)) {
+							error.add("driver with id " + String.valueOf(list.get(i)) + " refused,");
+							list.remove(i);
+							i--;
+						}else if (!projection.getStatus().equals(DriverStatus.NOT_ACTIVATED)) {
 							error.add("driver with id " + String.valueOf(list.get(i)) + " activated,");
 							list.remove(i);
 							i--;
@@ -422,13 +434,18 @@ public class DriverServiceImpl implements IDriverService {
 			if(list.isEmpty()) {
 				StringBuilder notify = new StringBuilder();
 				error.forEach(e -> notify.append(e));
+				notify.deleteCharAt(notify.length()-1);
 				return new DriverActiveResponse("Fail", notify.toString());
 			}else {
-				driverRepository.ActiveDriver(list);
+				if(type.equals(AppConstants.ACTIVE))
+					driverRepository.activeDriver(list);
+				else 
+					driverRepository.refuseDriver(list);
 			}
 			if (!error.isEmpty()) {
 				StringBuilder notify = new StringBuilder();
 				error.forEach(e -> notify.append(e));
+				notify.deleteCharAt(notify.length()-1);
 				return new DriverActiveResponse("Warming", notify.toString());
 			} else {
 				return new DriverActiveResponse("Succesfull" ,"All drivers activated");

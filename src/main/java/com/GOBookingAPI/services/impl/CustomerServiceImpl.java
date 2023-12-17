@@ -112,22 +112,26 @@ public class CustomerServiceImpl implements CustomerService {
 		Path<Object> sortRoute =null ;
 		
 		try {
-			sortRoute = userJoin.get(sortField);
+			if(sortField.equals("fullName")) {
+				sortRoute = root.get(sortField);
+			}else {
+				sortRoute = userJoin.get(sortField);
+			}
 		} catch (IllegalArgumentException e) {
 			throw new BadRequestException("Invalid sortField" + sortField);
 		}
-		Order order = "asc".equalsIgnoreCase(sortField) ? criteriaBuilder.asc(sortRoute) : criteriaBuilder.desc(sortRoute);
+		Order order = "asc".equalsIgnoreCase(sortType) ? criteriaBuilder.asc(sortRoute) : criteriaBuilder.desc(sortRoute);
 		criteriaQuery.orderBy(order);
 		if(keyword != null ) {
 			if(searchField.equals("email")) {
 				Path<String> fieldEmail = userJoin.get("email");
 				Predicate predicate = criteriaBuilder.like(criteriaBuilder.lower(fieldEmail), "%"+keyword.toLowerCase() +"%" );
 				predicates.add(predicate);
-			} else if(searchField.equals("Name")) {
+			} else if(searchField.equals("fullName")) {
 				Path<String> fieldName = root.get("fullName");
 				Predicate predicate = criteriaBuilder.like(criteriaBuilder.lower(fieldName),"%"+ keyword.toLowerCase() + "%");
 				predicates.add(predicate);
-			}else if(searchField.equals("Phone")) {
+			}else if(searchField.equals("phoneNumber")) {
 				Path<String> fieldPhone = userJoin.get("phoneNumber");
 				Predicate predicate = criteriaBuilder.like(fieldPhone, keyword.toLowerCase() + "%");
 				predicates.add(predicate);

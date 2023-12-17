@@ -65,7 +65,13 @@ public class DriverController {
 	
 	@PutMapping("/active/{ids}")
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> ActiveDriver(@PathVariable String ids){
-		return ResponseEntity.ok(driverService.ActiveDriver(ids));
+	public ResponseEntity<?> activeDriver(@PathVariable String ids){
+		return ResponseEntity.ok(driverService.ActiveOrRefuseDriver(ids,AppConstants.ACTIVE.toString()));
+	}
+	
+	@PutMapping("/refuse/{ids}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> refuseDriver(@PathVariable String ids){
+		return ResponseEntity.ok(driverService.ActiveOrRefuseDriver(ids,AppConstants.REFUSE.toString()));
 	}
 }

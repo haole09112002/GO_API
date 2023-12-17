@@ -14,5 +14,9 @@ public class AppConstants {
     public static final int INIT_DELAY = 5;   // 5s
     
     public static final String IS_NON_BLOCK = "true";
+    
+    public static final String ACTIVE = "active";
+    
+    public static final String REFUSE = "refuse";
 
 }

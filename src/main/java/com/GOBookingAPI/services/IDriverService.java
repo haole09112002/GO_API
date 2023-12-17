@@ -33,5 +33,5 @@ public interface IDriverService {
 	PagedResponse<DriverPageResponse> getDriverPageAndSort(Date from, Date to, Boolean isNonBlock, DriverStatus status, String searchField,
 			String keyword, String sortType, String sortField, int size, int page);
 	
-	DriverActiveResponse ActiveDriver(String ids);
+	DriverActiveResponse ActiveOrRefuseDriver(String ids , String type);
 }
