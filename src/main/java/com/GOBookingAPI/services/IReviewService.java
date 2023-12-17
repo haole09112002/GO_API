@@ -5,4 +5,6 @@ import com.GOBookingAPI.payload.response.ReviewResponse;
 
 public interface IReviewService {
 	ReviewResponse createReview(ReviewRequest reviewRequest, String email);
+
+	ReviewResponse getReviewById(int id, String email);
 }

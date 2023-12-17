@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
+import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.response.ReviewResponse;
@@ -56,11 +57,27 @@ public class ReviewServiceImpl implements IReviewService {
         }
 
         Review review = new Review();
+        review.setId(booking.getId());
         review.setBooking(booking);
         review.setRating(reviewRequest.getRating());
         review.setContent(reviewRequest.getContent());
         review.setCreateAt(new Date());
         reviewRepository.save(review);
+        return new ReviewResponse(review);
+    }
+
+    @Override
+    public ReviewResponse getReviewById(int id, String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Khong tim thay user: " + email));
+        Review review = reviewRepository.findById(id).orElseThrow(()-> new NotFoundException("Khong tim thay review: " + id));
+        if(user.getFirstRole().getName().equals(RoleEnum.CUSTOMER))
+            if(review.getBooking().getCustomer().getId() != user.getId())
+                throw new AccessDeniedException("Review khong thuoc ve ban");
+
+        if(user.getFirstRole().getName().equals(RoleEnum.DRIVER))
+            if(review.getBooking().getDriver().getId() != user.getId())
+                throw new AccessDeniedException("Review khong thuoc ve ban");
+
         return new ReviewResponse(review);
     }
 

@@ -25,4 +25,10 @@ public class ReviewController {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		return ResponseEntity.ok(reviewService.createReview(reviewRequest, email));
 	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getReview(@PathVariable int id){
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		return ResponseEntity.ok(reviewService.getReviewById(id, email));
+	}
 }

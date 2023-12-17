@@ -9,11 +9,11 @@ public enum BookingStatus {
 	REFUNDED,						// Chuyến đi đã được hoàn tiền
 	WAITING_REFUND,					// chuyến đi dang chờ hoàn tiền
 	FOUND,							// Đã tìm thấy tài xế và chờ tài xế đến
-	ARRIVED_PICKUP
+	ARRIVED_PICKUP					// Tài xế đã đến điểm đón
 }
 /*
     @author: HaoLV
-    @description: WAITING, PAID, FOUND, ON_RIDE, COMPLETE
+    @description: WAITING, PAID, FOUND, ARRIVED_PICKUP , ON_RIDE, COMPLETE
     Customer action:
 		=> cancel: WAITING, CANCELLED
 		=> cancel: WAITING, PAID, WAITING_REFUND, REFUNDED
