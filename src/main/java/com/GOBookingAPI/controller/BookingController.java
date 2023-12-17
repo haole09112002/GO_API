@@ -133,7 +133,7 @@ public class BookingController {
         BookingResponse response = bookingService.getCurrentBooking(user);
         if(user.getFirstRole().getName().equals(RoleEnum.DRIVER) && user.getDriver().getStatus() == DriverStatus.FREE){
             //todo check have booking
-           webSocketService.notifytoDriver(user.getId(), "HAVEBOOKING");
+//           webSocketService.notifytoDriver(user.getId(), "HAVEBOOKING");
         }
         return ResponseEntity.ok(response != null ? response : "null");
     }

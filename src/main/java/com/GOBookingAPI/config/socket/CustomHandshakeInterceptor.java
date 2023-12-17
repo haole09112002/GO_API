@@ -2,9 +2,12 @@ package com.GOBookingAPI.config.socket;
 
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
+import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
 import com.GOBookingAPI.services.IBookingService;
 import com.GOBookingAPI.services.IUserService;
+import com.GOBookingAPI.services.IWebSocketService;
+import com.GOBookingAPI.utils.DriverStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -19,6 +22,9 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private IWebSocketService webSocketService;
 
     @Override
     public boolean beforeHandshake(
@@ -39,6 +45,11 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         User user = userService.getByEmail(email);
+
+        if(user.getFirstRole().getName().equals(RoleEnum.DRIVER) && user.getDriver().getStatus() == DriverStatus.FREE){
+            //todo check have booking
+            webSocketService.notifytoDriver(user.getId(), "HAVEBOOKING");
+        }
         System.out.println("==>uid " + user.getId() +" afterHandshake in HandshakeInterceptor");
     }
 }
