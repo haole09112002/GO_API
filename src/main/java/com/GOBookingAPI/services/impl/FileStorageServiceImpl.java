@@ -24,7 +24,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     public String uploadFile(MultipartFile file)  {
         try {
-            return cloudinary.uploader()
+            return this.cloudinary.uploader()
                     .upload(file.getBytes(),
                             Map.of("public_id", UUID.randomUUID().toString()))
                     .get("url")

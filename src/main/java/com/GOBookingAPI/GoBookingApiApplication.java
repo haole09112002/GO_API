@@ -14,7 +14,6 @@ import org.springframework.context.annotation.ComponentScan;
 
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.GOBookingAPI", "com.GOBookingAPI.security", "com.GOBookingAPI.services"})
 @EnableConfigurationProperties({
 		FileStorageProperties.class
 })
