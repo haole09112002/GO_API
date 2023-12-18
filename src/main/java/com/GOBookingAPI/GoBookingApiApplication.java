@@ -10,9 +10,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import com.GOBookingAPI.utils.ManagerLocation;
 
 import com.GOBookingAPI.utils.ManagerLocation;
+import org.springframework.context.annotation.ComponentScan;
 
 
 @SpringBootApplication
+@ComponentScan(basePackages = {"com.GOBookingAPI", "com.GOBookingAPI.security", "com.GOBookingAPI.services"})
 @EnableConfigurationProperties({
 		FileStorageProperties.class
 })
