@@ -14,8 +14,12 @@ import java.util.UUID;
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
 
+    private final Cloudinary cloudinary;
+
     @Autowired
-    private Cloudinary cloudinary;
+    public FileStorageServiceImpl(Cloudinary cloudinary){
+        this.cloudinary = cloudinary;
+    }
 
     @Override
     public String uploadFile(MultipartFile file)  {
