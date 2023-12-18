@@ -309,6 +309,13 @@ public class BookingServiceImpl implements IBookingService {
                 System.out.println("==>Trạng thái thay đổi không hợp lệ không thể từ : " + booking.getStatus() + "=> " + newStatus);
                 return null;
             }
+
+            if(newStatus.equals(BookingStatus.ON_RIDE))
+                booking.setStartTime(new Date());
+
+            if(newStatus.equals(BookingStatus.COMPLETE))
+                booking.setEndTime(new Date());
+
             booking.setStatus(newStatus);
         }
 

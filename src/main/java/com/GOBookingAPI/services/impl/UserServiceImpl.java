@@ -6,15 +6,13 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-
-import com.GOBookingAPI.enums.DriverInfoImg;
 import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.exceptions.AppException;
-import com.GOBookingAPI.exceptions.BadCredentialsException;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
 import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.repositories.*;
+import com.GOBookingAPI.services.FileStorageService;
 import com.GOBookingAPI.utils.DriverStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,7 +26,6 @@ import com.GOBookingAPI.entities.Role;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.entities.VehicleType;
 import com.GOBookingAPI.exceptions.NotFoundException;
-import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.services.IUserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -154,23 +151,30 @@ public class UserServiceImpl implements IUserService {
         driver.setLicensePlate(req.getLicensePlate());
         driver.setDrivingLicense(req.getDrivingLicense());
 
-        String fileName = "";
         for (int i = 0; i < req.getDrivingLicenseImg().length; i++) {
-            fileName = fileStorageService.createRootImgUrl(req.getDrivingLicenseImg()[i], DriverInfoImg.DrivingLicense, req.getPhoneNumber(), i);
+            if (i == 0)
+                driver.setFrontDrivingLicenseUrl(fileStorageService.uploadFile(req.getDrivingLicenseImg()[i]));
+            if (i == 1)
+                driver.setBackDrivingLicenseUrl(fileStorageService.uploadFile(req.getDrivingLicenseImg()[i]));
         }
         for (int i = 0; i < req.getIdCardImg().length; i++) {
-            fileStorageService.createRootImgUrl(req.getIdCardImg()[i], DriverInfoImg.IdCard, req.getPhoneNumber(), i + 2);
+            if (i == 0)
+                driver.setFrontIdCardUrl(fileStorageService.uploadFile(req.getIdCardImg()[i]));
+            if (i == 1)
+                driver.setBackIdCardUrl(fileStorageService.uploadFile(req.getIdCardImg()[i]));
         }
 
         Set<VehicleType> vehicleTypes = new HashSet<>();
         VehicleType type = vehicleRepository.findByName(req.getVehicleType()).orElseThrow(() -> new NotFoundException("Loai xe khong hop le"));
         vehicleTypes.add(type);
-        driver.setImgUrl(fileName);
         driver.setVehicles(vehicleTypes);
         driver.setUser(user);
         driverRepository.save(driver);
         DriverInfoResponse resp = new DriverInfoResponse();
-        resp.setDriverInfoUrl(fileName);
+        resp.setCardId1(driver.getFrontIdCardUrl());
+        resp.setCardId2(driver.getBackIdCardUrl());
+        resp.setDrivingLicenseImg1(driver.getFrontDrivingLicenseUrl());
+        resp.setDrivingLicenseImg2(driver.getBackDrivingLicenseUrl());
         resp.setId(driver.getId());
         resp.setEmail(user.getEmail());
         resp.setFullName(driver.getFullName());
@@ -220,15 +224,14 @@ public class UserServiceImpl implements IUserService {
         if (avatar == null && roleEnum.equals(RoleEnum.DRIVER))
             throw new BadRequestException("Avatar khong duoc null");
         if (avatar != null) {
-            String url = fileStorageService.createImgUrl(avatar);
-            user.setAvatarUrl(url);
+            user.setAvatarUrl(fileStorageService.uploadFile(avatar));
         }
         return user;
     }
 
-	@Override
-	public void UpdateUserIsNonBlock(boolean isnonblock , int id) {
-		userRepository.UpdateIsNonBlock(isnonblock,id);
-	}
-    
+    @Override
+    public void UpdateUserIsNonBlock(boolean isnonblock, int id) {
+        userRepository.UpdateIsNonBlock(isnonblock, id);
+    }
+
 }
