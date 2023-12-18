@@ -190,34 +190,31 @@ public class DriverServiceImpl implements IDriverService {
 				.orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
 		boolean isAllow = false;
 		switch (user.getFirstRole().getName()) {
-			case CUSTOMER -> {
-				if (driverId == -1)
-					throw new BadRequestException("Thieu driverId");
-				if (bookingService.isDriverBelongsToCustomerBooking(user, driverId))
-					isAllow = true;
-				else
-					throw new AccessDeniedException("Bạn chưa từng có chuyến đi với tài xế này");
-			}
-			case DRIVER -> {
-				driverId = user.getId();
+		case CUSTOMER -> {
+			if (driverId == -1)
+				throw new BadRequestException("Thieu driverId");
+			if (bookingService.isDriverBelongsToCustomerBooking(user, driverId))
 				isAllow = true;
-			}
-			case ADMIN -> {
-				if (driverId == -1)
-					throw new BadRequestException("Thieu driverId");
-				isAllow = true;
-			}
+			else
+				throw new AccessDeniedException("Bạn chưa từng có chuyến đi với tài xế này");
+		}
+		case DRIVER -> {
+			driverId = user.getId();
+			isAllow = true;
+		}
+		case ADMIN -> {
+			if (driverId == -1)
+				throw new BadRequestException("Thieu driverId");
+			isAllow = true;
+		}
 		}
 		System.out.println("====> driverId" + driverId);
 		if (isAllow) {
+			DriverInfoResponse resp = new DriverInfoResponse();
+
 			Driver driver = driverRepository.findById(driverId)
 					.orElseThrow(() -> new NotFoundException("Không tìm thấy driver , driver: " + email));
-
-			DriverInfoResponse resp = new DriverInfoResponse();
-			resp.setCardId1(driver.getFrontIdCardUrl());
-			resp.setCardId2(driver.getBackIdCardUrl());
-			resp.setDrivingLicenseImg1(driver.getFrontDrivingLicenseUrl());
-			resp.setDrivingLicenseImg2(driver.getBackDrivingLicenseUrl());
+			resp.setDriverInfoUrl(driver.getImgUrl());
 			resp.setId(driver.getId());
 			resp.setEmail(driver.getUser().getEmail());
 			resp.setFullName(driver.getFullName());
