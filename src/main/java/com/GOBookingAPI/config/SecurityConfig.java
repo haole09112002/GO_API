@@ -42,6 +42,8 @@ public class SecurityConfig implements WebMvcConfigurer{
         http.csrf().disable();
 		http.authorizeRequests().requestMatchers("/home/**", "/api/**" ,"/payment/**").permitAll();
 		http.authorizeRequests().requestMatchers("/bookings/**").permitAll();
+		http.authorizeRequests().requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll();
+//		http.authorizeRequests().requestMatchers("/swagger-ui-custom.html").permitAll();
 		http.authorizeRequests().requestMatchers("/**","/ws/**").authenticated().anyRequest().authenticated();
 		http.exceptionHandling().authenticationEntryPoint(entryPoint);
 		http.addFilterBefore(new GoogleFilter(), BasicAuthenticationFilter.class);

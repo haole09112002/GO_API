@@ -34,7 +34,6 @@ import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.services.IBookingService;
 
 import java.util.Date;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/bookings")
