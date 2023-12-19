@@ -75,7 +75,6 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getTravelInfo(pickUpLocation, dropOffLocation));
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getBookingByBookingId(@PathVariable int id) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -116,7 +115,7 @@ public class BookingController {
         return ResponseEntity.ok(new BookingCancelResponse(booking.getId(), booking.getReasonType(), booking.getContentCancel(), booking.getStatus()));
     }
 
-    @PutMapping("/{bookingId}/status")
+    @PutMapping("/{bookingId}/status")          //todo remove
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookingResponse> changeBookingStatus(
             @PathVariable int bookingId,

@@ -41,12 +41,12 @@ public class DriverController {
 		return ResponseEntity.ok(driverService.getDriverBaseInfo(email, id));
 	}
 
-	@PutMapping("/{id}/status")
-	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> changeDriverStatus(@PathVariable Integer id, @RequestBody DriverStatusRequest status) {
-		return ResponseEntity.ok(driverService.changeDriverStatus(id, status.getStatus()));
-	}
-	
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<?> changeDriverStatus(@PathVariable Integer id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(driverService.changeDriverStatus(email, id));
+    }
 
 	@GetMapping("/all")
 	@PreAuthorize("hasRole('ADMIN')")
@@ -62,13 +62,13 @@ public class DriverController {
 									  @RequestParam(required = false , defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page){
 		return ResponseEntity.ok(driverService.getDriverPageAndSort(from, to ,isNonBlock,status, searchField, keyword, sortType, sortField, size,page));
 	}
-	
+
 	@PutMapping("/active/{ids}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> activeDriver(@PathVariable String ids){
 		return ResponseEntity.ok(driverService.ActiveOrRefuseDriver(ids,AppConstants.ACTIVE.toString()));
 	}
-	
+
 	@PutMapping("/refuse/{ids}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> refuseDriver(@PathVariable String ids){

@@ -358,7 +358,7 @@ public class BookingServiceImpl implements IBookingService {
             predicates.add(predicate);
         }
 
-        if (sortField.isBlank()) {
+        if (sortField == null || sortField.isBlank()) {
             sortField = "amount";
         }
         if (sortType == null)
