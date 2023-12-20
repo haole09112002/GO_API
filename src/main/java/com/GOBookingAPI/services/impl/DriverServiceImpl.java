@@ -279,12 +279,10 @@ public class DriverServiceImpl implements IDriverService {
 
 		if(driver.getStatus() == DriverStatus.FREE){
 			driver.setStatus(DriverStatus.OFF);
-		}
-
-		if(driver.getStatus() == DriverStatus.OFF){
+		}else {
 			driver.setStatus(DriverStatus.FREE);
-		}
 
+		}
 		driverRepository.save(driver);
 		return new DriverStatusResponse(driverId, driver.getStatus());
 	}
