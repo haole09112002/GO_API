@@ -14,11 +14,11 @@ public class CustomerResponse {
 
     private int id;
 
-    private String fullName ;
+    private String fullName;
 
-    private Boolean gender ;
+    private Boolean gender;
 
-    private long dateOfBirth;
+    private Long dateOfBirth;
 
     private String email;
 
@@ -30,11 +30,11 @@ public class CustomerResponse {
 
     private String phoneNumber;
 
-    public CustomerResponse(Customer cus){
+    public CustomerResponse(Customer cus) {
         this.id = cus.getId();
         this.fullName = cus.getFullName();
         this.gender = cus.getGender();
-        this.dateOfBirth = cus.getDateOfBirth().getTime();
+        this.dateOfBirth = cus.getDateOfBirth() == null ? null : cus.getDateOfBirth().getTime();
         this.email = cus.getUser().getEmail();
         this.avatarUrl = cus.getUser().getAvatarUrl();
         this.isNonBlock = cus.getUser().getIsNonBlock();

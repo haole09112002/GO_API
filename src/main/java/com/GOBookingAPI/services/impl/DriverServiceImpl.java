@@ -190,34 +190,31 @@ public class DriverServiceImpl implements IDriverService {
 				.orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
 		boolean isAllow = false;
 		switch (user.getFirstRole().getName()) {
-			case CUSTOMER -> {
-				if (driverId == -1)
-					throw new BadRequestException("Thieu driverId");
-				if (bookingService.isDriverBelongsToCustomerBooking(user, driverId))
-					isAllow = true;
-				else
-					throw new AccessDeniedException("Bạn chưa từng có chuyến đi với tài xế này");
-			}
-			case DRIVER -> {
-				driverId = user.getId();
+		case CUSTOMER -> {
+			if (driverId == -1)
+				throw new BadRequestException("Thieu driverId");
+			if (bookingService.isDriverBelongsToCustomerBooking(user, driverId))
 				isAllow = true;
-			}
-			case ADMIN -> {
-				if (driverId == -1)
-					throw new BadRequestException("Thieu driverId");
-				isAllow = true;
-			}
+			else
+				throw new AccessDeniedException("Bạn chưa từng có chuyến đi với tài xế này");
+		}
+		case DRIVER -> {
+			driverId = user.getId();
+			isAllow = true;
+		}
+		case ADMIN -> {
+			if (driverId == -1)
+				throw new BadRequestException("Thieu driverId");
+			isAllow = true;
+		}
 		}
 		System.out.println("====> driverId" + driverId);
 		if (isAllow) {
+			DriverInfoResponse resp = new DriverInfoResponse();
+
 			Driver driver = driverRepository.findById(driverId)
 					.orElseThrow(() -> new NotFoundException("Không tìm thấy driver , driver: " + email));
-
-			DriverInfoResponse resp = new DriverInfoResponse();
-			resp.setCardId1(driver.getFrontIdCardUrl());
-			resp.setCardId2(driver.getBackIdCardUrl());
-			resp.setDrivingLicenseImg1(driver.getFrontDrivingLicenseUrl());
-			resp.setDrivingLicenseImg2(driver.getBackDrivingLicenseUrl());
+			resp.setDriverInfoUrl(driver.getImgUrl());
 			resp.setId(driver.getId());
 			resp.setEmail(driver.getUser().getEmail());
 			resp.setFullName(driver.getFullName());
@@ -263,13 +260,31 @@ public class DriverServiceImpl implements IDriverService {
 		throw new AccessDeniedException("Bạn chưa từng có chuyến đi với tài xế này");
 	}
 
+	/*
+	    @author: HaoLV
+	    @description: thay doi trang thai tai xe online hay offline
+	*/
+
 	@Override
-	public DriverStatusResponse changeDriverStatus(int driverId, DriverStatus newStatus) {
-		Driver driver = driverRepository.findById(driverId)
-				.orElseThrow(() -> new NotFoundException("Khong tim thay driver, driverId: " + driverId));
-		driver.setStatus(newStatus);
+	public DriverStatusResponse changeDriverStatus(String email, Integer driverId) {
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+		Driver driver = user.getDriver();
+		if(driver.getId() != driverId)
+			throw new NotFoundException("Không tìm thấy driver: " + driverId);
+
+		if(driver.getStatus() != DriverStatus.FREE && driver.getStatus() != DriverStatus.OFF){
+			throw new BadRequestException("Không thể thay đổi trạng thái, trạng thái hiện tại: " + driver.getStatus());
+		}
+
+		if(driver.getStatus() == DriverStatus.FREE){
+			driver.setStatus(DriverStatus.OFF);
+		}else {
+			driver.setStatus(DriverStatus.FREE);
+
+		}
 		driverRepository.save(driver);
-		return new DriverStatusResponse(driverId, newStatus);
+		return new DriverStatusResponse(driverId, driver.getStatus());
 	}
 
 	@Override

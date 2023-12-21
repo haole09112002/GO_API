@@ -42,6 +42,8 @@ public class SecurityConfig implements WebMvcConfigurer{
         http.csrf().disable();
 		http.authorizeRequests().requestMatchers("/home/**", "/api/**" ,"/payment/**").permitAll();
 		http.authorizeRequests().requestMatchers("/bookings/**").permitAll();
+		http.authorizeRequests().requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll();
+//		http.authorizeRequests().requestMatchers("/swagger-ui-custom.html").permitAll();
 		http.authorizeRequests().requestMatchers("/**","/ws/**").authenticated().anyRequest().authenticated();
 		http.exceptionHandling().authenticationEntryPoint(entryPoint);
 		http.addFilterBefore(new GoogleFilter(), BasicAuthenticationFilter.class);
@@ -57,7 +59,7 @@ public class SecurityConfig implements WebMvcConfigurer{
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
-        .allowedOrigins("http://127.0.0.1:5500" , "http://127.0.0.1:3000" , "http://localhost:3000", "https://go-webapp.vercel.app")
+        .allowedOrigins("http://127.0.0.1:5500" , "http://127.0.0.1:3000" , "http://localhost:3000", "https://go-webapp.vercel.app", "https://forlorn-bite-production.up.railway.app", "http://forlorn-bite-production.up.railway.app")
         .allowedHeaders("*")
         .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")
         .maxAge(-1)   // add maxAge

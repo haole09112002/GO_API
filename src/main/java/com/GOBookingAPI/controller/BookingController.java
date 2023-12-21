@@ -34,7 +34,6 @@ import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.services.IBookingService;
 
 import java.util.Date;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/bookings")
@@ -74,7 +73,6 @@ public class BookingController {
     public ResponseEntity<?> getTravelInfo(@RequestParam @NotBlank String pickUpLocation, @RequestParam @NotBlank String dropOffLocation) {
         return ResponseEntity.ok(bookingService.getTravelInfo(pickUpLocation, dropOffLocation));
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getBookingByBookingId(@PathVariable int id) {
@@ -116,7 +114,7 @@ public class BookingController {
         return ResponseEntity.ok(new BookingCancelResponse(booking.getId(), booking.getReasonType(), booking.getContentCancel(), booking.getStatus()));
     }
 
-    @PutMapping("/{bookingId}/status")
+    @PutMapping("/{bookingId}/status")          //todo remove
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookingResponse> changeBookingStatus(
             @PathVariable int bookingId,

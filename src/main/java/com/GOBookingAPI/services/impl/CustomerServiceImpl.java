@@ -3,6 +3,7 @@ package com.GOBookingAPI.services.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.GOBookingAPI.entities.Customer;
 import com.GOBookingAPI.entities.User;
@@ -12,11 +13,11 @@ import com.GOBookingAPI.payload.request.ChangeCustomerInfoRequest;
 import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.CustomerService;
-import com.GOBookingAPI.services.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.GOBookingAPI.repositories.CustomerRepository;
@@ -35,7 +36,9 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -181,7 +184,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     	if(req.getAvatar() != null && !req.getAvatar().isEmpty()){
-			String url = fileStorageService.uploadFile(req.getAvatar());
+			String url = fileStorageService.createImgUrl(req.getAvatar());
 			customer.getUser().setAvatarUrl(url);
 			userRepository.save(customer.getUser());
 		}
