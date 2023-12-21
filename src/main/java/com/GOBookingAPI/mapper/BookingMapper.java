@@ -1,16 +1,18 @@
 package com.GOBookingAPI.mapper;
 
 import com.GOBookingAPI.entities.*;
+import com.GOBookingAPI.enums.BookingStatus;
+import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.payload.response.*;
 
 public class BookingMapper {
 
-    public static BookingResponse bookingToBookingResponse(Booking booking){
+    public static BookingResponse bookingToBookingResponse(Booking booking, User user) {
         BookingResponse resp = new BookingResponse();
         resp.setId(booking.getId());
 
         Driver driver = booking.getDriver();
-        if(driver != null){
+        if (driver != null) {
             DriverBaseResponse driverBaseResp = new DriverBaseResponse();
             driverBaseResp.setGender(driver.isGender());
             driverBaseResp.setFullName(driver.getFullName());
@@ -23,7 +25,7 @@ public class BookingMapper {
         }
 
         Payment payment = booking.getPayment();
-        if(payment != null){
+        if (payment != null) {
             PaymentResponse paymentResponse = new PaymentResponse(payment);
             resp.setPaymentResponse(paymentResponse);
         }
@@ -32,8 +34,13 @@ public class BookingMapper {
         resp.setCustomer(new CustomerBaseInfoResponse(customer));
 
         Review review = booking.getReview();
-        if(review != null)
+        if (review != null)
             resp.setReview(new ReviewResponse(review));
+
+        if (user != null && user.getFirstRole().getName().equals(RoleEnum.DRIVER) && (booking.getStatus() == BookingStatus.REFUNDED || booking.getStatus() == BookingStatus.WAITING_REFUND)) {
+            resp.setStatus(BookingStatus.CANCELLED);
+        } else
+            resp.setStatus(booking.getStatus());
 
         resp.setStartTime(booking.getStartTime() != null ? booking.getStartTime().getTime() : null);
         resp.setEndTime(booking.getEndTime() != null ? booking.getEndTime().getTime() : null);
@@ -43,7 +50,6 @@ public class BookingMapper {
         resp.setPickUpLocation(booking.getPickUpLocation());
         resp.setDropOffAddress(booking.getDropOffAddress());
         resp.setPickUpAddress(booking.getPickUpAddress());
-        resp.setStatus(booking.getStatus());
         resp.setVehicleType(booking.getVehicleType());
         return resp;
     }
