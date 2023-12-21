@@ -1,11 +1,6 @@
 package com.GOBookingAPI.services.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -336,6 +331,13 @@ public class DriverServiceImpl implements IDriverService {
 		if(status != null) {
 			Path<DriverStatus> fieldstatus = root.get("status");
 			Predicate predicate = criteriaBuilder.equal(fieldstatus, status);
+			predicates.add(predicate);
+		}
+
+		if(status == null) {
+			Path<DriverStatus> fieldstatus = root.get("status");
+			List<DriverStatus> statusList = Arrays.asList(DriverStatus.NOT_ACTIVATED, DriverStatus.REFUSED);
+			Predicate predicate = criteriaBuilder.not(fieldstatus.in(statusList));
 			predicates.add(predicate);
 		}
 		

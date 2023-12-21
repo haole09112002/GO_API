@@ -102,7 +102,7 @@ public class BookingController {
 
         webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
         if (booking.getDriver() != null) {
-            webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
+            webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), BookingStatus.CANCELLED));   //
             System.out.println("===> notify to driver: " + (new BookingStatusResponse(booking.getId(), booking.getStatus())).toString());
             if (booking.getStatus().equals(BookingStatus.WAITING_REFUND)) {
                 System.out.println("Booking status : " + BookingStatus.WAITING_REFUND);
