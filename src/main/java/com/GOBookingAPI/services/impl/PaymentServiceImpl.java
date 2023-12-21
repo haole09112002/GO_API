@@ -19,6 +19,8 @@ import com.GOBookingAPI.services.IPaymentService;
 import com.GOBookingAPI.services.IWebSocketService;
 import com.GOBookingAPI.utils.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -298,7 +300,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Override
     public boolean refundPayment(Booking booking){
-        AtomicBoolean isSuccess = new AtomicBoolean(true);
+        AtomicBoolean isSuccess = new AtomicBoolean(false);
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleAtFixedRate(() -> {
             String vnp_RequestId = VNPayConfig.getRandomNumber(8);
@@ -311,7 +313,6 @@ public class PaymentServiceImpl implements IPaymentService {
             String vnp_Amount = String.valueOf(amount);
             String vnp_OrderInfo = "Hoan tien GD OrderId:" + booking.getId();
             String vnp_TransactionNo = ""; //Assuming value of the parameter "vnp_TransactionNo" does not exist on your system.
-
             String vnp_CreateBy = "Go_API";
 
             Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -363,8 +364,7 @@ public class PaymentServiceImpl implements IPaymentService {
                 System.out.println("nSending 'POST' request to URL : " + url);
                 System.out.println("Post Data : " + vnp_Params);
                 System.out.println("Response Code : " + responseCode);
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(con.getInputStream()));
+                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
                 String output;
                 StringBuffer response = new StringBuffer();
                 while ((output = in.readLine()) != null) {
@@ -372,25 +372,21 @@ public class PaymentServiceImpl implements IPaymentService {
                 }
                 in.close();
                 System.out.println(response.toString());
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Object> responseMap = objectMapper.readValue(response.toString(), new TypeReference<Map<String, Object>>() {});
+                String vnp_ResponseCode = (String) responseMap.get("vnp_ResponseCode");
+                if(vnp_ResponseCode.equals("00")){
+                    System.out.println("============> REFUND: " + booking.getId());
+                    booking.setStatus(BookingStatus.REFUNDED);
+                    bookingRepository.save(booking);
+                    isSuccess.set(true);
+                    webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
+                    executorService.shutdown();
+                }
             }catch (Exception e){
-                System.out.println("Exception in payment service");
-                return;
+                System.out.println("Exception in payment service, repeat again");
             }
-            //todo fix refunded
-            System.out.println("============> REFUND: " + booking.getId());
-            booking.setStatus(BookingStatus.REFUNDED);
-            bookingRepository.save(booking);
-            isSuccess.set(false);
-            webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
-            executorService.shutdown();
         }, AppConstants.INIT_DELAY, AppConstants.PERIOD_TIME, TimeUnit.SECONDS);
         return isSuccess.get();
-
-
-
-        //Command: refund
-
-
     }
-
 }
