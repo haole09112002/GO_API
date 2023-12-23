@@ -156,6 +156,11 @@ public class DriverServiceImpl implements IDriverService {
 			return false;
 		}
 
+		if(driverChosen.getStatus().equals(DriverStatus.BLOCK)){				//todo
+			System.out.println("Find driver null for booking id: " + booking.getId());
+			return false;
+		}
+
 		driverChosen.setStatus(DriverStatus.ON_RIDE);
 		driverRepository.save(driverChosen);
 
