@@ -35,5 +35,5 @@ public interface IDriverService {
 	
 	DriverActiveResponse ActiveOrRefuseDriver(String ids , String type);
 	
-	DriverActiveResponse blockStatus(String ids);
+	DriverActiveResponse blockStatus(int id,Boolean isblock);
 }

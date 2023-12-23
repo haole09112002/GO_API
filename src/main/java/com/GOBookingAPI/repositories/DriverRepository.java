@@ -38,6 +38,11 @@ public interface DriverRepository extends JpaRepository<Driver, Integer> {
 	
 	@Modifying
 	@Transactional
-	@Query(value  = "Update railway.driver as d set d.status = 'BLOCK' where d.id in ?1" , nativeQuery = true) 
-	void blockDriver(List<Integer>  ids);
+	@Query(value  = "Update railway.driver as d set d.status = 'BLOCK' where d.id = ?1" , nativeQuery = true) 
+	void blockDriver(int  id); 
+	
+	@Modifying
+	@Transactional
+	@Query(value  = "Update railway.driver as d set d.status = 'OFF' where d.id = ?1" , nativeQuery = true) 
+	void nonBlockDriver(int  id); 
 }

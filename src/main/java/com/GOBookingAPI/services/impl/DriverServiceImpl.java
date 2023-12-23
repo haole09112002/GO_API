@@ -508,60 +508,36 @@ public class DriverServiceImpl implements IDriverService {
 	}
 
 	@Override
-	public DriverActiveResponse blockStatus(String ids) {
-		List<String> error = new ArrayList<String>();
-		String[] idsString = ids.split(",");
-		List<Integer> list = new ArrayList<Integer>();
-		for (String i : idsString) {
-			if (isInteger(i)) {
-				list.add(Integer.parseInt(i));
-			} else {
-				error.add(i + " is not idDrvier,");
-			}
-
-		}
-		if (list.isEmpty()) {
-			StringBuilder notify = new StringBuilder();
-			error.forEach(e -> notify.append(e));
-			notify.deleteCharAt(notify.length()-1);
-			return new DriverActiveResponse("Fail", notify.toString());
-		} else {
-			for (int i = 0 ; i< list.size(); i++) {
-				UserDriverProjection projection = driverRepository.getStatusAndIsNonBlock(list.get(i));
+	public DriverActiveResponse blockStatus(int id,Boolean isBlock) {
+		
+				UserDriverProjection projection = driverRepository.getStatusAndIsNonBlock(id);
 				if(projection == null) {
-					error.add("driver with id " + String.valueOf(list.get(i)) + " is not exits,");
-					list.remove(i);
-					i--;
+					throw new BadRequestException("driver is not exits");
 				}else {
 					if (!projection.getisNonBlock()) {
-						error.add("driver with id " + String.valueOf(list.get(i)) + " is blocked,");
-						list.remove(i);
-						i--;
-					}else if(projection.getStatus().equals(DriverStatus.REFUSED)) {
-							error.add("driver with id " + String.valueOf(list.get(i)) + " refused,");
-							list.remove(i);
-							i--;
+						throw new BadRequestException("driver have account is blocked");
+					}else { 
+						if(projection.getStatus().equals(DriverStatus.REFUSED)) {
+							throw new BadRequestException("driver refused");
+						}else {
+							if(projection.getStatus().equals(DriverStatus.BLOCK) && isBlock) {
+								throw new BadRequestException("driver blocked");
+							}else if(!projection.getStatus().equals(DriverStatus.BLOCK) && !isBlock) {
+								throw new BadRequestException("driver non blocked");
+							}
 						}
+					}
 					
 				}
-			}
-			if(list.isEmpty()) {
-				StringBuilder notify = new StringBuilder();
-				error.forEach(e -> notify.append(e));
-				notify.deleteCharAt(notify.length()-1);
-				return new DriverActiveResponse("Fail", notify.toString());
-			}else {
-				driverRepository.blockDriver(list);
-			}
-			if (!error.isEmpty()) {
-				StringBuilder notify = new StringBuilder();
-				error.forEach(e -> notify.append(e));
-				notify.deleteCharAt(notify.length()-1);
-				return new DriverActiveResponse("Warming", notify.toString());
-			} else {
-				return new DriverActiveResponse("Succesfull" ,"All drivers blocked");
-			}
-		}
+			
+			
+				if(isBlock)
+					driverRepository.blockDriver(id);
+				else {
+					driverRepository.nonBlockDriver(id);
+				}
+				return new DriverActiveResponse("Succesfull" ,"Driver blocked");
+		
 	}
 	
 	

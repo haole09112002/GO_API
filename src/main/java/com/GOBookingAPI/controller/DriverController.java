@@ -75,10 +75,10 @@ public class DriverController {
 		return ResponseEntity.ok(driverService.ActiveOrRefuseDriver(ids,AppConstants.REFUSE.toString()));
 	}
 	
-	@PutMapping("/block/{ids}")
+	@PutMapping("/block/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> blockDriver(@PathVariable String ids){
-		return ResponseEntity.ok(driverService.blockStatus(ids));
+	public ResponseEntity<?> blockDriver(@PathVariable int id, @RequestParam("isBlock") Boolean isBlock){
+		return ResponseEntity.ok(driverService.blockStatus(id,isBlock));
 	}
 	
 }
