@@ -34,4 +34,6 @@ public interface IDriverService {
 			String keyword, String sortType, String sortField, int size, int page);
 	
 	DriverActiveResponse ActiveOrRefuseDriver(String ids , String type);
+	
+	DriverActiveResponse blockStatus(String ids);
 }

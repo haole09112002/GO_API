@@ -74,4 +74,11 @@ public class DriverController {
 	public ResponseEntity<?> refuseDriver(@PathVariable String ids){
 		return ResponseEntity.ok(driverService.ActiveOrRefuseDriver(ids,AppConstants.REFUSE.toString()));
 	}
+	
+	@PutMapping("/block/{ids}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> blockDriver(@PathVariable String ids){
+		return ResponseEntity.ok(driverService.blockStatus(ids));
+	}
+	
 }

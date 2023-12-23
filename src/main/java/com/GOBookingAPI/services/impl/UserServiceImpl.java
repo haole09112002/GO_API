@@ -228,7 +228,8 @@ public class UserServiceImpl implements IUserService {
 
 	@Override
 	public void UpdateUserIsNonBlock(boolean isnonblock , int id) {
-		userRepository.UpdateIsNonBlock(isnonblock,id);
+		User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+		userRepository.UpdateIsNonBlock(isnonblock,user.getId());
 	}
     
 }
