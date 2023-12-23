@@ -219,13 +219,14 @@ public class BookingServiceImpl implements IBookingService {
         booking.setContentCancel(req.getContent());
         bookingRepository.save(booking);
 
-        //todo tach ham
         if (booking.getDriver() != null) {
-            managerBooking.deleteData(booking.getDriver().getId());
-            Driver driver = booking.getDriver();
-            driver.updateRatingByCancel(req.getReasonType().getValue());
-            driver.setStatus(DriverStatus.FREE);       //todo bug
-            driverRepository.save(driver);
+            if(booking.getStatus().equals(BookingStatus.COMPLETE) || booking.getStatus().equals(BookingStatus.WAITING_REFUND)){
+                managerBooking.deleteData(booking.getDriver().getId());
+                if(booking.getDriver().getStatus().equals(DriverStatus.ON_RIDE)){
+                    booking.getDriver().setStatus(DriverStatus.FREE);
+                    driverRepository.save(booking.getDriver());
+                }
+            }
         }
         // Trả về thông tin trạng thái mới của đơn đặt
         return booking;
@@ -319,11 +320,14 @@ public class BookingServiceImpl implements IBookingService {
         }
 
         if (booking.getDriver() != null) {
-            managerBooking.deleteData(booking.getDriver().getId());
-            booking.getDriver().setStatus(DriverStatus.FREE);
-            driverRepository.save(booking.getDriver());
+            if(booking.getStatus().equals(BookingStatus.COMPLETE) || booking.getStatus().equals(BookingStatus.WAITING_REFUND)){
+                managerBooking.deleteData(booking.getDriver().getId());
+                if(booking.getDriver().getStatus().equals(DriverStatus.ON_RIDE)){
+                    booking.getDriver().setStatus(DriverStatus.FREE);
+                    driverRepository.save(booking.getDriver());
+                }
+            }
         }
-
         return bookingRepository.save(booking);
     }
 
