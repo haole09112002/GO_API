@@ -26,7 +26,7 @@ public interface IDriverService {
 
 	DriverBaseInfoResponse getDriverBaseInfo(String email, Integer driverId);
 
-	DriverStatusResponse changeDriverStatus(int driverId, DriverStatus newStatus);
+	DriverStatusResponse changeDriverStatus(String email, Integer driverId);
 
 	Driver getById(int id);
 	

@@ -103,7 +103,7 @@ public class BookingServiceImpl implements IBookingService {
         booking.setPickUpAddress(mapService.convertLocationToAddress(req.getPickUpLocation()));
         booking.setDropOffAddress(mapService.convertLocationToAddress(req.getDropOffLocation()));
         bookingRepository.save(booking);
-        return BookingMapper.bookingToBookingResponse(booking);
+        return BookingMapper.bookingToBookingResponse(booking, user);
     }
 
     @Override
@@ -148,7 +148,7 @@ public class BookingServiceImpl implements IBookingService {
                 throw new NotFoundException("Không tìm thấy booking");
             }
         }
-        return BookingMapper.bookingToBookingResponse(booking);
+        return BookingMapper.bookingToBookingResponse(booking, user);
     }
 
     @Override
@@ -162,7 +162,9 @@ public class BookingServiceImpl implements IBookingService {
             case ADMIN -> bookingRepository.findBookingBetween(from, to, pageable);
         };
 
-        List<BookingResponse> bookingResponses = bookingPage.getContent().stream().map(BookingMapper::bookingToBookingResponse).collect(Collectors.toList());
+        List<BookingResponse> bookingResponses = bookingPage.getContent().stream()
+                .map(booking -> BookingMapper.bookingToBookingResponse(booking, user))
+                .collect(Collectors.toList());
         return new PagedResponse<>(bookingResponses, bookingPage.getNumber(), bookingPage.getSize(),
                 bookingPage.getTotalElements(), bookingPage.getTotalPages(), bookingPage.isLast());
     }
@@ -170,7 +172,7 @@ public class BookingServiceImpl implements IBookingService {
     @Override           // use for ADMIN
     public BookingResponse changeBookingStatusForAdmin(int bookingId, BookingStatus status) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking"));
-        return BookingMapper.bookingToBookingResponse(booking);
+        return BookingMapper.bookingToBookingResponse(booking, null);
     }
 
     @Override
@@ -217,13 +219,14 @@ public class BookingServiceImpl implements IBookingService {
         booking.setContentCancel(req.getContent());
         bookingRepository.save(booking);
 
-        //todo tach ham
         if (booking.getDriver() != null) {
-            managerBooking.deleteData(booking.getDriver().getId());
-            Driver driver = booking.getDriver();
-            driver.updateRatingByCancel(req.getReasonType().getValue());
-            driver.setStatus(DriverStatus.FREE);       //todo bug
-            driverRepository.save(driver);
+            if(booking.getStatus().equals(BookingStatus.COMPLETE) || booking.getStatus().equals(BookingStatus.WAITING_REFUND)){
+                managerBooking.deleteData(booking.getDriver().getId());
+                if(booking.getDriver().getStatus().equals(DriverStatus.ON_RIDE)){
+                    booking.getDriver().setStatus(DriverStatus.FREE);
+                    driverRepository.save(booking.getDriver());
+                }
+            }
         }
         // Trả về thông tin trạng thái mới của đơn đặt
         return booking;
@@ -317,18 +320,21 @@ public class BookingServiceImpl implements IBookingService {
         }
 
         if (booking.getDriver() != null) {
-            managerBooking.deleteData(booking.getDriver().getId());
-            booking.getDriver().setStatus(DriverStatus.FREE);
-            driverRepository.save(booking.getDriver());
+            if(booking.getStatus().equals(BookingStatus.COMPLETE) || booking.getStatus().equals(BookingStatus.WAITING_REFUND)){
+                managerBooking.deleteData(booking.getDriver().getId());
+                if(booking.getDriver().getStatus().equals(DriverStatus.ON_RIDE)){
+                    booking.getDriver().setStatus(DriverStatus.FREE);
+                    driverRepository.save(booking.getDriver());
+                }
+            }
         }
-
         return bookingRepository.save(booking);
     }
 
     @Override
     public BookingResponse getCurrentBooking(User user) {
         Optional<Booking> bookingOptional = bookingRepository.getCurrentActiveBooking(user.getId(), user.getFirstRole().getName().name());
-        return bookingOptional.map(BookingMapper::bookingToBookingResponse).orElse(null);
+        return bookingOptional.map(booking -> BookingMapper.bookingToBookingResponse(booking, user)).orElse(null);
     }
 
     @PersistenceContext
@@ -358,7 +364,7 @@ public class BookingServiceImpl implements IBookingService {
             predicates.add(predicate);
         }
 
-        if (sortField.isBlank()) {
+        if (sortField == null || sortField.isBlank()) {
             sortField = "amount";
         }
         if (sortType == null)
@@ -398,7 +404,9 @@ public class BookingServiceImpl implements IBookingService {
         List<Booking> books = typedQuery.getResultList();
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        List<BookingResponse> bookingResponses = books.stream().map(BookingMapper::bookingToBookingResponse).collect(Collectors.toList());
+        List<BookingResponse> bookingResponses = books.stream()
+                .map(booking -> BookingMapper.bookingToBookingResponse(booking, user))
+                .collect(Collectors.toList());
 
         Page<BookingResponse> pagedResponse = new PageImpl<>(bookingResponses, pageRequest, totalResults);
         return new PagedResponse<>(pagedResponse.getContent(), pagedResponse.getNumber(), pagedResponse.getSize(),

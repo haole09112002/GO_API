@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -162,6 +163,11 @@ public class DriverServiceImpl implements IDriverService {
 			return false;
 		}
 
+		if(driverChosen.getStatus().equals(DriverStatus.BLOCK)){				//todo
+			System.out.println("Find driver null for booking id: " + booking.getId());
+			return false;
+		}
+
 		driverChosen.setStatus(DriverStatus.ON_RIDE);
 		driverRepository.save(driverChosen);
 
@@ -261,13 +267,31 @@ public class DriverServiceImpl implements IDriverService {
 		throw new AccessDeniedException("Bạn chưa từng có chuyến đi với tài xế này");
 	}
 
+	/*
+	    @author: HaoLV
+	    @description: thay doi trang thai tai xe online hay offline
+	*/
+
 	@Override
-	public DriverStatusResponse changeDriverStatus(int driverId, DriverStatus newStatus) {
-		Driver driver = driverRepository.findById(driverId)
-				.orElseThrow(() -> new NotFoundException("Khong tim thay driver, driverId: " + driverId));
-		driver.setStatus(newStatus);
+	public DriverStatusResponse changeDriverStatus(String email, Integer driverId) {
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+		Driver driver = user.getDriver();
+		if(driver.getId() != driverId)
+			throw new NotFoundException("Không tìm thấy driver: " + driverId);
+
+		if(driver.getStatus() != DriverStatus.FREE && driver.getStatus() != DriverStatus.OFF){
+			throw new BadRequestException("Không thể thay đổi trạng thái, trạng thái hiện tại: " + driver.getStatus());
+		}
+
+		if(driver.getStatus() == DriverStatus.FREE){
+			driver.setStatus(DriverStatus.OFF);
+		}else {
+			driver.setStatus(DriverStatus.FREE);
+
+		}
 		driverRepository.save(driver);
-		return new DriverStatusResponse(driverId, newStatus);
+		return new DriverStatusResponse(driverId, driver.getStatus());
 	}
 
 	@Override
@@ -319,6 +343,13 @@ public class DriverServiceImpl implements IDriverService {
 		if(status != null) {
 			Path<DriverStatus> fieldstatus = root.get("status");
 			Predicate predicate = criteriaBuilder.equal(fieldstatus, status);
+			predicates.add(predicate);
+		}
+
+		if(status == null) {
+			Path<DriverStatus> fieldstatus = root.get("status");
+			List<DriverStatus> statusList = Arrays.asList(DriverStatus.NOT_ACTIVATED, DriverStatus.REFUSED);
+			Predicate predicate = criteriaBuilder.not(fieldstatus.in(statusList));
 			predicates.add(predicate);
 		}
 		

@@ -109,12 +109,7 @@ public class PaymentController {
         String vnp_SecureHash = VNPayConfig.hmacSHA512(VNPayConfig.secretKey, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VNPayConfig.vnp_PayUrl + "?" + queryUrl;
-
-        PaymentResponse DTO = new PaymentResponse();
-        DTO.setStatus("Ok");
-        DTO.setMessage("Successfully");
-        DTO.setURL(paymentUrl);
-        return ResponseEntity.ok(DTO);
+        return null;
     }
 
     @GetMapping("/link")

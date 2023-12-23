@@ -7,7 +7,7 @@ public class AppConstants {
 
     public static final int MAX_PAGE_SIZE = 30;
 
-    public static final int MAX_TIME_PENDING = 5 * 60 ; // 5 min
+    public static final int MAX_TIME_PENDING = 15 * 60 ; // 5 min
 
     public static final int PERIOD_TIME = 5;   // 5s
 
