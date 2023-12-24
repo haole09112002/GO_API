@@ -16,7 +16,6 @@ public class AppConstants {
     public static final String IS_NON_BLOCK = "true";
     
     public static final String ACTIVE = "active";
-    
-    public static final String REFUSE = "refuse";
 
+    public static final String REFUSE = "refuse";
 }

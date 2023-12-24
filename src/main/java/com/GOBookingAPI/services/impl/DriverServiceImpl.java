@@ -15,15 +15,11 @@ import java.util.stream.Collectors;
 
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.ReasonType;
+import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
-import com.GOBookingAPI.payload.response.BookingStatusResponse;
-import com.GOBookingAPI.payload.response.DriverActiveResponse;
-import com.GOBookingAPI.payload.response.DriverBaseInfoResponse;
-import com.GOBookingAPI.payload.response.DriverInfoResponse;
-import com.GOBookingAPI.payload.response.DriverPageResponse;
-import com.GOBookingAPI.payload.response.DriverStatusResponse;
-import com.GOBookingAPI.payload.response.PagedResponse;
+import com.GOBookingAPI.payload.dto.BookingStatistic;
+import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.repositories.projection.UserDriverProjection;
 import com.GOBookingAPI.services.IBookingService;
@@ -310,13 +306,13 @@ public class DriverServiceImpl implements IDriverService {
 
 		Join<Driver, User> userJoin = root.join("user", JoinType.INNER);
 
-		criteriaQuery.multiselect(userJoin.get("id").alias("Id"), 
+		criteriaQuery.multiselect(userJoin.get("id").alias("Id"),
 									userJoin.get("createDate").alias("CreateDate"),
 									root.get("activityArea").alias("Area"),
 									userJoin.get("email").alias("Email"),
 									root.get("fullName").alias("FullName"),
 									userJoin.get("phoneNumber").alias("PhoneNumber"),
-									root.get("status").alias("Status"), 
+									root.get("status").alias("Status"),
 									userJoin.get("isNonBlock").alias("IsNonBlock"));
 
 		List<Predicate> predicates = new ArrayList<Predicate>();
@@ -352,7 +348,7 @@ public class DriverServiceImpl implements IDriverService {
 			Predicate predicate = criteriaBuilder.not(fieldstatus.in(statusList));
 			predicates.add(predicate);
 		}
-		
+
 		if(status == null) {
 			Path<DriverStatus> fieldstatus = root.get("status");
 			List<DriverStatus> statusList = Arrays.asList(DriverStatus.NOT_ACTIVATED, DriverStatus.REFUSED);
@@ -360,7 +356,7 @@ public class DriverServiceImpl implements IDriverService {
 			predicates.add(predicate);
 
 		}
-		
+
 		Path<Object> sortRoute = null;
 
 		try {
@@ -369,7 +365,7 @@ public class DriverServiceImpl implements IDriverService {
 			}else {
 				sortRoute = userJoin.get(sortField);
 			}
-			
+
 		} catch (IllegalArgumentException e) {
 			throw new BadRequestException("Invalid sortField" + sortField);
 		}
@@ -411,7 +407,7 @@ public class DriverServiceImpl implements IDriverService {
 		typedQuery.setMaxResults(size);
 
 		List<DriverPageResponse> drivers = typedQuery.getResultList().stream()
-				.map(result -> new DriverPageResponse((int) result.get("Id"), 
+				.map(result -> new DriverPageResponse((int) result.get("Id"),
 													  (String) result.get("Email"),
 													  (Date) result.get("CreateDate"),
 													  (String) result.get("Area"),
@@ -480,7 +476,7 @@ public class DriverServiceImpl implements IDriverService {
 			}else {
 				if(type.equals(AppConstants.ACTIVE))
 					driverRepository.activeDriver(list);
-				else 
+				else
 					driverRepository.refuseDriver(list);
 			}
 			if (!error.isEmpty()) {
@@ -491,7 +487,7 @@ public class DriverServiceImpl implements IDriverService {
 			} else {
 				if(type.equals(AppConstants.ACTIVE))
 					return new DriverActiveResponse("Succesfull" ,"All drivers activated");
-				else 
+				else
 					return new DriverActiveResponse("Succesfull" ,"All drivers refused");
 			}
 		}
@@ -509,14 +505,14 @@ public class DriverServiceImpl implements IDriverService {
 
 	@Override
 	public DriverActiveResponse blockStatus(int id,Boolean isBlock) {
-		
+
 				UserDriverProjection projection = driverRepository.getStatusAndIsNonBlock(id);
 				if(projection == null) {
 					throw new BadRequestException("driver is not exits");
 				}else {
 					if (!projection.getisNonBlock()) {
 						throw new BadRequestException("driver have account is blocked");
-					}else { 
+					}else {
 						if(projection.getStatus().equals(DriverStatus.REFUSED)) {
 							throw new BadRequestException("driver refused");
 						}else {
@@ -527,18 +523,35 @@ public class DriverServiceImpl implements IDriverService {
 							}
 						}
 					}
-					
+
 				}
-			
-			
+
+
 				if(isBlock)
 					driverRepository.blockDriver(id);
 				else {
 					driverRepository.nonBlockDriver(id);
 				}
 				return new DriverActiveResponse("Succesfull" ,"Driver blocked");
-		
+
 	}
-	
-	
+
+    public BookingStatisticResponse bookingStatisticByDriver(String email, Date from, Date to, Integer id) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+        Driver driver = null;
+        if(id != null){
+            if( user.getFirstRole().getName().equals(RoleEnum.ADMIN)){
+                driver = driverRepository.findById(id).orElseThrow(() -> new NotFoundException("Khong tim yhay driver: " + id));
+            }else
+                throw new AccessDeniedException("Login with role admin to access");
+        }else {
+            if(user.getFirstRole().getName().equals(RoleEnum.DRIVER)){
+                driver = user.getDriver();
+            }else
+                throw new BadRequestException("If role Admin, require PathVariable can't be null");
+        }
+        BookingStatistic bookingStatistic = driverRepository.statisticalBooking(from, to, driver.getId());
+        return new BookingStatisticResponse(bookingStatistic, driver.getFirstVehicleType().getName().getPercent());
+    }
 }

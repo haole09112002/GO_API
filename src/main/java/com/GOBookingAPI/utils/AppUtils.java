@@ -35,6 +35,11 @@ public class AppUtils {
         }
     }
 
+    public static String convertDateToStringYYYYMMDD(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(date);
+    }
+
     /*
         @author: HaoLV
         @description:  yyyyMMddHHmmss => Date()
