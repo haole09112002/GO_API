@@ -187,6 +187,7 @@ public class DriverServiceImpl implements IDriverService {
 		return driverRepository.findDriverStatus(status);
 	}
 
+
 	@Override
 	public DriverInfoResponse getDriverInfo(String email, Integer driverId) {
 		User user = userRepository.findByEmail(email)
@@ -240,8 +241,7 @@ public class DriverServiceImpl implements IDriverService {
 
 	@Override
 	public DriverBaseInfoResponse getDriverBaseInfo(String email, Integer driverId) {
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+		User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
 		if (bookingService.isDriverBelongsToCustomerBooking(user, driverId)) {
 			Driver driver = driverRepository.findById(driverId)
 					.orElseThrow(() -> new NotFoundException("Không tìm thấy driver , driverId: " + driverId));
@@ -292,8 +292,7 @@ public class DriverServiceImpl implements IDriverService {
 
 	@Override
 	public Driver getById(int id) {
-		return driverRepository.findById(id)
-				.orElseThrow(() -> new NotFoundException("Khong tim thay driver, driverId: " + id));
+		return driverRepository.findById(id).orElseThrow(() -> new NotFoundException("Khong tim thay driver, driverId: " + id));
 	}
 
 	@Override
@@ -527,7 +526,7 @@ public class DriverServiceImpl implements IDriverService {
 				}
 
 
-				if(isBlock)
+				if(isBlock) {
 
 					driverRepository.blockDriver(id);
 					return new DriverActiveResponse("Succesfull" ,"Driver blocked");
@@ -540,7 +539,7 @@ public class DriverServiceImpl implements IDriverService {
 
     public BookingStatisticResponse bookingStatisticByDriver(String email, Date from, Date to, Integer id) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email)); 
         Driver driver = null;
         if(id != null){
             if( user.getFirstRole().getName().equals(RoleEnum.ADMIN)){
