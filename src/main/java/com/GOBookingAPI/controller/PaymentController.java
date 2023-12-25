@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +18,7 @@ import com.GOBookingAPI.enums.PaymentMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,9 @@ import org.springframework.web.bind.annotation.*;
 import com.GOBookingAPI.config.VNPayConfig;
 import com.GOBookingAPI.payload.response.PaymentResponse;
 import com.GOBookingAPI.services.IPaymentService;
+import com.GOBookingAPI.utils.AppConstants;
+
+import io.micrometer.common.lang.Nullable;
 
 @RestController
 @RequestMapping("/payment")
@@ -123,4 +128,14 @@ public class PaymentController {
         paymentService.handlePaymentTransaction(req);
     }
 
+    
+    @GetMapping("/statisticsdate")
+    public ResponseEntity<?> getStatisticsDay(@RequestParam(name ="from" , required = false) @Nullable @DateTimeFormat(pattern =  "yyyy-MM-dd") Date from,
+    											@RequestParam(name = "to"  , required = false)@Nullable @DateTimeFormat(pattern =  "yyyy-MM-dd")  Date to,
+    											@RequestParam(name ="statisticsType" , required = false) String statisticsType,
+    											@RequestParam(name = "size" , required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size,
+    											@RequestParam(name = "page" , required =  false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page
+    											){
+    	return ResponseEntity.ok(paymentService.getStatisticsPaymentDate(from, to,  statisticsType,  size,  page));
+    }
 }

@@ -56,7 +56,7 @@ public class SecurityConfig implements WebMvcConfigurer{
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
-        .allowedOrigins("http://127.0.0.1:5500" , "http://127.0.0.1:3000" , "http://localhost:3000", "https://go-webapp.vercel.app", "https://forlorn-bite-production.up.railway.app", "http://forlorn-bite-production.up.railway.app")
+        .allowedOrigins("http://127.0.0.1:5500" , "http://127.0.0.1:3000" , "http://localhost:3000", "https://go-webapp.vercel.app", "https://go-api-1z62.onrender.com", "http://go-api-1z62.onrender.com")
         .allowedHeaders("*")
         .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")
         .maxAge(-1)   // add maxAge
