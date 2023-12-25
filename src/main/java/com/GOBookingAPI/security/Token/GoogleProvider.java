@@ -63,8 +63,7 @@ public class GoogleProvider implements AuthenticationProvider {
                     user.setEmail(email);
                     user.setIsNonBlock(true);
                     System.out.println("This is Provider and provider null");
-//                    List<GrantedAuthority> authoritys = new ArrayList<GrantedAuthority>();
-//                    authoritys.add(new SimpleGrantedAuthority("ROLE_NONE"));
+
                     return new UserSecurity(user,null);
                 } else {
 //                    System.out.println("This is Provider");
