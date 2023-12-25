@@ -25,7 +25,7 @@ public class FileController {
 
 	@PostMapping("/upload")
 	public ResponseEntity<?> uploadFile(@ModelAttribute MultipartFile file){
-		return ResponseEntity.ok(this.fileStorageService.uploadFile(file));
+		return ResponseEntity.ok(this.fileStorageService.save(file));
 	}
 
 }

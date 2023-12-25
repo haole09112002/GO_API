@@ -185,7 +185,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     	if(req.getAvatar() != null && !req.getAvatar().isEmpty()){
-			String url = fileStorageService.uploadFile(req.getAvatar());
+			String url = fileStorageService.save(req.getAvatar());
 			customer.getUser().setAvatarUrl(url);
 			userRepository.save(customer.getUser());
 		}

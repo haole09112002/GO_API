@@ -3,6 +3,7 @@ package com.GOBookingAPI.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "file")
+//todo fix
 public class FileStorageProperties {
     private String uploadDir;
 

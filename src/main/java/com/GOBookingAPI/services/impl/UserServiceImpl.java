@@ -98,6 +98,7 @@ public class UserServiceImpl implements IUserService {
         if (userOptional.isPresent()) {
             throw new BadRequestException("User has already been registered");
         }
+
         User user = userOptional.orElseGet(() -> registerUser(email, phoneNumber, avatar, RoleEnum.CUSTOMER));
         userRepository.save(user);
         Customer newCustomer = new Customer();
@@ -155,18 +156,17 @@ public class UserServiceImpl implements IUserService {
         driver.setLicensePlate(req.getLicensePlate());
         driver.setDrivingLicense(req.getDrivingLicense());
 
-        String fileName = "";
         for (int i = 0; i < req.getDrivingLicenseImg().length; i++) {
             if (i == 0)
-                driver.setFrontDrivingLicenseUrl(fileStorageService.uploadFile(req.getDrivingLicenseImg()[i]));
+                driver.setFrontDrivingLicenseUrl(fileStorageService.save(req.getDrivingLicenseImg()[i]));
             if (i == 1)
-                driver.setBackDrivingLicenseUrl(fileStorageService.uploadFile(req.getDrivingLicenseImg()[i]));
+                driver.setBackDrivingLicenseUrl(fileStorageService.save(req.getDrivingLicenseImg()[i]));
         }
         for (int i = 0; i < req.getIdCardImg().length; i++) {
             if (i == 0)
-                driver.setFrontIdCardUrl(fileStorageService.uploadFile(req.getIdCardImg()[i]));
+                driver.setFrontIdCardUrl(fileStorageService.save(req.getIdCardImg()[i]));
             if (i == 1)
-                driver.setBackIdCardUrl(fileStorageService.uploadFile(req.getIdCardImg()[i]));
+                driver.setBackIdCardUrl(fileStorageService.save(req.getIdCardImg()[i]));
         }
 
         Set<VehicleType> vehicleTypes = new HashSet<>();
@@ -229,8 +229,8 @@ public class UserServiceImpl implements IUserService {
         user.setRoles(roles);
         if (avatar == null && roleEnum.equals(RoleEnum.DRIVER))
             throw new BadRequestException("Avatar khong duoc null");
-        if (avatar != null) {
-            user.setAvatarUrl(fileStorageService.uploadFile(avatar));
+        if (avatar != null && !avatar.isEmpty()) {
+            user.setAvatarUrl(fileStorageService.save(avatar));
         }
         return user;
     }
