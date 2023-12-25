@@ -214,11 +214,14 @@ public class DriverServiceImpl implements IDriverService {
 		}
 		System.out.println("====> driverId" + driverId);
 		if (isAllow) {
-			DriverInfoResponse resp = new DriverInfoResponse();
-
 			Driver driver = driverRepository.findById(driverId)
 					.orElseThrow(() -> new NotFoundException("Không tìm thấy driver , driver: " + email));
-			resp.setDriverInfoUrl(driver.getImgUrl());
+
+			DriverInfoResponse resp = new DriverInfoResponse();
+			resp.setCardId1(driver.getFrontIdCardUrl());
+			resp.setCardId2(driver.getBackIdCardUrl());
+			resp.setDrivingLicenseImg1(driver.getFrontDrivingLicenseUrl());
+			resp.setDrivingLicenseImg2(driver.getBackDrivingLicenseUrl());
 			resp.setId(driver.getId());
 			resp.setEmail(driver.getUser().getEmail());
 			resp.setFullName(driver.getFullName());
@@ -346,14 +349,6 @@ public class DriverServiceImpl implements IDriverService {
 			List<DriverStatus> statusList = Arrays.asList(DriverStatus.NOT_ACTIVATED, DriverStatus.REFUSED);
 			Predicate predicate = criteriaBuilder.not(fieldstatus.in(statusList));
 			predicates.add(predicate);
-		}
-
-		if(status == null) {
-			Path<DriverStatus> fieldstatus = root.get("status");
-			List<DriverStatus> statusList = Arrays.asList(DriverStatus.NOT_ACTIVATED, DriverStatus.REFUSED);
-			Predicate predicate = criteriaBuilder.not(fieldstatus.in(statusList));
-			predicates.add(predicate);
-
 		}
 
 		Path<Object> sortRoute = null;

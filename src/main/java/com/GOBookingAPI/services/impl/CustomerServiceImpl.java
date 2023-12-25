@@ -13,6 +13,7 @@ import com.GOBookingAPI.payload.request.ChangeCustomerInfoRequest;
 import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.services.CustomerService;
+import com.GOBookingAPI.services.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -184,7 +185,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     	if(req.getAvatar() != null && !req.getAvatar().isEmpty()){
-			String url = fileStorageService.createImgUrl(req.getAvatar());
+			String url = fileStorageService.uploadFile(req.getAvatar());
 			customer.getUser().setAvatarUrl(url);
 			userRepository.save(customer.getUser());
 		}
