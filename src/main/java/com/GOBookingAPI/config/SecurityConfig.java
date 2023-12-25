@@ -40,7 +40,7 @@ public class SecurityConfig implements WebMvcConfigurer{
         http.csrf().disable();
 		http.authorizeRequests().requestMatchers("/home/**", "/api/**" ,"/payment/**").permitAll();
 		http.authorizeRequests().requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll();
-		http.authorizeRequests().requestMatchers("/**","/ws/**").authenticated().anyRequest().authenticated();
+		http.authorizeRequests().requestMatchers("/**","/ws/**").authenticated().anyRequest().hasAnyRole("ROLE_CUSTOMER", "ROLE_DRIVER","ROLE_ADMIN");
 		http.exceptionHandling().authenticationEntryPoint(entryPoint);
 		http.addFilterBefore(new GoogleFilter(), BasicAuthenticationFilter.class);
 		http.authenticationProvider(provider);
