@@ -2,19 +2,23 @@ package com.GOBookingAPI.payload.response;
 
 import java.util.Date;
 
-import com.GOBookingAPI.enums.PaymentMethod;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class StatisticsPaymentDayResponse {
-	
+public class StatisticsBookingDateResponse {
+
 	private Object date;
+	
+	private int numberBooking ;
 	
 	private long totalAmount;
 	
-	private Object BaseInfo;
-
+	private long totalAmountSuccess;
+	private long totalAmountFail;
+	
+	private double avgAmount;
+	
+	
 }

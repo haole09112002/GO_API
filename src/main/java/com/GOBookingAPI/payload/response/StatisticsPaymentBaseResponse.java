@@ -15,6 +15,7 @@ public class StatisticsPaymentBaseResponse {
 	
 	private double avg;
 	
-	List<StatisticsPaymentDayResponse> statisticsPaymentDayResponses;
+	PagedResponse<StatisticsPaymentDayResponse> page;
+	
 	
 }
