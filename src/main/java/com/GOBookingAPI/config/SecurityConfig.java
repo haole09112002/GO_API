@@ -28,8 +28,8 @@ public class SecurityConfig implements WebMvcConfigurer{
 	@Autowired
 	GoogleProvider provider;
 	
-	@Autowired
-    private NonBlockInterceptor nonBlockInterceptor;
+//	@Autowired
+//    private NonBlockInterceptor nonBlockInterceptor;
 
 	
 	@Bean
@@ -47,10 +47,10 @@ public class SecurityConfig implements WebMvcConfigurer{
 		return http.build();
 	}
 
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(nonBlockInterceptor);
-	}
+//	@Override
+//	public void addInterceptors(InterceptorRegistry registry) {
+//		registry.addInterceptor(nonBlockInterceptor);
+//	}
 
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
