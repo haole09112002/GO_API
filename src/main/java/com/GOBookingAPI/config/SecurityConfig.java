@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -27,8 +28,8 @@ public class SecurityConfig implements WebMvcConfigurer{
 	@Autowired
 	GoogleProvider provider;
 	
-//	@Autowired
-//    private NonBlockInterceptor nonBlockInterceptor;
+	@Autowired
+    private NonBlockInterceptor nonBlockInterceptor;
 
 	
 	@Bean
@@ -48,10 +49,10 @@ public class SecurityConfig implements WebMvcConfigurer{
 		return http.build();
 	}
 
-//	@Override
-//	public void addInterceptors(InterceptorRegistry registry) {
-//		registry.addInterceptor(nonBlockInterceptor);
-//	}
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(nonBlockInterceptor);
+	}
 
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
