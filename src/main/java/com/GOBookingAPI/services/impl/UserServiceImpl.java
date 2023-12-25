@@ -6,8 +6,11 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+
+import com.GOBookingAPI.enums.DriverInfoImg;
 import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.exceptions.AppException;
+import com.GOBookingAPI.exceptions.BadCredentialsException;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.request.DriverRegisterRequest;
 import com.GOBookingAPI.payload.response.*;
@@ -26,6 +29,7 @@ import com.GOBookingAPI.entities.Role;
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.entities.VehicleType;
 import com.GOBookingAPI.exceptions.NotFoundException;
+import com.GOBookingAPI.payload.request.CustomerRequest;
 import com.GOBookingAPI.services.IUserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -151,6 +155,7 @@ public class UserServiceImpl implements IUserService {
         driver.setLicensePlate(req.getLicensePlate());
         driver.setDrivingLicense(req.getDrivingLicense());
 
+        String fileName = "";
         for (int i = 0; i < req.getDrivingLicenseImg().length; i++) {
             if (i == 0)
                 driver.setFrontDrivingLicenseUrl(fileStorageService.uploadFile(req.getDrivingLicenseImg()[i]));
@@ -229,9 +234,10 @@ public class UserServiceImpl implements IUserService {
         return user;
     }
 
-    @Override
-    public void UpdateUserIsNonBlock(boolean isnonblock, int id) {
-        userRepository.UpdateIsNonBlock(isnonblock, id);
-    }
-
+	@Override
+	public void UpdateUserIsNonBlock(boolean isnonblock , int id) {
+		User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+		userRepository.UpdateIsNonBlock(isnonblock,user.getId());
+	}
+    
 }

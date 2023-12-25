@@ -34,7 +34,6 @@ import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.services.IBookingService;
 
 import java.util.Date;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/bookings")
@@ -75,7 +74,6 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getTravelInfo(pickUpLocation, dropOffLocation));
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getBookingByBookingId(@PathVariable int id) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -104,7 +102,7 @@ public class BookingController {
 
         webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
         if (booking.getDriver() != null) {
-            webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
+            webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), BookingStatus.CANCELLED));   //
             System.out.println("===> notify to driver: " + (new BookingStatusResponse(booking.getId(), booking.getStatus())).toString());
             if (booking.getStatus().equals(BookingStatus.WAITING_REFUND)) {
                 System.out.println("Booking status : " + BookingStatus.WAITING_REFUND);
@@ -116,7 +114,7 @@ public class BookingController {
         return ResponseEntity.ok(new BookingCancelResponse(booking.getId(), booking.getReasonType(), booking.getContentCancel(), booking.getStatus()));
     }
 
-    @PutMapping("/{bookingId}/status")
+    @PutMapping("/{bookingId}/status")          //todo remove
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookingResponse> changeBookingStatus(
             @PathVariable int bookingId,
@@ -137,5 +135,15 @@ public class BookingController {
 //           webSocketService.notifytoDriver(user.getId(), "HAVEBOOKING");
         }
         return ResponseEntity.ok(response != null ? response : "null");
+    }
+    
+    @GetMapping("/statisticsdate")
+    public ResponseEntity<?> getStatisticsDay(@RequestParam(name ="from" , required = false) @Nullable @DateTimeFormat(pattern =  "yyyy-MM-dd") Date from,
+    											@RequestParam(name = "to"  , required = false)@Nullable @DateTimeFormat(pattern =  "yyyy-MM-dd")  Date to,
+    											@RequestParam(name ="statisticsType" , required = false) String statisticsType,
+    											@RequestParam(name = "size" , required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size,
+    											@RequestParam(name = "page" , required =  false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page
+    											){
+    	return ResponseEntity.ok(bookingService.getStatisticsBookingDate(from, to,  statisticsType,  size,  page));
     }
 }

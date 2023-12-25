@@ -19,6 +19,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	
 	@Modifying
 	@Transactional
-	@Query(value = "Update gobooking.user as u set u.is_non_block = ?1 where u.id = ?2" , nativeQuery = true)
+	@Query(value = "Update railway.user as u set u.is_non_block = ?1 where u.id = ?2" , nativeQuery = true)
 	void UpdateIsNonBlock(boolean isnonblock , int id);
 }

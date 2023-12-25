@@ -1,10 +1,13 @@
 package com.GOBookingAPI.payload.response;
 
+import com.GOBookingAPI.enums.DriverInfoImg;
+import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.utils.DriverStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @AllArgsConstructor
 @NoArgsConstructor

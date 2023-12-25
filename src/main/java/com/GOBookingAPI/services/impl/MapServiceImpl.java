@@ -1,6 +1,9 @@
 package com.GOBookingAPI.services.impl;
 
+import com.GOBookingAPI.exceptions.AppException;
+import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.payload.vietmap.VietMapResponse;
+import com.GOBookingAPI.services.MapService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
@@ -16,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 @Slf4j
-public class MapServiceImpl {
+public class MapServiceImpl implements MapService {
     private String vietmapApiUrl = "https://maps.vietmap.vn/api";
 
     @Value("${vietmap.api.key}")
@@ -55,7 +58,6 @@ public class MapServiceImpl {
             String lng = coordinates[1].trim();
             String lat = coordinates[0].trim();
             String apiUrl = String.format("%s/reverse/v3?apikey=%s&lng=%s&lat=%s", vietmapApiUrl, vietmapApiKey, lng, lat);
-            System.out.println("===> " + apiUrl);
 
             ResponseEntity<String> responseEntity = restTemplate.getForEntity(apiUrl, String.class);
 
@@ -74,24 +76,24 @@ public class MapServiceImpl {
                         if (firstResult.has("display")) {
                             return firstResult.get("display").getAsString();
                         } else {
-                            System.out.println("Không có thông tin địa chỉ trong phản hồi JSON.");
+                            System.err.println("Không có thông tin địa chỉ trong phản hồi JSON.");
                             return null;
                         }
                     } else {
-                        System.out.println("Danh sách kết quả trống.");
+                        System.err.println("Danh sách kết quả trống.");
                         return null;
                     }
                 } else {
-                    System.out.println("Phản hồi không phải là JSON Array.");
+                    System.err.println("Phản hồi không phải là JSON Array.");
                     return null;
                 }
             } else {
-                System.out.println("Yêu cầu không thành công. Mã trạng thái: " + responseEntity.getStatusCodeValue());
-                return null;
+                System.err.println("Yêu cầu không thành công. Mã trạng thái: " + responseEntity.getStatusCodeValue());
+                throw new AppException("Yêu cầu không thành công. Mã trạng thái: " + responseEntity.getStatusCodeValue());
             }
         } catch (Exception e) {
             System.err.println("Lỗi chuyển đổi vị trí thành địa chỉ: " + e.getMessage());
-            return null;
+            throw new BadRequestException("Lỗi chuyển đổi vị trí thành địa chỉ: " + e.getMessage());
         }
     }
 }

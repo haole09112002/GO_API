@@ -32,6 +32,9 @@ public class Payment implements Serializable{
 
 	@Enumerated(EnumType.STRING)
 	private PaymentMethod paymentMethod;
+
+	@Column(nullable = false , columnDefinition = "varchar(30)")
+	private String txnRef;
 	
 	@ManyToOne
 	@JoinColumn(name = "customer_id")
