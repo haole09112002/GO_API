@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.GOBookingAPI.entities.*;
+import com.GOBookingAPI.enums.ReasonType;
 import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
@@ -185,6 +186,7 @@ public class BookingServiceImpl implements IBookingService {
     public Booking cancelBookingForCustomer(String email, int bookingId, BookingCancelRequest req) {
         User user = myUserRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user: " + email));
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Khong tim thay booking: " + bookingId));
+        Driver driver = booking.getDriver();
 
         if (user.getId() != (booking.getCustomer().getUser().getId())) {
             throw new AccessDeniedException("Booking này không thuộc về bạn");
@@ -217,6 +219,11 @@ public class BookingServiceImpl implements IBookingService {
             case ARRIVED_PICKUP:
                 requestedStatus = BookingStatus.WAITING_REFUND;
                 break;
+        }
+
+        if(req.getReasonType().equals(ReasonType.DRIVER) && driver == null)
+        {
+            throw new BadRequestException("Chưa tìm thấy tài xế nên không thể đánh giá tài xế");
         }
 
         booking.setStatus(requestedStatus);
