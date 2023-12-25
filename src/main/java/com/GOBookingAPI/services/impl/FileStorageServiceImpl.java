@@ -14,13 +14,17 @@ import java.util.UUID;
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
 
+    private final Cloudinary cloudinary;
+
     @Autowired
-    private Cloudinary cloudinary;
+    public FileStorageServiceImpl(Cloudinary cloudinary){
+        this.cloudinary = cloudinary;
+    }
 
     @Override
     public String uploadFile(MultipartFile file)  {
         try {
-            return cloudinary.uploader()
+            return this.cloudinary.uploader()
                     .upload(file.getBytes(),
                             Map.of("public_id", UUID.randomUUID().toString()))
                     .get("url")

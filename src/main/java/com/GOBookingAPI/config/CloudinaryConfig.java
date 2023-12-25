@@ -1,4 +1,4 @@
-package com.GOBookingAPI.config.cloudinary;
+package com.GOBookingAPI.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

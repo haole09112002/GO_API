@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import com.GOBookingAPI.utils.ManagerLocation;
 
 import com.GOBookingAPI.utils.ManagerLocation;
+import org.springframework.context.annotation.ComponentScan;
 
 
 @SpringBootApplication
