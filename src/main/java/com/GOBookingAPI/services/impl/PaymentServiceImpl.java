@@ -493,7 +493,7 @@ public class PaymentServiceImpl implements IPaymentService {
 		default:
 			throw new BadRequestException("Invalid statisticsField ");
 		}
-		PageRequest pageRequest = PageRequest.of(size, page);
+		PageRequest pageRequest = PageRequest.of( page,size);
 		Page<StatisticsPaymentDayResponse> pagedResponse = new PageImpl<>(statisticsPaymentDayResponses, pageRequest, totalResuls);
 		PagedResponse<StatisticsPaymentDayResponse> StatisticsPaymentDayPagedResponse = new PagedResponse<StatisticsPaymentDayResponse>(pagedResponse.getContent(),pagedResponse.getNumber(),pagedResponse.getSize(),
 																										   pagedResponse.getTotalElements(),pagedResponse.getTotalPages(),pagedResponse.isLast());
