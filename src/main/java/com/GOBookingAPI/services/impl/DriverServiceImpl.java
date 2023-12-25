@@ -236,10 +236,10 @@ public class DriverServiceImpl implements IDriverService {
 			resp.setDrivingLicense(driver.getDrivingLicense());
 			resp.setIdCard(driver.getIdCard());
 			resp.setVehicleType(driver.getFirstVehicleType().getName());
+			resp.setStartWorkDay(driver.getStartWorkDay() == null ? null : driver.getStartWorkDay().getTime());
 			return resp;
 		}
 		throw new AccessDeniedException("You don't have permission to access this resource");
-
 	}
 
 	@Override

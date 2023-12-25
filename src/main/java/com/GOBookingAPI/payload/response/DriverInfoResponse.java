@@ -31,6 +31,8 @@ public class DriverInfoResponse extends DriverBaseInfoResponse{
 
     private String cardId2;
 
+    private Long startWorkDay;
+
 //    public void setDriverInfoUrl(String fileName){
 //        this.drivingLicenseImg1 = ServletUriComponentsBuilder.fromCurrentContextPath()
 //                .path("api")

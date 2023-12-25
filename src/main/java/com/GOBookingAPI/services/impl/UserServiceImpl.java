@@ -194,6 +194,7 @@ public class UserServiceImpl implements IUserService {
         resp.setDrivingLicense(driver.getDrivingLicense());
         resp.setIdCard(driver.getIdCard());
         resp.setVehicleType(type.getName());
+        resp.setStartWorkDay(driver.getStartWorkDay() == null ? null : driver.getStartWorkDay().getTime());
         return resp;
     }
 
