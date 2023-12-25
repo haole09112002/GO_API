@@ -16,7 +16,7 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .servers(List.of(
-                        new Server().url("https://forlorn-bite-production.up.railway.app"),
+                        new Server().url("https://go-api-1z62.onrender.com"),
                         new Server().url("http://localhost:8080")
                 )).addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
                 .components(new Components().addSecuritySchemes("Bearer Authentication", createAPIKeyScheme()));

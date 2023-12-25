@@ -26,27 +26,27 @@ public interface DriverRepository extends JpaRepository<Driver, Integer> {
 	List<Driver> findDriverStatus(@Param("status") DriverStatus status );
 
 	@Query(value = "select d.status,u.is_non_block as isnonblock\r\n"
-			+ " from railway.driver as d inner join railway.user as u on u.id = d.user_id where u.id =?1" , nativeQuery = true)
+			+ " from driver as d inner join user as u on u.id = d.user_id where u.id =?1" , nativeQuery = true)
 	UserDriverProjection getStatusAndIsNonBlock(int id);
 	
 	@Modifying
 	@Transactional
-	@Query(value  = "Update railway.driver as d set d.status = 'OFF' where d.id in ?1" , nativeQuery = true) 
+	@Query(value  = "Update driver as d set d.status = 'OFF' where d.id in ?1" , nativeQuery = true)
 	void activeDriver(List<Integer>  ids);
 	
 	@Modifying
 	@Transactional
-	@Query(value  = "Update railway.driver as d set d.status = 'REFUSED' where d.id in ?1" , nativeQuery = true) 
+	@Query(value  = "Update driver as d set d.status = 'REFUSED' where d.id in ?1" , nativeQuery = true)
 	void refuseDriver(List<Integer>  ids);
 	
 	@Modifying
 	@Transactional
-	@Query(value  = "Update railway.driver as d set d.status = 'BLOCK' where d.id = ?1" , nativeQuery = true) 
+	@Query(value  = "Update driver as d set d.status = 'BLOCK' where d.id = ?1" , nativeQuery = true)
 	void blockDriver(int  id); 
 	
 	@Modifying
 	@Transactional
-	@Query(value  = "Update railway.driver as d set d.status = 'OFF' where d.id = ?1" , nativeQuery = true) 
+	@Query(value  = "Update driver as d set d.status = 'OFF' where d.id = ?1" , nativeQuery = true)
 	void nonBlockDriver(int  id);
 
 	@Query(value = "SELECT " +

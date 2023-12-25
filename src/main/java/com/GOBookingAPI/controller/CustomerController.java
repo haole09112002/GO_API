@@ -9,6 +9,7 @@ import com.GOBookingAPI.services.CustomerService;
 import com.GOBookingAPI.services.IUserService;
 import com.GOBookingAPI.utils.AppConstants;
 
+import com.cloudinary.http44.ApiUtils;
 import io.micrometer.common.lang.Nullable;
 
 import java.util.Date;

@@ -1,20 +1,11 @@
 package com.GOBookingAPI.controller;
 
 
-import com.GOBookingAPI.payload.request.DriverStatusRequest;
 import com.GOBookingAPI.services.IDriverService;
 import com.GOBookingAPI.utils.AppConstants;
 import com.GOBookingAPI.utils.DriverStatus;
-
 import io.micrometer.common.lang.Nullable;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import net.minidev.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 
 @RestController
@@ -91,5 +84,4 @@ public class DriverController {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		return ResponseEntity.ok(driverService.bookingStatisticByDriver(email, from, to, id));
 	}
-	
 }
