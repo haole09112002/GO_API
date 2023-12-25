@@ -528,12 +528,14 @@ public class DriverServiceImpl implements IDriverService {
 
 
 				if(isBlock)
+
 					driverRepository.blockDriver(id);
+					return new DriverActiveResponse("Succesfull" ,"Driver blocked");
+				}
 				else {
 					driverRepository.nonBlockDriver(id);
+					return new DriverActiveResponse("Succesfull" ,"Driver nonBlocked");
 				}
-				return new DriverActiveResponse("Succesfull" ,"Driver blocked");
-
 	}
 
     public BookingStatisticResponse bookingStatisticByDriver(String email, Date from, Date to, Integer id) {

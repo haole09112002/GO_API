@@ -32,5 +32,5 @@ public interface IPaymentService {
 
     boolean refundPayment(Booking booking);
     
-    StatisticsPaymentBaseResponse getStatisticsPaymentDate(Date from , Date to, String statisticsType);
+    StatisticsPaymentBaseResponse getStatisticsPaymentDate(Date from , Date to, String statisticsType, int size, int page);
 }

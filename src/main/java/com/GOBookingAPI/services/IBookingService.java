@@ -38,4 +38,8 @@ public interface IBookingService {
 
     PagedResponse<BookingResponse> filterBookings(Date from, Date to, BookingStatus status, String sortType,
                                                   String sortField, int page, int size, String email);
+    
+    StatisticsBookingBaseResponse getStatisticsBookingDate(Date from , Date to, String statisticsType, int size, int page);
+    
+    
 }

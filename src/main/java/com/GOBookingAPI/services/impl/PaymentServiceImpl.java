@@ -10,9 +10,12 @@ import com.GOBookingAPI.enums.PaymentMethod;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
 import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.exceptions.NotFoundException;
+import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
+import com.GOBookingAPI.payload.response.PagedResponse;
 import com.GOBookingAPI.payload.response.PaymentBaseInfo;
 import com.GOBookingAPI.payload.response.StatisticsPaymentBaseResponse;
+import com.GOBookingAPI.payload.response.StatisticsPaymentDayOfMonth;
 import com.GOBookingAPI.payload.response.StatisticsPaymentDayResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.DriverRepository;
@@ -30,6 +33,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -397,11 +403,12 @@ public class PaymentServiceImpl implements IPaymentService {
     }
 
 	@Override
-	public StatisticsPaymentBaseResponse getStatisticsPaymentDate(Date from, Date to , String statisticsType) {
+	public StatisticsPaymentBaseResponse getStatisticsPaymentDate(Date from, Date to , String statisticsType, int size, int page) {
 		List<StatisticsPaymentDayResponse> statisticsPaymentDayResponses = new ArrayList<StatisticsPaymentDayResponse>();
 		int totalAmount=0 ;
 		int number =0;
 		double avg =0;  
+		int totalResuls =0;
 		if(statisticsType == null) {
 			statisticsType = "day";
 		}
@@ -437,17 +444,21 @@ public class PaymentServiceImpl implements IPaymentService {
 				totalAmount +=StatisticsMonth.get(i).getTotal(); 
 				statisticsPaymentDayResponses.add(new StatisticsPaymentDayResponse(StatisticsMonth.get(i).getMonth(),
 																					StatisticsMonth.get(i).getTotal(),
-																					new StatisticsPaymentDayResponse(
+																					new StatisticsPaymentDayOfMonth(
 																							StatisticsDayOfMonth.get(i).getDate(),
 																							StatisticsDayOfMonth.get(i).getTotal()
 																							)));
 			}
-			avg = totalAmount/number;
+			totalResuls =StatisticsMonth.size();
+			try {
+				avg = totalAmount/number;
+			} catch (Exception e) {
+				avg = 0;
+			}
+		
 			break;
 		}
-		case "year" :{
-			break;
-		}
+		
 		case "day" :{
 			if(from == null || to == null) {
 				Calendar calendar = Calendar.getInstance();
@@ -471,14 +482,22 @@ public class PaymentServiceImpl implements IPaymentService {
 																							payments.get(i).getPaymentMethod())
 																					));
 			}
-			avg = totalAmount/number;
+			totalResuls = projection.size();
+			try {
+				avg = totalAmount/number;
+			} catch (Exception e) {
+				avg = 0;
+			}
 			break;
 		}
 		default:
 			throw new BadRequestException("Invalid statisticsField ");
 		}
-		
-		return new StatisticsPaymentBaseResponse(totalAmount, number, avg, statisticsPaymentDayResponses);
+		PageRequest pageRequest = PageRequest.of(size, page);
+		Page<StatisticsPaymentDayResponse> pagedResponse = new PageImpl<>(statisticsPaymentDayResponses, pageRequest, totalResuls);
+		PagedResponse<StatisticsPaymentDayResponse> StatisticsPaymentDayPagedResponse = new PagedResponse<StatisticsPaymentDayResponse>(pagedResponse.getContent(),pagedResponse.getNumber(),pagedResponse.getSize(),
+																										   pagedResponse.getTotalElements(),pagedResponse.getTotalPages(),pagedResponse.isLast());
+		return new StatisticsPaymentBaseResponse(totalAmount, number, avg, StatisticsPaymentDayPagedResponse);
 	}
     
     
