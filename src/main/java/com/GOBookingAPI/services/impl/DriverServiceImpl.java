@@ -99,7 +99,7 @@ public class DriverServiceImpl implements IDriverService {
 		double minDistance = 1000000;
 		for (LocationDriver driver : managerLocation.getLocationMapFree().values()) {
 			if (!driver.getVehicleType().equals(vehicleType)) {
-				break;
+				continue;
 			}
 
 			VietMapResponse travel = mapService.getRoute(locationCustomer, driver.getLocation(), vehicleType.name());
