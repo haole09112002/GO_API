@@ -4,5 +4,6 @@ import java.util.Date;
 
 public interface StatisticsPaymentDayProjection {
 	Date getDate();
-	long getTotal();
+	long getAmount();
+	int  getTotal();
 }

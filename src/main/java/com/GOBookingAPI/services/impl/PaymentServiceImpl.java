@@ -8,21 +8,12 @@ import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.BookingStatus;
 import com.GOBookingAPI.enums.PaymentMethod;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
-import com.GOBookingAPI.exceptions.BadRequestException;
 import com.GOBookingAPI.exceptions.NotFoundException;
-import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.payload.response.BookingStatusResponse;
-import com.GOBookingAPI.payload.response.PagedResponse;
-import com.GOBookingAPI.payload.response.PaymentBaseInfo;
-import com.GOBookingAPI.payload.response.StatisticsPaymentBaseResponse;
-import com.GOBookingAPI.payload.response.StatisticsPaymentDayOfMonth;
-import com.GOBookingAPI.payload.response.StatisticsPaymentDayResponse;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.DriverRepository;
 import com.GOBookingAPI.repositories.PaymentRepository;
 import com.GOBookingAPI.repositories.UserRepository;
-import com.GOBookingAPI.repositories.projection.StatisticsPaymentDayProjection;
-import com.GOBookingAPI.repositories.projection.StatisticsPaymentMonthProjection;
 import com.GOBookingAPI.services.IDriverService;
 import com.GOBookingAPI.services.IPaymentService;
 import com.GOBookingAPI.services.IWebSocketService;
@@ -33,9 +24,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -401,107 +389,4 @@ public class PaymentServiceImpl implements IPaymentService {
         }, AppConstants.INIT_DELAY, AppConstants.PERIOD_TIME, TimeUnit.SECONDS);
         return isSuccess.get();
     }
-
-	@Override
-	public StatisticsPaymentBaseResponse getStatisticsPaymentDate(Date from, Date to , String statisticsType, int size, int page) {
-		List<StatisticsPaymentDayResponse> statisticsPaymentDayResponses = new ArrayList<StatisticsPaymentDayResponse>();
-		int totalAmount=0 ;
-		int number =0;
-		double avg =0;  
-		int totalResuls =0;
-		if(statisticsType == null) {
-			statisticsType = "day";
-		}
-		switch (statisticsType) {
-		case "month": {
-			if(from == null || to == null) {
-				Calendar calendar1 = Calendar.getInstance();
-				calendar1.add(Calendar.MONTH, 1);
-				calendar1.add(Calendar.YEAR, -1);
-				from = calendar1.getTime();
-				
-				Calendar calendar2 = Calendar.getInstance();
-				calendar2.add(Calendar.MONTH, 12);
-				calendar2.add(Calendar.YEAR, -1);
-				to = calendar2.getTime();
-				
-			}
-			Calendar calFrom = Calendar.getInstance();
-			calFrom.setTime(from);
-			int monthFrom = calFrom.get(Calendar.MONTH) + 1;
-			
-			Calendar calTo= Calendar.getInstance();
-			calTo.setTime(to);
-			int monthTo = calTo.get(Calendar.MONTH) +1;
-			
-			int yearFrom = calFrom.get(Calendar.YEAR);
-			int yearTo = calFrom.get(Calendar.YEAR);
-			log.info("from {} {} to {} {}" ,monthFrom, yearFrom , monthTo ,yearTo);
-			List<StatisticsPaymentMonthProjection> StatisticsMonth = paymentRepository.getStatisticsMonth(monthFrom, monthTo,yearFrom ,yearTo);
-			List<StatisticsPaymentDayProjection> StatisticsDayOfMonth = paymentRepository.getInforMaxDayOfMonth(monthFrom, monthTo, yearFrom ,yearTo);
-			number = paymentRepository.getCountTransaction(monthFrom, monthTo);
-			for(int i = 0 ; i< StatisticsMonth.size() ; i++) {
-				totalAmount +=StatisticsMonth.get(i).getTotal(); 
-				statisticsPaymentDayResponses.add(new StatisticsPaymentDayResponse(StatisticsMonth.get(i).getMonth(),
-																					StatisticsMonth.get(i).getTotal(),
-																					new StatisticsPaymentDayOfMonth(
-																							StatisticsDayOfMonth.get(i).getDate(),
-																							StatisticsDayOfMonth.get(i).getTotal()
-																							)));
-			}
-			totalResuls =StatisticsMonth.size();
-			try {
-				avg = totalAmount/number;
-			} catch (Exception e) {
-				avg = 0;
-			}
-		
-			break;
-		}
-		
-		case "day" :{
-			if(from == null || to == null) {
-				Calendar calendar = Calendar.getInstance();
-				calendar.add(Calendar.DAY_OF_MONTH, -7);
-				from = calendar.getTime();
-				to = new Date();
-			}
-			List<StatisticsPaymentDayProjection> projection = paymentRepository.getStatisticsDay(from, to);
-			List<Payment> payments = paymentRepository.getInforPaymentMaxDay(from, to);
-			number = paymentRepository.getCountTransaction(from, to);
-			for(int i = 0 ; i< projection.size() ; i++) {
-				totalAmount+= projection.get(i).getTotal();
-				
-				statisticsPaymentDayResponses.add(new StatisticsPaymentDayResponse(projection.get(i).getDate(),
-																					projection.get(i).getTotal(),
-																					new PaymentBaseInfo(
-																							payments.get(i).getId(),
-																							payments.get(i).getTransactionId(),
-																							payments.get(i).getAmount(),
-																							payments.get(i).getTimeStamp(),
-																							payments.get(i).getPaymentMethod())
-																					));
-			}
-			totalResuls = projection.size();
-			try {
-				avg = totalAmount/number;
-			} catch (Exception e) {
-				avg = 0;
-			}
-			break;
-		}
-		default:
-			throw new BadRequestException("Invalid statisticsField ");
-		}
-		PageRequest pageRequest = PageRequest.of(size, page);
-		Page<StatisticsPaymentDayResponse> pagedResponse = new PageImpl<>(statisticsPaymentDayResponses, pageRequest, totalResuls);
-		PagedResponse<StatisticsPaymentDayResponse> StatisticsPaymentDayPagedResponse = new PagedResponse<StatisticsPaymentDayResponse>(pagedResponse.getContent(),pagedResponse.getNumber(),pagedResponse.getSize(),
-																										   pagedResponse.getTotalElements(),pagedResponse.getTotalPages(),pagedResponse.isLast());
-		return new StatisticsPaymentBaseResponse(totalAmount, number, avg, StatisticsPaymentDayPagedResponse);
-	}
-    
-    
-    
-
-
 }

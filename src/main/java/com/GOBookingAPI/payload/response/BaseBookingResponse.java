@@ -1,15 +1,15 @@
 package com.GOBookingAPI.payload.response;
 
-import java.util.Date;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class StatisticsPaymentDayOfMonth {
+public class BaseBookingResponse {
 
-	private Date day;
+	private int total;
 	
-	private long totalDay;
+	private int success ;
+	
+	private int cancelled;
 }

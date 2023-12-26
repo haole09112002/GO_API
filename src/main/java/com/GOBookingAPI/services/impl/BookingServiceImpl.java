@@ -37,16 +37,10 @@ import com.GOBookingAPI.payload.request.BookingRequest;
 import com.GOBookingAPI.repositories.BookingRepository;
 import com.GOBookingAPI.repositories.CustomerRepository;
 import com.GOBookingAPI.repositories.MyUserRepository;
-import com.GOBookingAPI.repositories.projection.StatisticsBookingAmountMonthProjection;
-import com.GOBookingAPI.repositories.projection.StatisticsBookingBaseProjection;
-import com.GOBookingAPI.repositories.projection.StatisticsBookingCountAndSumProjections;
-import com.GOBookingAPI.repositories.projection.StatisticsPaymentDayProjection;
-import com.GOBookingAPI.repositories.projection.StatisticsPaymentMonthProjection;
 import com.GOBookingAPI.services.IBookingService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @Service
@@ -418,128 +412,7 @@ public class BookingServiceImpl implements IBookingService {
                 pagedResponse.getTotalElements(), pagedResponse.getTotalPages(), pagedResponse.isLast());
     }
 
-	@Override
-	public StatisticsBookingBaseResponse getStatisticsBookingDate(Date from, Date to, String statisticsType, int size,
-			int page) {
-		List<StatisticsBookingDateResponse> statisticsBookingDayResponses = new ArrayList<StatisticsBookingDateResponse>();
-		int totalBooking=0 ;
-		int totalBookingSuccess =0;
-		int totalBookingFail =0;
-
-		int totalResuls =0;
-		if(statisticsType == null) {
-			statisticsType = "day";
-		}
-		switch (statisticsType) {
-		case "month": {
-			if(from == null || to == null) {
-				Calendar calendar1 = Calendar.getInstance();
-				calendar1.add(Calendar.MONTH, 1);
-				calendar1.add(Calendar.YEAR, -1);
-				from = calendar1.getTime();
-				
-				Calendar calendar2 = Calendar.getInstance();
-				calendar2.add(Calendar.MONTH, 12);
-				calendar2.add(Calendar.YEAR, -1);
-				to = calendar2.getTime();
-				
-			}
-			Calendar calFrom = Calendar.getInstance();
-			calFrom.setTime(from);
-			int monthFrom = calFrom.get(Calendar.MONTH) + 1;
-			
-			Calendar calTo= Calendar.getInstance();
-			calTo.setTime(to);
-			int monthTo = calTo.get(Calendar.MONTH) +1;
-			
-			int yearFrom = calFrom.get(Calendar.YEAR);
-			int yearTo = calFrom.get(Calendar.YEAR);
-			log.info("from {} {} to {} {}" ,monthFrom, yearFrom , monthTo ,yearTo);
-			
-			
-			List<StatisticsBookingCountAndSumProjections> StatisticsMonth = bookingRepository.getCountAndSumMonth(monthFrom, monthTo,yearFrom ,yearTo);
-		
-			List<StatisticsBookingAmountMonthProjection> StatisticsDayOfMonthSuccess = bookingRepository.getAmuontWithStatus(monthFrom, monthTo,BookingStatus.COMPLETE.toString(), yearFrom ,yearTo);
-			List<StatisticsBookingAmountMonthProjection> StatisticsDayOfMonthCanclled = bookingRepository.getAmuontWithStatus(monthFrom, monthTo,BookingStatus.CANCELLED.toString(), yearFrom ,yearTo);
-
-			List<StatisticsBookingAmountMonthProjection> StatisticsDayOfMonthRefunded = bookingRepository.getAmuontWithStatus(monthFrom, monthTo,BookingStatus.REFUNDED.toString(), yearFrom ,yearTo);
-			for(int i = 0 ; i< StatisticsMonth.size() ; i++) {
-				totalBooking += StatisticsMonth.get(i).getCount();
-				totalBookingSuccess += StatisticsDayOfMonthSuccess.get(i).getCount();
-				totalBookingFail += StatisticsDayOfMonthCanclled.get(i).getCount() + StatisticsDayOfMonthRefunded.get(i).getCount();				double distance = 0;
-				double avgMonth = 0;
-				try {
-					avgMonth = StatisticsDayOfMonthSuccess.get(i).getAmount()/StatisticsMonth.get(i).getCount();
-				} catch (Exception e) {
-					avgMonth = 0;
-				}
-				statisticsBookingDayResponses.add(new StatisticsBookingDateResponse(StatisticsMonth.get(i).getDay(),
-																					StatisticsMonth.get(i).getCount(), 
-																					StatisticsMonth.get(i).getTotal(),
-																					StatisticsDayOfMonthSuccess.get(i).getAmount(), 
-																					StatisticsDayOfMonthCanclled.get(i).getAmount( )+ StatisticsDayOfMonthRefunded.get(i).getAmount(),
-																					avgMonth));
-			}
-			totalResuls =StatisticsMonth.size();
-			break;
-		}
-		
-		case "day" :{
-			if(from == null || to == null) {
-				Calendar calendar = Calendar.getInstance();
-				calendar.add(Calendar.DAY_OF_MONTH, -7);
-				from = calendar.getTime();
-				to = new Date();
-			}
-			List<StatisticsBookingCountAndSumProjections> projection = bookingRepository.getCountAndSumDay(from, to);
-			List<StatisticsBookingBaseProjection> baseBooking = bookingRepository.getBaseBooking(from,to);
-			
-			
-			for(int i = 0 ; i< projection.size() ; i++) {
-				totalBooking += projection.get(i).getCount();
-				int numberStatus = 0; 
-				int amountSuccess = 0;
-				int amountFail =0;
-				for(int j =0 ; j< baseBooking.size(); j++) {
-					if(baseBooking.get(j).getDay().equals(projection.get(i).getDay())) {
-						numberStatus +=1;
-						if(baseBooking.get(j).getStatus().equals(BookingStatus.COMPLETE)) {
-								
-							amountSuccess += baseBooking.get(j).getAmount();
-							totalBookingSuccess+=1;
-						}
-						else {
-							amountFail += baseBooking.get(j).getAmount();
-							totalBookingFail +=1;
-						}
-					}
-				}
-				double avg_day = 0;
-				try {
-					 avg_day = amountSuccess/numberStatus;
-				} catch (Exception e) {
-					avg_day = 0;
-				}
-				statisticsBookingDayResponses.add(new StatisticsBookingDateResponse(projection.get(i).getDay(),
-																				   projection.get(i).getCount(),
-																				   projection.get(i).getTotal(),
-																				   amountSuccess,
-																				   amountFail,
-																				   avg_day));
-			}
-			totalResuls = projection.size();
-			break;
-		}
-		default:
-			throw new BadRequestException("Invalid statisticsField ");
-		}
-		PageRequest pageRequest = PageRequest.of(page,size);
-		Page<StatisticsBookingDateResponse> pagedResponse = new PageImpl<>(statisticsBookingDayResponses, pageRequest, totalResuls);
-		PagedResponse<StatisticsBookingDateResponse> StatisticsBookingPagedResponse = new PagedResponse<StatisticsBookingDateResponse>(pagedResponse.getContent(),pagedResponse.getNumber(),pagedResponse.getSize(),
-																										   pagedResponse.getTotalElements(),pagedResponse.getTotalPages(),pagedResponse.isLast());
-		return new StatisticsBookingBaseResponse(totalBooking,totalBookingSuccess, totalBookingFail, StatisticsBookingPagedResponse);
-	}
-
+	
     
     
     

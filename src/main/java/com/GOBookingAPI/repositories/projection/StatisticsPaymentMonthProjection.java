@@ -4,5 +4,7 @@ public interface StatisticsPaymentMonthProjection {
 
 	int getMonth();
 	
-	long getTotal();
+	long getAmount();
+	
+	int getTotal();
 }

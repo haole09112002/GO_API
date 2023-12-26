@@ -137,13 +137,13 @@ public class BookingController {
         return ResponseEntity.ok(response != null ? response : "null");
     }
     
-    @GetMapping("/statisticsdate")
-    public ResponseEntity<?> getStatisticsDay(@RequestParam(name ="from" , required = false) @Nullable @DateTimeFormat(pattern =  "yyyy-MM-dd") Date from,
-    											@RequestParam(name = "to"  , required = false)@Nullable @DateTimeFormat(pattern =  "yyyy-MM-dd")  Date to,
-    											@RequestParam(name ="statisticsType" , required = false) String statisticsType,
-    											@RequestParam(name = "size" , required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size,
-    											@RequestParam(name = "page" , required =  false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page
-    											){
-    	return ResponseEntity.ok(bookingService.getStatisticsBookingDate(from, to,  statisticsType,  size,  page));
-    }
+//    @GetMapping("/statisticsdate")
+//    public ResponseEntity<?> getStatisticsDay(@RequestParam(name ="from" , required = false) @Nullable @DateTimeFormat(pattern =  "yyyy-MM-dd") Date from,
+//    											@RequestParam(name = "to"  , required = false)@Nullable @DateTimeFormat(pattern =  "yyyy-MM-dd")  Date to,
+//    											@RequestParam(name ="statisticsType" , required = false) String statisticsType,
+//    											@RequestParam(name = "size" , required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size,
+//    											@RequestParam(name = "page" , required =  false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page
+//    											){
+//    	return ResponseEntity.ok(bookingService.getStatisticsBookingDate(from, to,  statisticsType,  size,  page));
+//    }
 }
