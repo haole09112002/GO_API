@@ -105,7 +105,7 @@ public class DriverServiceImpl implements IDriverService {
 			VietMapResponse travel = mapService.getRoute(locationCustomer, driver.getLocation(), vehicleType.name());
 			if (travel.getCode().equals("ERROR")) {
 				System.out.println("==>pickUpLocation or dropOffLocation is invalid");
-				throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
+				throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");//bug
 			}
 
 			Route route = travel.getFirstPath();
@@ -124,6 +124,8 @@ public class DriverServiceImpl implements IDriverService {
 		executorService.scheduleAtFixedRate(() -> {
 			Booking updateBooking = bookingRepository.findById(booking.getId())
 					.orElseThrow(() -> new NotFoundException("khong tim thay booking"));
+
+			System.out.println("==>>DEBUG: " +AppUtils.currentTimeInSecond() + "find driver for booking: " + booking.getId());
 			if (updateBooking.getStatus().equals(BookingStatus.CANCELLED)
 					|| updateBooking.getStatus().equals(BookingStatus.WAITING_REFUND)) {
 				executorService.shutdown();
