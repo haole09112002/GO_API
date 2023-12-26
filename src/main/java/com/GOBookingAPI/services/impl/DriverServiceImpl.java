@@ -125,16 +125,20 @@ public class DriverServiceImpl implements IDriverService {
 			Booking updateBooking = bookingRepository.findById(booking.getId())
 					.orElseThrow(() -> new NotFoundException("khong tim thay booking"));
 
-			System.out.println("==>>DEBUG: " +AppUtils.currentTimeInSecond() + "find driver for booking: " + booking.getId());
+			System.out.println("==>>DEBUG1: " +AppUtils.currentTimeInSecond() + "find driver for booking: " + booking.getId());
 			if (updateBooking.getStatus().equals(BookingStatus.CANCELLED)
 					|| updateBooking.getStatus().equals(BookingStatus.WAITING_REFUND)) {
 				executorService.shutdown();
 				return;
 			}
+			System.out.println("==>>DEBUG2: " +AppUtils.currentTimeInSecond() + "find driver for booking: " + booking.getId());
+
 
 			boolean driverFound = findAndNotifyDriver(updateBooking, locationCustomer);
+			System.out.println("==>>DEBUG3: " +AppUtils.currentTimeInSecond() + "find driver for booking: " + booking.getId());
 
 			if (driverFound) {
+				System.err.println("==> driverFound = true");
 				executorService.shutdown();
 				return;
 			}
@@ -165,6 +169,8 @@ public class DriverServiceImpl implements IDriverService {
 			System.out.println("Find driver null for booking id: " + booking.getId());
 			return false;
 		}
+
+		System.err.println("==> do findAndNotifyDriver for id: " +booking.getId());
 
 		driverChosen.setStatus(DriverStatus.ON_RIDE);
 		driverRepository.save(driverChosen);
