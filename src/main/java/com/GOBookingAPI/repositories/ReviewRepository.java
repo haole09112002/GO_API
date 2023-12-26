@@ -28,20 +28,25 @@ public interface ReviewRepository extends JpaRepository<Review, Integer>{
 			+ "    review as r "
 			+ "where r.create_at between :from and :to "
 			+ "GROUP BY "
-			+ "    date" ,nativeQuery =  true )
-	List<StatisticsReviewBaseProjection> getStatisticsReviewDay(@Param("from") Date from, @Param("to") Date to);
+			+ "date "
+			+ "ORDER BY date asc " ,nativeQuery =  true )
+	List<StatisticsReviewBaseProjection> getStatisticsReviewDate(@Param("from") Date from, @Param("to") Date to);
 	
-	@Query(value = "select r.content "
-			+ "from review as r "
-			+ "where Date(r.create_at) = ?1  and r.rating in (3,4,5) "
-			+ "order by r.rating desc limit 1 ", nativeQuery =  true)
-	String getReviewPositiveDay(Date date);
 	
-	@Query(value = "select  r.content "
-			+ "from review as r "
-			+ "where Date(r.create_at) = ?1  and r.rating in (1,2) "
-			+ "order by r.rating asc limit 1 ", nativeQuery =  true)
-	String getReviewNegativeDay(Date date);
+	@Query(value = "SELECT "
+			+ "    Date(r.create_at) as date, count(r.create_at) as count, "
+			+ "    SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) as fiveStar, "
+			+ "    SUM(CASE WHEN rating = 4 THEN 1 ELSE 0 END) as fourStar, "
+			+ "    SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) as threeStar, "
+			+ "    SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) as twoStar, "
+			+ "    SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) as oneStar "
+			+ "FROM "
+			+ "    review as r "
+			+ "where Month(r.create_at) = :month and Year(r.create_at) = :year  "
+			+ "GROUP BY "
+			+ "    date "
+			+ "ORDER BY date asc " ,nativeQuery =  true )
+	List<StatisticsReviewBaseProjection> getStatisticsReviewDateOfMonth(@Param("month") int month, @Param("year") int year);
 	
 	@Query(value = "SELECT "
 			+ "    Month(r.create_at) as date, count(r.create_at) as count, "
@@ -52,21 +57,10 @@ public interface ReviewRepository extends JpaRepository<Review, Integer>{
 			+ "    SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) as oneStar "
 			+ "FROM "
 			+ "    review as r "
-			+ "where Month(r.create_at) between :fromMonth and :toMonth and year(r.create_at) between :fromYear and :toYear "
+			+ "where Year(r.create_at) = :year "
 			+ "GROUP BY "
-			+ "    date" ,nativeQuery =  true )
-	List<StatisticsReviewBaseProjection> getStatisticsReviewMonth(@Param("fromMonth") int fromMonth, @Param("toMonth") int toMonth,
-			  													  @Param("fromYear") int fromYear,@Param("toYear") int toYear);
+			+ "    date"
+			+ " ORDER BY date asc " ,nativeQuery =  true )
+	List<StatisticsReviewBaseProjection> getStatisticsReviewMonth(@Param("year") int year);
 	
-	@Query(value = "select r.content "
-			+ "from review as r "
-			+ "where Month(r.create_at) = ?1  and r.rating in (3,4,5) "
-			+ "order by r.rating desc limit 1 ", nativeQuery =  true)
-	String getReviewPositiveMonth(int date);
-	
-	@Query(value = "select  r.content "
-			+ "from review as r "
-			+ "where Month(r.create_at) = ?1  and r.rating in (1,2) "
-			+ "order by r.rating asc limit 1 ", nativeQuery =  true)
-	String getReviewNegativeMonth(int date);
 }

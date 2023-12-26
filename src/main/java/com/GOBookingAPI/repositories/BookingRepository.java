@@ -4,11 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.GOBookingAPI.enums.BookingStatus;
-import com.GOBookingAPI.enums.RoleEnum;
-import com.GOBookingAPI.repositories.projection.StatisticsBookingAmountMonthProjection;
-import com.GOBookingAPI.repositories.projection.StatisticsBookingBaseProjection;
-import com.GOBookingAPI.repositories.projection.StatisticsBookingCountAndSumProjections;
+import com.GOBookingAPI.repositories.projection.StatisticsBookingCountProjections;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -59,34 +55,27 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     Optional<Booking> getCurrentActiveBooking(@Param("uid") int uid, @Param("role") String role);
     
     
-    @Query(value = "select  Date(b.create_at) as day, Count(*) as count, sum(amount) as total "
-    		+ "from booking as b "
-    		+ "where b.create_at between :from and :to "
-    		+ "group by day" , nativeQuery =  true)
-    List<StatisticsBookingCountAndSumProjections> getCountAndSumDay(@Param("from") Date from, @Param("to") Date to);
+    @Query(value = "select  Date(b.create_at) as day, Count(*) as count "
+    		+ "from booking as b  "
+    		+ "where Date(b.create_at) between :from and :to  "
+    		+ " and b.status like %:status% "
+    		+ "group by day "
+    		+ "ORDER BY day asc" , nativeQuery = true)
+    List<StatisticsBookingCountProjections> getCountByStatusDate(@Param("from") Date from, @Param("to") Date to, @Param("status") String status);
     
-    @Query(value = "select  Date(b.create_at) as day,b.amount, b.drop_off_location as dropOff, b.pick_up_location as pickUp, b.status,b.vehicle_type as vehicle  "
-    		+ "from booking as b "
-    		+ "where b.create_at between :from and :to and b.status in('complete','cancelled', 'refunded')"
-    		, nativeQuery =  true)
-    List<StatisticsBookingBaseProjection> getBaseBooking(@Param("from") Date from, @Param("to") Date to);
+    @Query(value = "select  Date(b.create_at) as day, Count(*) as count "
+    		+ "from booking as b  "
+    		+ "where Month(b.create_at) = :month and Year(b.create_at) = :year "
+    		+ " and b.status like %:status% "
+    		+ "group by day " 
+    		+ "ORDER BY day asc" , nativeQuery =  true)
+    List<StatisticsBookingCountProjections> getCountByStatusDateOfMonth(@Param("month") int month, @Param("year") int year, @Param("status") String status);
     
-    @Query(value = "select  Month(b.create_at) as day, Count(*) as count, sum(amount) as total "
+    @Query(value = "select  Month(b.create_at) as day, Count(*) as count "
     		+ "from booking as b "
-    		+ "where Month(b.create_at) between :fromMonth and :toMonth and year(b.create_at) between :fromYear and :toYear "
-    		+ "group by day" , nativeQuery =  true)
-    List<StatisticsBookingCountAndSumProjections> getCountAndSumMonth(@Param("fromMonth") int fromMonth, @Param("toMonth") int toMonth,
-    																  @Param("fromYear") int fromYear,@Param("toYear") int toYear);
-    
-    
-    @Query(value = "select Month(b.create_at) as month, sum(b.amount)as amount , Count(b.status) as count "
-    		+ "from booking as b "
-    		+ "where Month(b.create_at)between :fromMonth and :toMonth and b.status = :status  and year(b.create_at) between :fromYear and :toYear  "
-    		+ "group by month "
-    		+ "order by month desc" , nativeQuery = true)
-    List<StatisticsBookingAmountMonthProjection> getAmuontWithStatus(@Param("fromMonth") int fromMonth, 
-    																@Param("toMonth") int toMonth,
-    																@Param("status") String status,
-    																@Param("fromYear") int fromYear,
-    																@Param("toYear") int toYear);
+    		+ "where  Year(b.create_at) = :year "
+    		+ " and b.status like %:status% "
+    		+ "group by day "
+    		+ "ORDER BY day asc " , nativeQuery =  true)
+    List<StatisticsBookingCountProjections> getCountByStatusMonthOfYear(@Param("year") int year, @Param("status") String status);
 }
