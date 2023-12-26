@@ -97,24 +97,32 @@ public class DriverServiceImpl implements IDriverService {
 	public Driver findDriverBooking(String locationCustomer, VehicleType vehicleType) {
 		int id_driver = 0;
 		double minDistance = 1000000;
+		System.out.println(managerLocation.getLocationMapFree().values().stream().toList().toString());
 		for (LocationDriver driver : managerLocation.getLocationMapFree().values()) {
+
+			System.err.println("===> loop1: driver" + driver.getDriverId());
 			if (!driver.getVehicleType().equals(vehicleType)) {
 				continue;
 			}
+			System.err.println("===> loop2: driver" + driver.getDriverId());
 
 			VietMapResponse travel = mapService.getRoute(locationCustomer, driver.getLocation(), vehicleType.name());
 			if (travel.getCode().equals("ERROR")) {
 				System.out.println("==>pickUpLocation or dropOffLocation is invalid");
 				throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");//bug
 			}
+			System.err.println("===> loop3: driver" + driver.getDriverId());
 
 			Route route = travel.getFirstPath();
+			System.err.println("===> loop4: driver" + driver.getDriverId());
+
 			if (route.getDistance() < minDistance) {
 				minDistance = route.getDistance();
 				id_driver = driver.getDriverId();
 			}
+			System.err.println("===> loop5: driver" + driver.getDriverId());
 		}
-//        System.out.println("==> founded driver " + id_driver);
+        System.out.println("==> founded driver " + id_driver);
 		return driverRepository.findById(id_driver).orElse(null);
 	}
 
