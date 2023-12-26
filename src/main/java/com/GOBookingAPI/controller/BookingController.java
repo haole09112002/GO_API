@@ -101,16 +101,16 @@ public class BookingController {
         Booking booking = bookingService.cancelBookingForCustomer(email, id, cancelRequest);
 
         webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
-        if (booking.getDriver() != null) {
+
+        if (booking.getDriver() != null) { //bug
             webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), BookingStatus.CANCELLED));   //
             System.out.println("===> notify to driver: " + (new BookingStatusResponse(booking.getId(), booking.getStatus())).toString());
-            if (booking.getStatus().equals(BookingStatus.WAITING_REFUND)) {
-                System.out.println("Booking status : " + BookingStatus.WAITING_REFUND);
-                managerBooking.deleteData(booking.getDriver().getId());
-                managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
-                paymentService.refundPayment(booking); // todo bug
-            }
+            managerBooking.deleteData(booking.getDriver().getId());
+            managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
         }
+
+        if (booking.getStatus().equals(BookingStatus.WAITING_REFUND))
+            paymentService.refundPayment(booking); // todo bug
         return ResponseEntity.ok(new BookingCancelResponse(booking.getId(), booking.getReasonType(), booking.getContentCancel(), booking.getStatus()));
     }
 

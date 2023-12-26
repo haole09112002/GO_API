@@ -82,7 +82,7 @@ public class ReviewServiceImpl implements IReviewService {
         review.setCreateAt(new Date());
         reviewRepository.save(review);
 
-        Driver driver = new Driver();
+        Driver driver = booking.getDriver();
         driver.updateRating(review.getRating());
         driverRepository.save(driver);
 
