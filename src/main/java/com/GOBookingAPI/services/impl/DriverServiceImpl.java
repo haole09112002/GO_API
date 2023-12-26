@@ -267,7 +267,7 @@ public class DriverServiceImpl implements IDriverService {
 
 			DriverBaseInfoResponse resp = new DriverBaseInfoResponse();
 			resp.setId(driver.getId());
-			resp.setEmail(user.getEmail());
+			resp.setEmail(driver.getUser().getEmail());
 			resp.setFullName(driver.getFullName());
 			resp.setMale(driver.isGender());
 			resp.setDateOfBirth(driver.getDateOfBirth());
