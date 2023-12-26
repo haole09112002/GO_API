@@ -7,11 +7,15 @@ import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class StatisticsReviewResponse {
-	
+public class StatisticsBookingResponse {
+
 	private int total;
 	
 	private double average;
-
-	Map<String, BaseReviewResponse> details;
+	
+	private int success ;
+	
+	private int cancelled;
+	
+	Map<String, BaseBookingResponse> details;
 }

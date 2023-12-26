@@ -1,17 +1,12 @@
 package com.GOBookingAPI.payload.response;
 
-import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class StatisticsReviewResponse {
+public class BasePaymentResponse {
+	private long amount ;
 	
 	private int total;
-	
-	private double average;
-
-	Map<String, BaseReviewResponse> details;
 }
