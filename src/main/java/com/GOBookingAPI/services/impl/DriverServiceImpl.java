@@ -304,7 +304,7 @@ public class DriverServiceImpl implements IDriverService {
 			managerLocation.deleteData(driver.getId());
 		}else {
 			driver.setStatus(DriverStatus.FREE);
-			managerLocation.updateDriverStatus(driver.getId(), driver.getStatus());
+			webSocketService.notifytoDriver(driverId, "HAVEBOOKING");
 		}
 		driverRepository.save(driver);
 		return new DriverStatusResponse(driverId, driver.getStatus());
