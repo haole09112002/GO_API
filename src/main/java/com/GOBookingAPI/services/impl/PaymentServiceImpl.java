@@ -388,7 +388,7 @@ public class PaymentServiceImpl implements IPaymentService {
             }catch (Exception e){
                 System.err.println("Exception in payment service, repeat again");
             }
-        }, AppConstants.INIT_DELAY, AppConstants.PERIOD_TIME, TimeUnit.SECONDS);
+        }, AppConstants.INIT_DELAY, AppConstants.PERIOD_REFUND_TIME, TimeUnit.SECONDS);
         return isSuccess.get();
     }
 

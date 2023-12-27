@@ -18,4 +18,6 @@ public class AppConstants {
     public static final String ACTIVE = "active";
 
     public static final String REFUSE = "refuse";
+
+    public static final int PERIOD_REFUND_TIME = 60;   // 60s
 }
