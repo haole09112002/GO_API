@@ -26,7 +26,7 @@ public interface ReviewRepository extends JpaRepository<Review, Integer>{
 			+ "    SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) as oneStar "
 			+ "FROM "
 			+ "    review as r "
-			+ "where r.create_at between :from and :to "
+			+ "where DATE(r.create_at) between :from and :to "
 			+ "GROUP BY "
 			+ "date "
 			+ "ORDER BY date asc " ,nativeQuery =  true )
