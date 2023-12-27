@@ -384,6 +384,7 @@ public class PaymentServiceImpl implements IPaymentService {
                     webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
                     executorService.shutdown();
                 }else {
+                    executorService.shutdown();     // todo: not spam
                     System.err.println("==>ERROR refund booking id: " + booking.getId() +", vnp_ResponseCode: " + vnp_ResponseCode + " ,vnp_TransactionStatus: " + vnp_TransactionStatus);
                 }
             }catch (Exception e){
