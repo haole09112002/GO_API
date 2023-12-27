@@ -301,6 +301,7 @@ public class DriverServiceImpl implements IDriverService {
 
 		if(driver.getStatus() == DriverStatus.FREE){
 			driver.setStatus(DriverStatus.OFF);
+			managerLocation.deleteData(driver.getId());
 		}else {
 			driver.setStatus(DriverStatus.FREE);
 			managerLocation.updateDriverStatus(driver.getId(), driver.getStatus());
