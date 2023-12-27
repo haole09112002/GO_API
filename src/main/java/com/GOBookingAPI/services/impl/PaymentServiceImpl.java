@@ -382,9 +382,11 @@ public class PaymentServiceImpl implements IPaymentService {
                     isSuccess.set(true);
                     webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
                     executorService.shutdown();
+                }else {
+                    System.err.println("==>ERROR refund booking id: " + booking.getId() +", vnp_ResponseCode: " + vnp_ResponseCode);
                 }
             }catch (Exception e){
-                System.out.println("Exception in payment service, repeat again");
+                System.err.println("Exception in payment service, repeat again");
             }
         }, AppConstants.INIT_DELAY, AppConstants.PERIOD_TIME, TimeUnit.SECONDS);
         return isSuccess.get();
