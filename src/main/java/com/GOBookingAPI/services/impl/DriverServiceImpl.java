@@ -303,7 +303,7 @@ public class DriverServiceImpl implements IDriverService {
 			driver.setStatus(DriverStatus.OFF);
 		}else {
 			driver.setStatus(DriverStatus.FREE);
-
+			managerLocation.updateDriverStatus(driver.getId(), driver.getStatus());
 		}
 		driverRepository.save(driver);
 		return new DriverStatusResponse(driverId, driver.getStatus());
