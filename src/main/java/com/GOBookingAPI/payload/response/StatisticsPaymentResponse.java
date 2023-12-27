@@ -1,6 +1,5 @@
 package com.GOBookingAPI.payload.response;
 
-import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +14,6 @@ public class StatisticsPaymentResponse {
 	
 	private int total ;
 	
-	private Map<String, BasePaymentResponse> details;
+	private BasePaymentResponse details;
 	
 }

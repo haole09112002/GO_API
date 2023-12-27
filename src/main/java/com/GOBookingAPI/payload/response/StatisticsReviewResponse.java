@@ -13,5 +13,5 @@ public class StatisticsReviewResponse {
 	
 	private double average;
 
-	Map<String, BaseReviewResponse> details;
+	BaseReviewResponse details;
 }
