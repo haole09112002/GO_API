@@ -17,7 +17,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
 
 	@Query(value = "SELECT DATE(p.time_stamp) as date, SUM(p.amount) as amount, count(p.time_stamp) as total "
 			+ "FROM payment as p "
-			+ "WHERE p.time_stamp between :from and :to "
+			+ "WHERE DATE(p.time_stamp) between :from and :to "
 			+ "GROUP BY date "
 			+ "ORDER BY date asc", nativeQuery = true)
 	List<StatisticsPaymentDayProjection> getStatisticsDate(@Param("from") Date from, @Param("to") Date to);

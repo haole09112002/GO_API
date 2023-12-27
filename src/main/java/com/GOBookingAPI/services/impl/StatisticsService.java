@@ -396,6 +396,7 @@ public class StatisticsService implements IStatisticsService{
 		int threeStar = 0 ;
 		int twoStar = 0;
 		int oneStar = 0;
+		int sum = 0;
 		if(unit == null) {
 			unit = "date";
 		}
@@ -407,16 +408,12 @@ public class StatisticsService implements IStatisticsService{
 				from = calendar1.getTime();
 			}
 			Calendar calFrom = Calendar.getInstance();
-			int year = calFrom.get(Calendar.YEAR) ;
-			int monthOfYear = 0;
+			
 			LocalDate localDate = from.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
 
-			if(localDate.getYear()!= (calFrom.get(Calendar.YEAR))) {
+			if(localDate.getYear()!= (calFrom.get(Calendar.YEAR))) 
 				calFrom.setTime(from);
-				monthOfYear = calFrom.getActualMaximum(Calendar.MONTH) +1;
-			}else {
-				monthOfYear = calFrom.get(Calendar.MONTH) + 1;
-			}
+			int year = calFrom.get(Calendar.YEAR) ;
 			List<StatisticsReviewBaseProjection> projection = reviewRepository.getStatisticsReviewMonth(year);
 			for(int i = 0 ; i< projection.size() ; i++) {
 				total+= projection.get(i).getCount();
@@ -425,9 +422,10 @@ public class StatisticsService implements IStatisticsService{
 				threeStar += projection.get(i).getThreeStar();
 				twoStar +=projection.get(i).getTwoStar();
 				oneStar += projection.get(i).getOneStar();
+				sum += projection.get(i).getFiveStar()*5 +  projection.get(i).getFourStar()*4 + projection.get(i).getThreeStar()*3 + projection.get(i).getTwoStar()*2 +projection.get(i).getOneStar() ;
 			}
 			try {
-				average = total/monthOfYear ;
+				average = sum/total ;
 			} catch (Exception e) {
 				average = 0;
 			}
@@ -441,13 +439,8 @@ public class StatisticsService implements IStatisticsService{
 				from = calendar1.getTime();
 			}
 			Calendar calFrom = Calendar.getInstance();
-			int daysInMonth = 0;
-			if(from.getMonth()+1 != (calFrom.get(Calendar.MONTH)+1)) {
+			if(from.getMonth()+1 != (calFrom.get(Calendar.MONTH)+1)) 
 				calFrom.setTime(from);
-				daysInMonth = calFrom.getActualMaximum(Calendar.DAY_OF_MONTH);
-			}else {
-				daysInMonth = calFrom.get(Calendar.DAY_OF_MONTH);
-			}
 			int month = calFrom.get(Calendar.MONTH) + 1;
 			int year = calFrom.get(Calendar.YEAR) ;
 			List<StatisticsReviewBaseProjection> projection = reviewRepository.getStatisticsReviewDateOfMonth(month, year);
@@ -459,9 +452,11 @@ public class StatisticsService implements IStatisticsService{
 				threeStar += projection.get(i).getThreeStar();
 				twoStar +=projection.get(i).getTwoStar();
 				oneStar += projection.get(i).getOneStar();
+				sum += projection.get(i).getFiveStar()*5 +  projection.get(i).getFourStar()*4 + projection.get(i).getThreeStar()*3 + projection.get(i).getTwoStar()*2 +projection.get(i).getOneStar() ;
+				
 			}
 			try {
-				average = total/daysInMonth;
+				average = sum/total;
 			} catch (Exception e) {
 				average = 0;
 			}
@@ -493,9 +488,11 @@ public class StatisticsService implements IStatisticsService{
 				threeStar += projection.get(i).getThreeStar();
 				twoStar +=projection.get(i).getTwoStar();
 				oneStar += projection.get(i).getOneStar();
+				sum += projection.get(i).getFiveStar()*5 +  projection.get(i).getFourStar()*4 + projection.get(i).getThreeStar()*3 + projection.get(i).getTwoStar()*2 +projection.get(i).getOneStar() ;
+				
 			}
 			try {
-				average = total/distanceDate;
+				average = sum/total;
 			} catch (Exception e) {
 				average = 0;
 			}
