@@ -375,6 +375,7 @@ public class PaymentServiceImpl implements IPaymentService {
                 ObjectMapper objectMapper = new ObjectMapper();
                 Map<String, Object> responseMap = objectMapper.readValue(response.toString(), new TypeReference<Map<String, Object>>() {});
                 String vnp_ResponseCode = (String) responseMap.get("vnp_ResponseCode");
+                String vnp_TransactionStatus = (String) responseMap.get("vnp_TransactionStatus");
                 if(vnp_ResponseCode.equals("00")){
                     System.out.println("============> REFUND: " + booking.getId());
                     booking.setStatus(BookingStatus.REFUNDED);
@@ -383,7 +384,7 @@ public class PaymentServiceImpl implements IPaymentService {
                     webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
                     executorService.shutdown();
                 }else {
-                    System.err.println("==>ERROR refund booking id: " + booking.getId() +", vnp_ResponseCode: " + vnp_ResponseCode);
+                    System.err.println("==>ERROR refund booking id: " + booking.getId() +", vnp_ResponseCode: " + vnp_ResponseCode + " ,vnp_TransactionStatus: " + vnp_TransactionStatus);
                 }
             }catch (Exception e){
                 System.err.println("Exception in payment service, repeat again");
