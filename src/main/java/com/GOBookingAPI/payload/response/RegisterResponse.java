@@ -21,3 +21,4 @@ public class RegisterResponse {
 	private boolean isMale;
 	private String avtUrl;
 }
+	
