@@ -1,10 +1,12 @@
 package com.GOBookingAPI.security.Model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.GOBookingAPI.entities.User;
 
@@ -22,7 +24,14 @@ public class UserSecurity implements Authentication{
 	public UserSecurity(User user ,List<GrantedAuthority> authorities) {
 		super();
 		this.user = user;
-		this.authorities =authorities;
+		if(authorities == null) {
+          List<GrantedAuthority> authoritys = new ArrayList<GrantedAuthority>();
+          authoritys.add(new SimpleGrantedAuthority("ROLE_NONE"));
+          this.authorities =authoritys;
+		}else {
+			 this.authorities =authorities;
+		}
+		
 	}
 
 	@Override

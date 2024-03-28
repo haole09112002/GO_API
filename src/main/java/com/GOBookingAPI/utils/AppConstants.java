@@ -7,7 +7,7 @@ public class AppConstants {
 
     public static final int MAX_PAGE_SIZE = 30;
 
-    public static final int MAX_TIME_PENDING = 5 * 60 ; // 5 min
+    public static final int MAX_TIME_PENDING = 15 * 60 ; // 5 min
 
     public static final int PERIOD_TIME = 5;   // 5s
 
@@ -16,7 +16,8 @@ public class AppConstants {
     public static final String IS_NON_BLOCK = "true";
     
     public static final String ACTIVE = "active";
-    
+
     public static final String REFUSE = "refuse";
 
+    public static final int PERIOD_REFUND_TIME = 60;   // 60s
 }

@@ -9,6 +9,7 @@ import com.GOBookingAPI.services.CustomerService;
 import com.GOBookingAPI.services.IUserService;
 import com.GOBookingAPI.utils.AppConstants;
 
+import com.cloudinary.http44.ApiUtils;
 import io.micrometer.common.lang.Nullable;
 
 import java.util.Date;
@@ -68,9 +69,6 @@ public class CustomerController {
 										  @RequestParam(required = false , defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page){
 		return ResponseEntity.ok(customerService.getCustomerPageAndSort(from, to ,isNonBlock, searchField, keyword, sortType, sortField, size,page));
 	}
-	
-	
-
 
 	@PatchMapping(value = "{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public ResponseEntity<?> changeInfo(@PathVariable int id, @ModelAttribute ChangeCustomerInfoRequest request){
@@ -79,5 +77,4 @@ public class CustomerController {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		return ResponseEntity.ok(customerService.changeInfo(id, email, request));
 	}
-
 }

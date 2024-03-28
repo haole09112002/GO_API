@@ -2,7 +2,9 @@ package com.GOBookingAPI.security.Token;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -13,6 +15,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -60,13 +63,14 @@ public class GoogleProvider implements AuthenticationProvider {
                     user.setEmail(email);
                     user.setIsNonBlock(true);
                     System.out.println("This is Provider and provider null");
-                    return new UserSecurity(user, null);
+
+                    return new UserSecurity(user,null);
                 } else {
-                    System.out.println("This is Provider");
+//                    System.out.println("This is Provider");
                     User user = userOptional.get();
-//                if (!user.getIsNonBlock()) {
-//                   throw new AccessDeniedException("User account is locked");        //todo fix
-//                }
+                    if (!user.getIsNonBlock()) {
+                        throw new LockedException("User account is locked");        //todo fix
+                    }
                     return new UserSecurity(user, user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().toString())).collect(Collectors.toList()));
                 }
             } else {

@@ -4,7 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.GOBookingAPI.enums.RoleEnum;
+import com.GOBookingAPI.repositories.projection.StatisticsBookingCountProjections;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -52,4 +53,29 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             " ORDER BY b.create_at DESC" +
             " LIMIT 1;", nativeQuery = true)
     Optional<Booking> getCurrentActiveBooking(@Param("uid") int uid, @Param("role") String role);
+    
+    
+    @Query(value = "select  Date(b.create_at) as day, Count(*) as count "
+    		+ "from booking as b  "
+    		+ "where Date(b.create_at) between :from and :to  "
+    		+ " and b.status like %:status% "
+    		+ "group by day "
+    		+ "ORDER BY day asc" , nativeQuery = true)
+    List<StatisticsBookingCountProjections> getCountByStatusDate(@Param("from") Date from, @Param("to") Date to, @Param("status") String status);
+    
+    @Query(value = "select  Date(b.create_at) as day, Count(*) as count "
+    		+ "from booking as b  "
+    		+ "where Month(b.create_at) = :month and Year(b.create_at) = :year "
+    		+ " and b.status like %:status% "
+    		+ "group by day " 
+    		+ "ORDER BY day asc" , nativeQuery =  true)
+    List<StatisticsBookingCountProjections> getCountByStatusDateOfMonth(@Param("month") int month, @Param("year") int year, @Param("status") String status);
+    
+    @Query(value = "select  Month(b.create_at) as day, Count(*) as count "
+    		+ "from booking as b "
+    		+ "where  Year(b.create_at) = :year "
+    		+ " and b.status like %:status% "
+    		+ "group by day "
+    		+ "ORDER BY day asc " , nativeQuery =  true)
+    List<StatisticsBookingCountProjections> getCountByStatusMonthOfYear(@Param("year") int year, @Param("status") String status);
 }

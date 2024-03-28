@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +18,7 @@ import com.GOBookingAPI.enums.PaymentMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,9 @@ import org.springframework.web.bind.annotation.*;
 import com.GOBookingAPI.config.VNPayConfig;
 import com.GOBookingAPI.payload.response.PaymentResponse;
 import com.GOBookingAPI.services.IPaymentService;
+import com.GOBookingAPI.utils.AppConstants;
+
+import io.micrometer.common.lang.Nullable;
 
 @RestController
 @RequestMapping("/payment")
@@ -105,12 +110,7 @@ public class PaymentController {
         String vnp_SecureHash = VNPayConfig.hmacSHA512(VNPayConfig.secretKey, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VNPayConfig.vnp_PayUrl + "?" + queryUrl;
-
-        PaymentResponse DTO = new PaymentResponse();
-        DTO.setStatus("Ok");
-        DTO.setMessage("Successfully");
-        DTO.setURL(paymentUrl);
-        return ResponseEntity.ok(DTO);
+        return null;
     }
 
     @GetMapping("/link")
@@ -128,4 +128,5 @@ public class PaymentController {
         paymentService.handlePaymentTransaction(req);
     }
 
+    
 }

@@ -77,8 +77,17 @@ public class Driver implements Serializable {
     @JsonIgnore
     private List<Conversation> conservations = new ArrayList<>();
 
-    @Column
-    private String imgUrl;
+    @Column(columnDefinition = "varchar(400)")
+    private String backIdCardUrl;
+
+    @Column(columnDefinition = "varchar(400)")
+    private String frontIdCardUrl;
+
+    @Column(columnDefinition = "varchar(400)")
+    private String frontDrivingLicenseUrl;
+
+    @Column(columnDefinition = "varchar(400)")
+    private String backDrivingLicenseUrl;
 
     public VehicleType getFirstVehicleType() {
         Iterator<VehicleType> vehicleIterator = this.vehicles.iterator();

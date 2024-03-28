@@ -34,7 +34,6 @@ import com.GOBookingAPI.payload.response.BookingResponse;
 import com.GOBookingAPI.services.IBookingService;
 
 import java.util.Date;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/bookings")
@@ -75,7 +74,6 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getTravelInfo(pickUpLocation, dropOffLocation));
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getBookingByBookingId(@PathVariable int id) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -103,20 +101,20 @@ public class BookingController {
         Booking booking = bookingService.cancelBookingForCustomer(email, id, cancelRequest);
 
         webSocketService.notifyBookingStatusToCustomer(booking.getCustomer().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));
-        if (booking.getDriver() != null) {
-            webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), booking.getStatus()));   //
+
+        if (booking.getDriver() != null) { //bug
+            webSocketService.notifyBookingStatusToCustomer(booking.getDriver().getId(), new BookingStatusResponse(booking.getId(), BookingStatus.CANCELLED));   //
             System.out.println("===> notify to driver: " + (new BookingStatusResponse(booking.getId(), booking.getStatus())).toString());
-            if (booking.getStatus().equals(BookingStatus.WAITING_REFUND)) {
-                System.out.println("Booking status : " + BookingStatus.WAITING_REFUND);
-                managerBooking.deleteData(booking.getDriver().getId());
-                managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
-                paymentService.refundPayment(booking); // todo bug
-            }
+            managerBooking.deleteData(booking.getDriver().getId());
+            managerLocation.updateDriverStatus(booking.getDriver().getId(), DriverStatus.FREE);
         }
+
+        if (booking.getStatus().equals(BookingStatus.WAITING_REFUND))
+            paymentService.refundPayment(booking); // todo bug
         return ResponseEntity.ok(new BookingCancelResponse(booking.getId(), booking.getReasonType(), booking.getContentCancel(), booking.getStatus()));
     }
 
-    @PutMapping("/{bookingId}/status")
+    @PutMapping("/{bookingId}/status")          //todo remove
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookingResponse> changeBookingStatus(
             @PathVariable int bookingId,
@@ -138,4 +136,6 @@ public class BookingController {
         }
         return ResponseEntity.ok(response != null ? response : "null");
     }
+    
+
 }

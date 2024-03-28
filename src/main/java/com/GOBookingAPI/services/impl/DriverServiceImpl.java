@@ -1,11 +1,13 @@
 package com.GOBookingAPI.services.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -13,15 +15,11 @@ import java.util.stream.Collectors;
 
 import com.GOBookingAPI.entities.User;
 import com.GOBookingAPI.enums.ReasonType;
+import com.GOBookingAPI.enums.RoleEnum;
 import com.GOBookingAPI.enums.VehicleType;
 import com.GOBookingAPI.exceptions.AccessDeniedException;
-import com.GOBookingAPI.payload.response.BookingStatusResponse;
-import com.GOBookingAPI.payload.response.DriverActiveResponse;
-import com.GOBookingAPI.payload.response.DriverBaseInfoResponse;
-import com.GOBookingAPI.payload.response.DriverInfoResponse;
-import com.GOBookingAPI.payload.response.DriverPageResponse;
-import com.GOBookingAPI.payload.response.DriverStatusResponse;
-import com.GOBookingAPI.payload.response.PagedResponse;
+import com.GOBookingAPI.payload.dto.BookingStatistic;
+import com.GOBookingAPI.payload.response.*;
 import com.GOBookingAPI.repositories.UserRepository;
 import com.GOBookingAPI.repositories.projection.UserDriverProjection;
 import com.GOBookingAPI.services.IBookingService;
@@ -99,24 +97,32 @@ public class DriverServiceImpl implements IDriverService {
 	public Driver findDriverBooking(String locationCustomer, VehicleType vehicleType) {
 		int id_driver = 0;
 		double minDistance = 1000000;
+		System.out.println(managerLocation.getLocationMapFree().values().stream().toList().toString());
 		for (LocationDriver driver : managerLocation.getLocationMapFree().values()) {
+
+			System.err.println("===> loop1: driver" + driver.getDriverId());
 			if (!driver.getVehicleType().equals(vehicleType)) {
-				break;
+				continue;
 			}
+			System.err.println("===> loop2: driver" + driver.getDriverId());
 
 			VietMapResponse travel = mapService.getRoute(locationCustomer, driver.getLocation(), vehicleType.name());
 			if (travel.getCode().equals("ERROR")) {
 				System.out.println("==>pickUpLocation or dropOffLocation is invalid");
-				throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");
+				throw new BadRequestException("pickUpLocation or dropOffLocation is invalid");//bug
 			}
+			System.err.println("===> loop3: driver" + driver.getDriverId());
 
 			Route route = travel.getFirstPath();
+			System.err.println("===> loop4: driver" + driver.getDriverId());
+
 			if (route.getDistance() < minDistance) {
 				minDistance = route.getDistance();
 				id_driver = driver.getDriverId();
 			}
+			System.err.println("===> loop5: driver" + driver.getDriverId());
 		}
-//        System.out.println("==> founded driver " + id_driver);
+        System.out.println("==> founded driver " + id_driver);
 		return driverRepository.findById(id_driver).orElse(null);
 	}
 
@@ -126,15 +132,21 @@ public class DriverServiceImpl implements IDriverService {
 		executorService.scheduleAtFixedRate(() -> {
 			Booking updateBooking = bookingRepository.findById(booking.getId())
 					.orElseThrow(() -> new NotFoundException("khong tim thay booking"));
+
+			System.out.println("==>>DEBUG1: " +AppUtils.currentTimeInSecond() + "find driver for booking: " + booking.getId());
 			if (updateBooking.getStatus().equals(BookingStatus.CANCELLED)
 					|| updateBooking.getStatus().equals(BookingStatus.WAITING_REFUND)) {
 				executorService.shutdown();
 				return;
 			}
+			System.out.println("==>>DEBUG2: " +AppUtils.currentTimeInSecond() + "find driver for booking: " + booking.getId());
+
 
 			boolean driverFound = findAndNotifyDriver(updateBooking, locationCustomer);
+			System.out.println("==>>DEBUG3: " +AppUtils.currentTimeInSecond() + "find driver for booking: " + booking.getId());
 
 			if (driverFound) {
+				System.err.println("==> driverFound = true");
 				executorService.shutdown();
 				return;
 			}
@@ -161,6 +173,13 @@ public class DriverServiceImpl implements IDriverService {
 			return false;
 		}
 
+		if(driverChosen.getStatus().equals(DriverStatus.BLOCK)){				//todo
+			System.out.println("Find driver null for booking id: " + booking.getId());
+			return false;
+		}
+
+		System.err.println("==> do findAndNotifyDriver for id: " +booking.getId());
+
 		driverChosen.setStatus(DriverStatus.ON_RIDE);
 		driverRepository.save(driverChosen);
 
@@ -183,6 +202,7 @@ public class DriverServiceImpl implements IDriverService {
 		// TODO Auto-generated method stub
 		return driverRepository.findDriverStatus(status);
 	}
+
 
 	@Override
 	public DriverInfoResponse getDriverInfo(String email, Integer driverId) {
@@ -210,11 +230,14 @@ public class DriverServiceImpl implements IDriverService {
 		}
 		System.out.println("====> driverId" + driverId);
 		if (isAllow) {
-			DriverInfoResponse resp = new DriverInfoResponse();
-
 			Driver driver = driverRepository.findById(driverId)
 					.orElseThrow(() -> new NotFoundException("Không tìm thấy driver , driver: " + email));
-			resp.setDriverInfoUrl(driver.getImgUrl());
+
+			DriverInfoResponse resp = new DriverInfoResponse();
+			resp.setCardId1(driver.getFrontIdCardUrl());
+			resp.setCardId2(driver.getBackIdCardUrl());
+			resp.setDrivingLicenseImg1(driver.getFrontDrivingLicenseUrl());
+			resp.setDrivingLicenseImg2(driver.getBackDrivingLicenseUrl());
 			resp.setId(driver.getId());
 			resp.setEmail(driver.getUser().getEmail());
 			resp.setFullName(driver.getFullName());
@@ -229,23 +252,22 @@ public class DriverServiceImpl implements IDriverService {
 			resp.setDrivingLicense(driver.getDrivingLicense());
 			resp.setIdCard(driver.getIdCard());
 			resp.setVehicleType(driver.getFirstVehicleType().getName());
+			resp.setStartWorkDay(driver.getStartWorkDay() == null ? null : driver.getStartWorkDay().getTime());
 			return resp;
 		}
 		throw new AccessDeniedException("You don't have permission to access this resource");
-
 	}
 
 	@Override
 	public DriverBaseInfoResponse getDriverBaseInfo(String email, Integer driverId) {
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+		User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
 		if (bookingService.isDriverBelongsToCustomerBooking(user, driverId)) {
 			Driver driver = driverRepository.findById(driverId)
 					.orElseThrow(() -> new NotFoundException("Không tìm thấy driver , driverId: " + driverId));
 
 			DriverBaseInfoResponse resp = new DriverBaseInfoResponse();
 			resp.setId(driver.getId());
-			resp.setEmail(user.getEmail());
+			resp.setEmail(driver.getUser().getEmail());
 			resp.setFullName(driver.getFullName());
 			resp.setMale(driver.isGender());
 			resp.setDateOfBirth(driver.getDateOfBirth());
@@ -260,19 +282,37 @@ public class DriverServiceImpl implements IDriverService {
 		throw new AccessDeniedException("Bạn chưa từng có chuyến đi với tài xế này");
 	}
 
+	/*
+	    @author: HaoLV
+	    @description: thay doi trang thai tai xe online hay offline
+	*/
+
 	@Override
-	public DriverStatusResponse changeDriverStatus(int driverId, DriverStatus newStatus) {
-		Driver driver = driverRepository.findById(driverId)
-				.orElseThrow(() -> new NotFoundException("Khong tim thay driver, driverId: " + driverId));
-		driver.setStatus(newStatus);
+	public DriverStatusResponse changeDriverStatus(String email, Integer driverId) {
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email));
+		Driver driver = user.getDriver();
+		if(driver.getId() != driverId)
+			throw new NotFoundException("Không tìm thấy driver: " + driverId);
+
+		if(driver.getStatus() != DriverStatus.FREE && driver.getStatus() != DriverStatus.OFF){
+			throw new BadRequestException("Không thể thay đổi trạng thái, trạng thái hiện tại: " + driver.getStatus());
+		}
+
+		if(driver.getStatus() == DriverStatus.FREE){
+			driver.setStatus(DriverStatus.OFF);
+			managerLocation.deleteData(driver.getId());
+		}else {
+			driver.setStatus(DriverStatus.FREE);
+			webSocketService.notifytoDriver(driverId, "HAVEBOOKING");
+		}
 		driverRepository.save(driver);
-		return new DriverStatusResponse(driverId, newStatus);
+		return new DriverStatusResponse(driverId, driver.getStatus());
 	}
 
 	@Override
 	public Driver getById(int id) {
-		return driverRepository.findById(id)
-				.orElseThrow(() -> new NotFoundException("Khong tim thay driver, driverId: " + id));
+		return driverRepository.findById(id).orElseThrow(() -> new NotFoundException("Khong tim thay driver, driverId: " + id));
 	}
 
 	@Override
@@ -285,13 +325,13 @@ public class DriverServiceImpl implements IDriverService {
 
 		Join<Driver, User> userJoin = root.join("user", JoinType.INNER);
 
-		criteriaQuery.multiselect(userJoin.get("id").alias("Id"), 
+		criteriaQuery.multiselect(userJoin.get("id").alias("Id"),
 									userJoin.get("createDate").alias("CreateDate"),
 									root.get("activityArea").alias("Area"),
 									userJoin.get("email").alias("Email"),
 									root.get("fullName").alias("FullName"),
 									userJoin.get("phoneNumber").alias("PhoneNumber"),
-									root.get("status").alias("Status"), 
+									root.get("status").alias("Status"),
 									userJoin.get("isNonBlock").alias("IsNonBlock"));
 
 		List<Predicate> predicates = new ArrayList<Predicate>();
@@ -320,7 +360,14 @@ public class DriverServiceImpl implements IDriverService {
 			Predicate predicate = criteriaBuilder.equal(fieldstatus, status);
 			predicates.add(predicate);
 		}
-		
+
+		if(status == null) {
+			Path<DriverStatus> fieldstatus = root.get("status");
+			List<DriverStatus> statusList = Arrays.asList(DriverStatus.NOT_ACTIVATED, DriverStatus.REFUSED);
+			Predicate predicate = criteriaBuilder.not(fieldstatus.in(statusList));
+			predicates.add(predicate);
+		}
+
 		Path<Object> sortRoute = null;
 
 		try {
@@ -329,7 +376,7 @@ public class DriverServiceImpl implements IDriverService {
 			}else {
 				sortRoute = userJoin.get(sortField);
 			}
-			
+
 		} catch (IllegalArgumentException e) {
 			throw new BadRequestException("Invalid sortField" + sortField);
 		}
@@ -371,7 +418,7 @@ public class DriverServiceImpl implements IDriverService {
 		typedQuery.setMaxResults(size);
 
 		List<DriverPageResponse> drivers = typedQuery.getResultList().stream()
-				.map(result -> new DriverPageResponse((int) result.get("Id"), 
+				.map(result -> new DriverPageResponse((int) result.get("Id"),
 													  (String) result.get("Email"),
 													  (Date) result.get("CreateDate"),
 													  (String) result.get("Area"),
@@ -440,7 +487,7 @@ public class DriverServiceImpl implements IDriverService {
 			}else {
 				if(type.equals(AppConstants.ACTIVE))
 					driverRepository.activeDriver(list);
-				else 
+				else
 					driverRepository.refuseDriver(list);
 			}
 			if (!error.isEmpty()) {
@@ -449,7 +496,10 @@ public class DriverServiceImpl implements IDriverService {
 				notify.deleteCharAt(notify.length()-1);
 				return new DriverActiveResponse("Warming", notify.toString());
 			} else {
-				return new DriverActiveResponse("Succesfull" ,"All drivers activated");
+				if(type.equals(AppConstants.ACTIVE))
+					return new DriverActiveResponse("Succesfull" ,"All drivers activated");
+				else
+					return new DriverActiveResponse("Succesfull" ,"All drivers refused");
 			}
 		}
 
@@ -463,4 +513,58 @@ public class DriverServiceImpl implements IDriverService {
 			return false;
 		}
 	}
+
+	@Override
+	public DriverActiveResponse blockStatus(int id,Boolean isBlock) {
+
+				UserDriverProjection projection = driverRepository.getStatusAndIsNonBlock(id);
+				if(projection == null) {
+					throw new BadRequestException("driver is not exits");
+				}else {
+					if (!projection.getisNonBlock()) {
+						throw new BadRequestException("driver have account is blocked");
+					}else {
+						if(projection.getStatus().equals(DriverStatus.REFUSED)) {
+							throw new BadRequestException("driver refused");
+						}else {
+							if(projection.getStatus().equals(DriverStatus.BLOCK) && isBlock) {
+								throw new BadRequestException("driver blocked");
+							}else if(!projection.getStatus().equals(DriverStatus.BLOCK) && !isBlock) {
+								throw new BadRequestException("driver non blocked");
+							}
+						}
+					}
+
+				}
+
+
+				if(isBlock) {
+
+					driverRepository.blockDriver(id);
+					return new DriverActiveResponse("Succesfull" ,"Driver blocked");
+				}
+				else {
+					driverRepository.nonBlockDriver(id);
+					return new DriverActiveResponse("Succesfull" ,"Driver nonBlocked");
+				}
+	}
+
+    public BookingStatisticResponse bookingStatisticByDriver(String email, Date from, Date to, Integer id) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy user , email: " + email)); 
+        Driver driver = null;
+        if(id != null){
+            if( user.getFirstRole().getName().equals(RoleEnum.ADMIN)){
+                driver = driverRepository.findById(id).orElseThrow(() -> new NotFoundException("Khong tim yhay driver: " + id));
+            }else
+                throw new AccessDeniedException("Login with role admin to access");
+        }else {
+            if(user.getFirstRole().getName().equals(RoleEnum.DRIVER)){
+                driver = user.getDriver();
+            }else
+                throw new BadRequestException("If role Admin, require PathVariable can't be null");
+        }
+        BookingStatistic bookingStatistic = driverRepository.statisticalBooking(from, to, driver.getId());
+        return new BookingStatisticResponse(bookingStatistic, driver.getFirstVehicleType().getName().getPercent());
+    }
 }

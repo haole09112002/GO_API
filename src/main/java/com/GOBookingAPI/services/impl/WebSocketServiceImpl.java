@@ -57,6 +57,7 @@ public class WebSocketServiceImpl implements IWebSocketService {
         location.setLocation(websocket.getLocation());
         location.setVehicleType(driver.getFirstVehicleType().getName());
 
+        //todo oftimize
         managerLocation.addOrUpdateLocation(location, driver.getStatus());
 
         int customerId = managerBooking.getCustomerIdByDriverId(driver.getId());
